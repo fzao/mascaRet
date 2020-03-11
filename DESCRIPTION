@@ -1,0 +1,18 @@
+Package: mascaRet
+Type: Package
+Title: 1D Shallow Water
+Version: 8.2.0
+Date: 2020-03-05
+Authors@R: c(
+  person("Fabrice", "Zaoui", role = c("aut", "cre"), email = "fabrice.zaoui@edf.fr")
+  )
+Author: Fabrice Zaoui [aut, cre]
+Maintainer: Fabrice Zaoui <fabrice.zaoui@edf.fr>
+License: GPL-3
+Description: 1D Shallow Water Code for sub-critical and super-critical flows
+NeedsCompilation: yes
+URL: http://www.opentelemac.org
+BugReports:
+Encoding: UTF-8
+LazyData: TRUE
+RoxygenNote: 7.0.2

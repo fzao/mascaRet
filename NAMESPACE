@@ -1,0 +1,18 @@
+# Load shared objects
+useDynLib(libmascaret)
+
+# export R functions
+export(mascaRet_create)
+export(mascaRet_delete)
+export(mascaRet_import)
+export(mascaRet_varsize)
+export(mascaRet_init)
+export(mascaRet_compute)
+export(mascaRet_hydro)
+export(mascaRet_vartype)
+export(mascaRet_get)
+export(mascaRet_set)
+export(mascaRet_version)
+export(mascaRet_computation)
+export(mascaRet_initialization)
+

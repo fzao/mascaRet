@@ -1,0 +1,6 @@
+!FZXX
+!$OMP PARALLEL DEFAULT(PRIVATE) SHARED(ProfilCourlis,Vitesse,SurfMouil,PerimMouil,Zsurf,CVase,CSable,TauH,TauE,Ceq,&
+!$OMP & LimiteDepotG,LimiteDepotD,CoucheSed,TauHMax,TauHMoy,TauEMax,TauEMoy,CeqMoy,CalcSable,DeltaH,QSableCouche,&
+!$OMP & QVaseCouche,NbCouche,NbProfil,LimiteSable)
+!$OMP DO
+
