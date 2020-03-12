@@ -5,7 +5,7 @@ LD=gfortran
 # Optimisation level
 OPT = -O2
 # Debug level
-DBG = 
+DBG =
 INSTALL_DIR=.
 # Compilation and link options for a particular OS
 ifdef SYSTEMROOT
@@ -2634,7 +2634,7 @@ mascaret.so: FOX_LIB $(OBJ)
 mascaretOSX: FOX_LIB $(OBJ)
 	$(LD) $(OBJ) -o ${INSTALL_DIR}/mascaretOSX $(LDFLAGS)
 mascaret.dylib: FOX_LIB $(OBJ)
-	$(LD) $(OBJ) -shared -Wl,-install_name,libmascaret.dylib -o ${INSTALL_DIR}/libmascaret.dylib $(LDFLAGSLIB)
+	$(LD) $(OBJ) -shared -Wl,-install_name,libmascaret.so -o ${INSTALL_DIR}/libmascaret.so $(LDFLAGSLIB)
 libmascaret.a: FOX_LIB $(OBJ)
 	-rm ${INSTALL_DIR}/libmascaret.a
 	ar cq ${INSTALL_DIR}/libmascaret.a $(OBJ)
@@ -2648,4 +2648,3 @@ FOX_LIB:
 FOX_clean:
 	(cd Fox; $(MAKE) clean)
 	(cd Fox; rm -f FoX-config)
-
