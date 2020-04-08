@@ -6,13 +6,13 @@
 #'
 #' @examples
 #' # HydroState <- mascaRet_hydro(mascId)
-#' 
+#'
 #' @author Fabrice Zaoui - Copyright EDF 2020
-#' 
+#'
 mascaRet_hydro <- function(id) {
   id <- as.integer(id)
   error <- as.integer(1)
-  nbnodes <- mascaRet::mascaRet_varsize(myId, "Model.X", as.integer(1))[1]
+  nbnodes <- mascaRet::mascaRet_varsize(id, "Model.X", as.integer(1))[1]
   q <- vector(mode = "numeric", length = nbnodes)
   z <- vector(mode = "numeric", length = nbnodes)
   if(id > 0){
