@@ -1,0 +1,136 @@
+---
+title: "Using mascaRet"
+author: "Fabrice Zaoui"
+date: "April 08 2020"
+output: html_document
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Using the mascaRet R package: a simple example}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Short Description
+
+**mascaRet** is an R package for the 1D shallow water and open-source code of the [Telemac](http://www.opentelemac.org) system.
+
+Download the package from [GitHub](https://github.com/fzao/mascaRet) and then install and load it.
+
+```{r inter}
+library(mascaRet)
+```
+
+# Loading data
+
+Change location to the example test and list the mascaRet files
+
+```{r loading}
+fpath <- system.file("extdata", "mascaret.files", package="mascaRet")
+mydir <- getwd()
+datadir <- dirname(fpath)
+setwd(datadir)
+list.files()
+```
+
+- `mascaret.files` is the file listing all the data files
+- `mascaret0.xcas` is the steering file of mascaRet (xml)
+- `mascaret0_0.loi` and `mascaret0_1.loi` are graph files for boundary conditions
+- `mascaret0.geo` is the file for the bathymetry information
+
+# Create a mascaRet instantiation
+
+This is the first thing to do before going further. An instance will be created and identified by a unique integer number
+
+```{r create}
+myMascProblem <- mascaRet_create()
+print(myMascProblem)
+```
+
+The variable `myMascProblem` is important and will always be used hereafter
+
+# Read hydraulic data from files
+
+This is done with the help of `mascaret.files` and the import function
+
+```{r read}
+setwd(datadir)
+verbose <- as.integer(0)  # silent mode (no listing)
+error <- mascaRet_import(myMascProblem, verbose, 'mascaret.files')  # warning: myMascProblem must exist
+print(error)
+```
+
+# Get mesh info
+
+Get the number of 1D nodes asking for the size of the abscissa vector
+
+```{r get}
+setwd(datadir)
+varname <- "Model.X"  # abscissa name
+index <- as.integer(1)  # 1D array
+Size <- mascaRet_varsize(myMascProblem, varname, index)
+nbnodes <- Size[1]  # number of nodes
+print(nbnodes)
+```
+
+# Initialization
+
+Initialize the hydraulic with default values for the water discharge (m3/s) and levels (m)
+
+```{r init}
+setwd(datadir)
+q <- vector(mode = "numeric", length = nbnodes)  # disharges
+z <- vector(mode = "numeric", length = nbnodes)  # water levels
+error <- mascaRet_init(myMascProblem, q, z)
+print(error)
+```
+
+# Computation
+
+Define the time information for one step of calculation
+
+```{r time}
+tini <- 0.  # initial time (s)
+tend <- 300.  # end of computation (s)
+dt <- 300.  # time step (s)
+```
+
+Compute 1D shallow water for one step
+
+```{r compute}
+setwd(datadir)
+error <- mascaRet_compute(myMascProblem, verbose, tini, tend, dt)
+print(error)
+```
+
+# Graph results
+
+Get the hydraulic state
+
+```{r result}
+Hydro <- mascaRet_hydro(myMascProblem)
+print(names(Hydro))
+```
+
+Check if the hydraulic is a steady state
+
+```{r check}
+print(var(Hydro$Q))
+```
+
+And plot the water levels
+
+```{r plot}
+plot(Hydro$Z, xlab = "node number", ylab = "water levels (m)", type = "l")
+```
+
+# Quit
+
+Finally free the memory used by mascaRet and go back to the user directory
+
+```{r return}
+error <- mascaRet_delete(myMascProblem)
+print(error)
+setwd(mydir)
+```

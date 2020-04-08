@@ -2,7 +2,7 @@ Package: mascaRet
 Type: Package
 Title: 1D Shallow Water
 Version: 8.2.0
-Date: 2020-03-05
+Date: 2020-04-08
 Authors@R: c(
   person("Fabrice", "Zaoui", role = c("aut", "cre"), email = "fabrice.zaoui@edf.fr")
   )
@@ -16,3 +16,4 @@ BugReports:
 Encoding: UTF-8
 LazyData: TRUE
 RoxygenNote: 7.0.2
+VignetteBuilder: knitr
