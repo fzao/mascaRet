@@ -67,6 +67,11 @@ Get the number of 1D nodes asking for the size of the abscissa vector
 
 ```{r get}
 setwd(datadir)
+varname <- "Model.B"  # bad abscissa name
+index <- as.integer(1)  # 1D array
+Size <- mascaRet_varsize(myMascProblem, varname, index)
+print(Size)
+print(mascaRet_error(myMascProblem))
 varname <- "Model.X"  # abscissa name
 index <- as.integer(1)  # 1D array
 Size <- mascaRet_varsize(myMascProblem, varname, index)

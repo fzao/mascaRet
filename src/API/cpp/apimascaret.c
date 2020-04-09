@@ -173,13 +173,13 @@
    // Argument en sortie :
    //    Message : Message d'erreur en francais de la derniere fonction appelee (max 256 caracteres)
    // .................................................................................................................................
-   int C_GET_ERREUR_MASCARET(int Identifiant, char **Message)
+   int C_GET_ERREUR_MASCARET(int *Identifiant, char **Message)
    {
       char messageFortran[256];
       char *chaineC;
       int erreurFortran, taille;
 
-      get_erreur_mascaret_(&erreurFortran, &Identifiant, messageFortran);
+      get_erreur_mascaret_(&erreurFortran, Identifiant, messageFortran);
 
       chaineC = (char*)malloc( 256 * sizeof( char ) );
       memcpy(chaineC, messageFortran, 256 * sizeof(char));
@@ -239,7 +239,7 @@
     int C_IMPORT_MODELE_MASCARET_ONEFILE(int *Identifiant , int *Impression, char **MascFile)
   {
      int erreurFortran;
-     int i, Taille, strsize;
+     int Taille, strsize;
      char *tabNomFichierFortran = NULL;
      char *typeNomFichierFortran = NULL;
      char *FichierMascaret;

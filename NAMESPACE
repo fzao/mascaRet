@@ -15,4 +15,4 @@ export(mascaRet_set)
 export(mascaRet_version)
 export(mascaRet_computation)
 export(mascaRet_initialization)
-
+export(mascaRet_error)

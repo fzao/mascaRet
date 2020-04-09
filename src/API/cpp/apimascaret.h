@@ -51,7 +51,7 @@
    // Retourne le message d'une erreur
    // RQ : Depend de l'instance du modele ou de l'etat
    // .................................................................................................................................
-   EXTC int C_GET_ERREUR_MASCARET(int , char **);
+   EXTC int C_GET_ERREUR_MASCARET(int *, char **);
    // Argument en entree :
    //      Identifiant : Identifiant de l'instance Mascaret retourne par "CREATE_MASCARET"
    // Argument en sortie :
