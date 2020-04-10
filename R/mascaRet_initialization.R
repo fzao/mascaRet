@@ -5,7 +5,7 @@
 #' @return  (logical, scalar) Error flag
 #'
 #' @examples
-#' # mascaRet_init(mascId, q, z)
+#' # mascaRet_initialization(id, filename, 0)
 #' 
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 

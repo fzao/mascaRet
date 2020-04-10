@@ -57,19 +57,29 @@ subroutine INIT_ETAT_TRACER(Erreur, Identifiant, Impression)
    Masc => ptrTabMascaret(Identifiant)
    Modele = Masc%ModeleMascaret
 
-   if (.not.Modele%OptionTracer) return
-   
+   if (.not.Modele%OptionTracer) then
+       Erreur = 1
+       ptrMsgsErreurs(Identifiant) = 'Tracer option is not set'
+       return
+   endif
+
    if (impression .ne. 0) then
       ult = Modele%FichierListing%Unite
       ultrac = Modele%Tracer%FichierListingTracer%Unite
       open(unit=ult, file=Modele%FichierListing%Nom, access='SEQUENTIAL', &
          action='WRITE'           , form='FORMATTED'       , iostat=Erreur      , &
          position='append')
-      if (Erreur /= 0) return
+      if (Erreur /= 0) then
+          ptrMsgsErreurs(Identifiant) = "Error opening the listing files"
+          return
+      endif
       open(unit=ultrac, file=Modele%Tracer%FichierListingTracer%Nom, access='SEQUENTIAL', &
          action='WRITE'           , form='FORMATTED'       , iostat=Erreur      , &
          position='append')
-      if (Erreur /= 0) return
+      if (Erreur /= 0) then
+          ptrMsgsErreurs(Identifiant) = "Error opening the Tracer listing files"
+          return
+      endif
    else
       Modele%Tracer%ImpressionConcListing = .false.
       Modele%Tracer%ImpressionConcIni     = .false.
@@ -82,9 +92,10 @@ subroutine INIT_ETAT_TRACER(Erreur, Identifiant, Impression)
 
    Erreur = DESALLOUE_ETAT_TRACER(Masc%EtatMascaret%Tracer, MessageErreur)
    if (Erreur > 0 ) then
-      return
+       ptrMsgsErreurs(Identifiant) = MessageErreur
+       return
    end if
-   
+
    if( Modele%Tracer%Presence_ConcIni ) then
       call LEC_CONC_INI_TRACER_INTERFACE(       &
                                           ult , &
@@ -99,13 +110,17 @@ subroutine INIT_ETAT_TRACER(Erreur, Identifiant, Impression)
                                 ErreurLecConc   ) ! Erreur
       if( ErreurLecConc%Numero /= 0 ) then
          Erreur = ErreurLecConc%Numero
+         ptrMsgsErreurs(Identifiant) = "Error reading initial values from file for Tracer constituents"
          return
       endif
    else
       !   s'il n'y a pas de conc. init.,
       !   il faut allouer et initialiser les conc. a 0
       allocate( Masc%EtatMascaret%Tracer%Ctraceur(nb_sect,Modele%Tracer%Nbtrac) , STAT = Erreur )
-      if( Erreur /= 0 ) return
+      if( Erreur /= 0 ) then
+          ptrMsgsErreurs(Identifiant) = "Error with Tracer memory allocation"
+          return
+      endif
       do k = 1 , Modele%Tracer%nbtrac
          Masc%EtatMascaret%Tracer%Ctraceur(:,k) = W0    ! W0 = 0._DOUBLE
       end do
@@ -159,12 +174,12 @@ subroutine INIT_ETAT_TRACER(Erreur, Identifiant, Impression)
    if( Erreur /= 0 ) call err_alloc_tr('FLUSRC')
    Masc%EtatMascaret%Tracer%FLUSRC(:,:) = W0    ! W0 = 0._DOUBLE
 
-   
+
    if (Impression .ne. 0) then
       close(ult)
       close(ultrac)
    endif
-   
+
    Erreur = 0
    return
 
@@ -187,8 +202,5 @@ contains
 321   format(/,"===========",/,"=> ERROR <=",/,"===========",/)
    end subroutine err_alloc_tr
 
-   
+
 end subroutine INIT_ETAT_TRACER
-
-
-
