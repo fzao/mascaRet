@@ -18,7 +18,7 @@ mascaRet_initialization(id, filename, verbose)
 Initializes the MASCARET hydraulic state (Discharges 'Q' and Water levels 'Z') from a '.lig' file
 }
 \examples{
-# mascaRet_init(mascId, q, z)
+# mascaRet_initialization(id, filename, 0)
 
 }
 \author{

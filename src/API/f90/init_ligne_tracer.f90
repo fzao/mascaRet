@@ -59,7 +59,11 @@ subroutine INIT_LIGNE_TRACER(Erreur, Identifiant, C, Taille, NbTrac, Impression)
    Masc => ptrTabMascaret(Identifiant)
    Modele = Masc%ModeleMascaret
 
-   if (.not.Modele%OptionTracer) return
+   if (.not.Modele%OptionTracer) then
+       Erreur = 1
+       ptrMsgsErreurs(Identifiant) = 'Tracer option is not set'
+       return
+   endif
 
    if (impression .ne. 0) then
       ult = Modele%FichierListing%Unite
@@ -67,11 +71,17 @@ subroutine INIT_LIGNE_TRACER(Erreur, Identifiant, C, Taille, NbTrac, Impression)
       open(unit=ult, file=Modele%FichierListing%Nom, access='SEQUENTIAL', &
          action='WRITE'           , form='FORMATTED'       , iostat=Erreur      , &
          position='append')
-      if (Erreur /= 0) return
+         if (Erreur /= 0) then
+             ptrMsgsErreurs(Identifiant) = "Error opening the listing files"
+             return
+         endif
       open(unit=ultrac, file=Modele%Tracer%FichierListingTracer%Nom, access='SEQUENTIAL', &
          action='WRITE'           , form='FORMATTED'       , iostat=Erreur      , &
          position='append')
-      if (Erreur /= 0) return
+         if (Erreur /= 0) then
+             ptrMsgsErreurs(Identifiant) = "Error opening the Tracer listing files"
+             return
+         endif
    else
       Modele%Tracer%ImpressionConcListing = .false.
       Modele%Tracer%ImpressionConcIni     = .false.
@@ -98,7 +108,8 @@ subroutine INIT_LIGNE_TRACER(Erreur, Identifiant, C, Taille, NbTrac, Impression)
 
    Erreur = DESALLOUE_ETAT_TRACER(Masc%EtatMascaret%Tracer, MessageErreur)
    if (Erreur > 0 ) then
-      return
+       ptrMsgsErreurs(Identifiant) = MessageErreur
+       return
    end if
 
    allocate( Masc%EtatMascaret%Tracer%Ctraceur(nb_sect,Modele%Tracer%Nbtrac) , STAT = Erreur )
@@ -183,6 +194,3 @@ contains
 
 
 end subroutine INIT_LIGNE_TRACER
-
-
-
