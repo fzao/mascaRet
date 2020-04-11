@@ -27,7 +27,7 @@ library(mascaRet)
 Change location to the example test and list the mascaRet files
 
 ```{r loading}
-fpath <- system.file("extdata", "mascaret.files", package="mascaRet")
+fpath <- system.file("extdata/Hydraulic", "mascaret.files", package="mascaRet")
 mydir <- getwd()
 datadir <- dirname(fpath)
 setwd(datadir)

@@ -1,0 +1,165 @@
+---
+title: "Using the Water Quality module (Tracer) with mascaRet"
+author: "Fabrice Zaoui"
+date: "April 11 2020"
+output: html_document
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Using the mascaRet R package with Tracer: a thermic example}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Short Description
+
+**mascaRet** is an R package for the 1D shallow water and open-source code of the [Telemac](http://www.opentelemac.org) system. It uses a water quality module with different libraries (Tracer). This is a very simple case of temperature propagation in a flume. See the official documentation for details.
+
+Download the package from [GitHub](https://github.com/fzao/mascaRet) and then install and load it.
+
+```{r inter}
+library(mascaRet)
+```
+
+# Loading data
+
+Change location to the example test and list the mascaRet and Tracer files
+
+```{r loading}
+fpath <- system.file("extdata/Water_Quality", "mascaret.files", package="mascaRet")
+mydir <- getwd()
+datadir <- dirname(fpath)
+setwd(datadir)
+list.files()
+```
+
+- `mascaret.files` is the file listing all the data files
+- `thermic.xcas` is the steering file of mascaRet (xml)
+- `mascaret0_0.loi` and `mascaret0_1.loi` are graph files for boundary conditions
+- `mascaret0.geo` is the file for the bathymetry information
+- `mascaret0.lig` is the file for the initial hydraulic state
+- `thermic.tracer_conc` is the file for the initial concentration of the constituents
+- `thermic.tracer_loi` is boundary condition file for the constituent graph
+- `thermic.tracer_parphy` is the the physical parameters file for thermic modelling 
+- `thermic.tracer_meteo`is the file for the weather conditions
+
+# Create a mascaRet instantiation
+
+This is the first thing to do before going further. An instance will be created and identified by a unique integer number
+
+```{r create}
+myMascProblem <- mascaRet_create()
+print(myMascProblem)
+```
+
+The variable `myMascProblem` is important and will always be used hereafter
+
+# Read hydraulic data from files
+
+This is done with the help of `mascaret.files` and the import function
+
+```{r read}
+setwd(datadir)
+verbose <- as.integer(0)  # silent mode (no listing)
+error <- mascaRet_import(myMascProblem, verbose, 'mascaret.files')  # warning: myMascProblem must exist
+print(error)
+```
+
+# Initialization
+
+## Hydraulic
+
+Initialize the hydraulic with default values for the water discharge (m3/s) and levels (m) from file
+
+```{r init}
+setwd(datadir)
+error <- mascaRet_initialization(myMascProblem, 'mascaret0.lig', verbose)
+print(error)
+```
+
+## Tracer
+
+Initialize the initial temperature with an array
+
+First get the number of 1D nodes
+
+Get the number of 1D nodes asking for the size of the abscissa vector
+
+```{r get}
+setwd(datadir)
+varname <- "Model.X"  # abscissa name
+index <- as.integer(1)  # 1D array
+Size <- mascaRet_varsize(myMascProblem, varname, index)
+nbnodes <- Size[1]  # number of nodes
+print(nbnodes)
+```
+
+Then initialize the temperature with a default value of 10 degree Celsius
+
+```{r temperature}
+setwd(datadir)
+ntracer <- 1
+Tini <- matrix(10., nrow = nbnodes, ncol = ntracer)
+error <- mascaRet_tracer_initialization(myMascProblem, verbose, Tini)
+print(error)
+```
+
+# Computation
+
+Define the time information for one step of calculation
+
+```{r time}
+tini <- 0.  # initial time (s)
+tend <- 14400  # end of computation (s)
+dt <- 3  # time step (s)
+```
+
+Compute 1D shallow water with Tracer
+
+```{r compute}
+setwd(datadir)
+error <- mascaRet_compute(myMascProblem, verbose, tini, tend, dt)
+print(error)
+```
+
+# Graph results
+
+## Hydraulic
+
+Get the hydraulic state
+
+```{r result}
+Hydro <- mascaRet_hydro(myMascProblem)
+print(names(Hydro))
+```
+
+And plot the water levels
+
+```{r plot}
+plot(Hydro$Z, xlab = "node number", ylab = "water levels (m)", type = "l")
+```
+
+## Tracer
+
+Get all the temperature values 
+
+```{r resultTracer}
+Temperature <- mascaRet_tracer_get(myMascProblem)
+```
+
+And plot
+
+```{r plotTracer}
+plot(Temperature[[1]], type = "l", xlab = "node number", ylab = "Temperature °C")
+```
+
+# Quit
+
+Finally free the memory used by mascaRet and go back to the user directory
+
+```{r return}
+error <- mascaRet_delete(myMascProblem)
+print(error)
+setwd(mydir)
+```
