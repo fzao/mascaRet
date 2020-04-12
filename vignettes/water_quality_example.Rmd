@@ -150,8 +150,16 @@ Temperature <- mascaRet_tracer_get(myMascProblem)
 
 And plot
 
-```{r plotTracer}
-plot(Temperature[[1]], type = "l", xlab = "node number", ylab = "Temperature °C")
+```{r plotTracer, echo=FALSE, message=FALSE}
+library(plotly)
+AbsX <- vector("double", nbnodes)
+for(i in 1:nbnodes) AbsX[i] <- mascaRet_get(myMascProblem, "Model.X", i, 0, 0)
+df <- data.frame(abscissa=AbsX, values=Temperature[[1]])
+fig <- plot_ly(x = ~df$abscissa, y = ~df$values, type = 'scatter', mode = 'lines')
+fig <- fig %>% layout(xaxis = list(title = 'Abscissa (m)'),
+         yaxis = list(title = 'Temperature (°C)'))
+
+fig
 ```
 
 # Quit

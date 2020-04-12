@@ -61,11 +61,13 @@ error <- mascaRet_import(myMascProblem, verbose, 'mascaret.files')  # warning: m
 print(error)
 ```
 
-# Get mesh info
+# Get
+
+## Mesh info
 
 Get the number of 1D nodes asking for the size of the abscissa vector
 
-```{r get}
+```{r getNode}
 setwd(datadir)
 varname <- "Model.B"  # bad abscissa name
 index <- as.integer(1)  # 1D array
@@ -77,6 +79,15 @@ index <- as.integer(1)  # 1D array
 Size <- mascaRet_varsize(myMascProblem, varname, index)
 nbnodes <- Size[1]  # number of nodes
 print(nbnodes)
+```
+
+And get the values of bottom levels (m)
+
+```{r getBottom}
+setwd(datadir)
+varname <- "Model.Zbot"  # variable name of the bottom values
+Zbot <- vector("double", nbnodes)
+for(i in 1:nbnodes) Zbot[i] <- mascaRet_get(myMascProblem, varname, i, 0, 0)
 ```
 
 # Initialization
@@ -124,10 +135,40 @@ Check if the hydraulic is a steady state
 print(var(Hydro$Q))
 ```
 
-And plot the water levels
+And plot the water depth
 
-```{r plot}
-plot(Hydro$Z, xlab = "node number", ylab = "water levels (m)", type = "l")
+```{r plot, echo=FALSE, message=FALSE}
+#plot(Hydro$Z, xlab = "node number", ylab = "water levels (m)", type = "l")
+library(plotly)
+X <- seq(1, nbnodes)
+Y <- Zbot
+df <- data.frame(nodes=seq(1:nbnodes), bottom=Zbot, water=Hydro$Z)
+fig <- plot_ly(df, x = ~nodes, y = ~water, type = 'scatter', mode = 'lines',
+        line = list(color = 'rgba(0,128,255,1)'),
+        showlegend = FALSE, name = 'Water levels')
+fig <- fig %>% add_trace(y = ~bottom, type = 'scatter', mode = 'lines',
+            fill = 'tonexty', fillcolor='rgba(77,166,255,0.2)', line = list(color = 'rgba(0,0,0,1)'),
+            showlegend = FALSE, name = 'Bottom levels')
+fig <- fig %>% layout(title = "Water Depth (m)",
+         paper_bgcolor='rgb(255,255,255)', plot_bgcolor='rgb(229,229,229)',
+         xaxis = list(title = "1D Nodes",
+                      gridcolor = 'rgb(255,255,255)',
+                      showgrid = TRUE,
+                      showline = FALSE,
+                      showticklabels = TRUE,
+                      tickcolor = 'rgb(127,127,127)',
+                      ticks = 'outside',
+                      zeroline = FALSE),
+         yaxis = list(title = "Levels (m)",
+                      gridcolor = 'rgb(255,255,255)',
+                      showgrid = TRUE,
+                      showline = FALSE,
+                      showticklabels = TRUE,
+                      tickcolor = 'rgb(127,127,127)',
+                      ticks = 'outside',
+                      zeroline = FALSE))
+
+fig
 ```
 
 # Quit
