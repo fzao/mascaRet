@@ -16,11 +16,14 @@
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
 mascaRet_set <- function(id, varname, i1, i2, i3, value) {
+  # types of parameters
   id <- as.integer(id)
   varname <- as.character(varname)
   i1 <- as.integer(i1)
   i2 <- as.integer(i2)
   i3 <- as.integer(i3)
+  
+  # call MASCARET
   if(varname != ""){
     vartype <- mascaRet::mascaRet_vartype(id, varname)[1]
     if(vartype != "?"){
@@ -41,5 +44,8 @@ mascaRet_set <- function(id, varname, i1, i2, i3, value) {
       return(FALSE)
     }
   }
+  
+  # return NA if failed
+  message("error from 'mascaRet_set': the variable type is unknown")
   return(list(Error=TRUE))
 }

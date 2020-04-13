@@ -10,9 +10,14 @@
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
 mascaRet_error <- function(id) {
+  # types of parameters
   id <- as.integer(id)
   message <- character(1)
+  
+  # call MASCARET
   Address <- getNativeSymbolInfo("C_GET_ERREUR_MASCARET")$address
+  
+  # return
   Error <- .C(Address, id, message)
   return(Error[[2]])
 }

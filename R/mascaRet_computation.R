@@ -16,18 +16,25 @@
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
 mascaRet_computation <- function(id, verbose, tini, tend, dt, timebc, bc1, bc2) {
-  id <- as.integer(id)
+  # error flag
   error <- as.integer(1)
+  
+  # types of parameters
+  id <- as.integer(id)
   verbose <- as.integer(verbose)
   tini <- as.numeric(tini)
   tend <- as.numeric(tend)
   dt <- as.numeric(dt)
   timebc <- as.numeric(timebc)
+  
+  # call MASCARET
   notime <- length(timebc)
   if((tend > tini & dt > 0.) & (length(timebc) == dim(bc1)[1])){
     Address7 <- getNativeSymbolInfo("calcul_mascaret_condition_limite_")$address
     Compute <- .Fortran(Address7, error, id, tini, tend, dt, timebc, notime, bc1, bc2, verbose)
     error <- Compute[[1]]
   }
+  
+  # return
   return(as.logical(error))
 }

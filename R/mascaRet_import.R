@@ -40,7 +40,7 @@ mascaRet_import <- function(id, verbose, mascfile) {
   for(i in 1:length(listmasc)){
     ext <- getExtension(listmasc[i])
     if(!(ext %in% extmasc)){
-      message(c("error from 'mascaRet_import': unknow file extension .", ext, sep=""))
+      message(paste("error from 'mascaRet_import': unknow file extension .", ext, sep=""))
       return(error)
     }
   }

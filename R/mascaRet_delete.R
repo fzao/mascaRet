@@ -13,10 +13,17 @@
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
 mascaRet_delete <- function(id) {
+  # error flag
   error <- as.integer(1)
+  
+  # types of parameters
   id <- as.integer(id)
+  
+  # call MASCARET
   Address <- getNativeSymbolInfo("delete_mascaret_")$address
   Finish <- .Fortran(Address, error, id)
+  
+  # return
   error <- Finish[[1]]
   return(as.logical(error))
 }

@@ -13,16 +13,23 @@
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
 mascaRet_compute <- function(id, verbose, tini, tend, dt) {
-  id <- as.integer(id)
+  # error flag
   error <- as.integer(1)
+  
+  # types of parameters
+  id <- as.integer(id)
   verbose <- as.integer(verbose)
   tini <- as.numeric(tini)
   tend <- as.numeric(tend)
   dt <- as.numeric(dt)
+  
+  # call MASCARET
   if(tend > tini & dt > 0.){
     Address <- getNativeSymbolInfo("calcul_mascaret_")$address
     Compute <- .Fortran(Address, error, id, tini, tend , dt, verbose)
     error <- Compute[[1]]
   }
+  
+  # return
   return(as.logical(error))
 }
