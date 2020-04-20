@@ -1,5 +1,5 @@
-                        INTEGER FUNCTION LONGLU
-C                       ***********************
+                        INTEGER FUNCTION LONGLUMASC
+C                       ***************************
 C
      *( LIGNE )
 C
@@ -61,10 +61,9 @@ C
       IF (LIGNE(I:I).NE.' '.AND.LIGNE(I:I).NE.TABUL) GO TO 110
 100   CONTINUE
 110   CONTINUE
-      LONGLU = I
+      LONGLUMASC = I
 C
 C-----------------------------------------------------------------------
 C
       RETURN
       END
- 

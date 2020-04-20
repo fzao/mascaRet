@@ -1,5 +1,5 @@
-                        SUBROUTINE CMD
-C                       **************
+                        SUBROUTINE CMDMASC
+C                       ******************
 C
      *(ICOL   , LIGNE  , ADRESS , DIMENS , TROUVE , MOTCLE , NMOT ,
      * MOTINT , MOTREA , MOTLOG , MOTCAR , MOTATT , INDIC  , SIZE ,
@@ -94,7 +94,7 @@ C     - PORTABILITE :        IBM,CRAY,HP,SUN
 C
 C     - APPELE PAR :         DAMOC
 C
-C     - FONCTIONS APPELEES : PREVAL,LONGLU
+C     - FONCTIONS APPELEES : PREVALMASC,LONGLUMASC
 C
 C     - DOCUMENTATION :      LES COMMANDES &LIS, &ETA, &IND, &STO, &FIN
 C                            NE SONT EXECUTEES QUE SI EXECMD=.TRUE. ET
@@ -113,8 +113,8 @@ C
       CHARACTER*144    MOTATT(4,*),MOTCAR(*)
       DOUBLE PRECISION MOTREA(*)
 C
-      INTEGER  PREVAL,LONGLU
-      EXTERNAL PREVAL,LONGLU
+      INTEGER  PREVALMASC,LONGLUMASC
+      EXTERNAL PREVALMASC,LONGLUMASC
 C
       INTEGER          LNG,LU
       INTEGER          NLIGN,LONGLI
@@ -202,7 +202,7 @@ C
                 L1=1
               ELSE
                 TRANS=4
-                L1=LONGLU(MOTATT(N,IAD))
+                L1=LONGLUMASC(MOTATT(N,IAD))
               ENDIF
 C             IF (TROUVE(N,I).NE.3) THEN
                IF(N.EQ.1) THEN
@@ -215,7 +215,7 @@ C             IF (TROUVE(N,I).NE.3) THEN
                 WRITE(LU,FORMA1(N+TRANS))
      *          MOTCLE(N,I)(1:ISIZE),IAD,MOTATT(N,IAD)(1:L1),MOTLOG(IAD)
                ELSE IF (N.EQ.4) THEN
-                L2 = LONGLU(MOTCAR(IAD))
+                L2 = LONGLUMASC(MOTCAR(IAD))
                 WRITE(LU,FORMA1(N+TRANS))
      *          MOTCLE(N,I)(1:ISIZE),IAD,MOTATT(N,IAD)(1:L1),
      *          MOTCAR(IAD)(1:L2)
@@ -329,7 +329,7 @@ C
               IAD = ADRESS(N,I) + K - 1
               IF (INDIC(N,I).GE.2) THEN
                 TRANS = 4
-                L1=LONGLU(MOTATT(N,IAD))
+                L1=LONGLUMASC(MOTATT(N,IAD))
               ELSE
                 TRANS = 0
                 MOTATT(N,IAD)=' '
@@ -347,7 +347,7 @@ C             IF (TROUVE(N,I).NE.3) THEN
                     WRITE(LU,FORMA1(N+TRANS))
      *                    IAD,MOTATT(N,IAD)(1:L1),MOTLOG(IAD)
                ELSE IF (N.EQ.4) THEN
-                    L2 = LONGLU(MOTCAR(IAD))
+                    L2 = LONGLUMASC(MOTCAR(IAD))
                     WRITE(LU,FORMA1(N+TRANS))
      *                    IAD,MOTATT(N,IAD)(1:L1),MOTCAR(IAD)(1:L2)
                ENDIF
@@ -451,11 +451,10 @@ C
 C        //// RECHERCHE DU PREMIER CARACTERE BLANC APRES & ////
 C
  1000 CONTINUE
-      ICOL = PREVAL (I1+1,LIGNE,' ',TABUL,' ')
+      ICOL = PREVALMASC (I1+1,LIGNE,' ',TABUL,' ')
 C
 C
 C-----------------------------------------------------------------------
 C
       RETURN
       END
- 

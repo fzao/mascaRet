@@ -541,7 +541,6 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
      int erreurFortran, taille;
      char nomVarFortran[40];
      char typeVarFortran[10], categorieFortran[10];
-     char *chaineC1, *chaineC2;
 
      taille = strlen(NomVar[0]);
      strcpy(nomVarFortran, NomVar[0]);
@@ -549,16 +548,13 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
 
      get_type_var_mascaret_(&erreurFortran, Identifiant, nomVarFortran, typeVarFortran, categorieFortran, Modifiable, dimVar);
 
-     chaineC1 = (char*)malloc( 10 * sizeof( char ) );
-     memcpy(chaineC1, typeVarFortran, 10 * sizeof(char));
+     memcpy(TypeVar[0], typeVarFortran, 10 * sizeof(char));
      taille = 10;
-     while(chaineC1[taille-1] == ' ') chaineC1[--taille] = 0;
-     *TypeVar = chaineC1;
-     chaineC2 = (char*)malloc( 10 * sizeof( char ) );
-     memcpy(chaineC2, categorieFortran, 10 * sizeof(char));
+     while(TypeVar[0][taille-1] == ' ') TypeVar[0][--taille] = 0;
+
+     memcpy(Categorie[0], categorieFortran, 10 * sizeof(char));
      taille = 10;
-     while(chaineC2[taille-1] == ' ') chaineC2[--taille] = 0;
-     *Categorie = chaineC2;
+     while(Categorie[0][taille-1] == ' ') Categorie[0][--taille] = 0;
 
      return erreurFortran;
   }

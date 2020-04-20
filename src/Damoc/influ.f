@@ -1,5 +1,5 @@
-                        SUBROUTINE INFLU
-C                       ****************
+                        SUBROUTINE INFLUMASC
+C                       ********************
 C
      *( ICOL   , LIGNE  , DEFATT , TROUVE , LUIGN , MOTCLE , SIZE,
      *  MOTIGN , LONIGN , NMAXR  , NFICDA , GESTD )
@@ -126,15 +126,15 @@ C                               MODIFIER DIRECTEMENT LE FORTRAN
 C
 C     - APPELE PAR :            DAMOC
 C
-C     - SOUS-PROGRAMME APPELE : MAJUS
+C     - SOUS-PROGRAMME APPELE : MAJUSMASC
 C
-C     - FONCTIONS APPELEES :    CARLU,NEXT,PRECAR,LONGLU
+C     - FONCTIONS APPELEES :    CARLUMASC,NEXTMASC,PRECARMASC,LONGLUMASC
 C
 C***********************************************************************
 C
       IMPLICIT NONE
 C
-      EXTERNAL NEXT,PRECAR,CARLU,LONGLU
+      EXTERNAL NEXTMASC,PRECARMASC,CARLUMASC,LONGLUMASC
 C
       INTEGER       TROUVE(4,*),ICOL,NMAXR(4),NFICDA,SIZE(4,*)
       INTEGER       LONIGN(100)
@@ -143,8 +143,8 @@ C
       CHARACTER*144 DEFATT(*)
       CHARACTER*(*) LIGNE
 C
-      INTEGER       NEXT,PRECAR,LONGLU
-      CHARACTER*144 CARLU
+      INTEGER       NEXTMASC,PRECARMASC,LONGLUMASC
+      CHARACTER*144 CARLUMASC
 C
       INTEGER       LNG,LU
       INTEGER       INDX,NTYP,ITAI,LONGU,NMOT(4),DEFLU
@@ -221,14 +221,14 @@ C
 C
 100   DEFLU = DEFLU +1
       IF(.NOT.(LUIGN)) THEN
-        DEFATT(DEFLU)=CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
-     *                      LONIGN,NMAXR,NFICDA,LEN(DEFATT(DEFLU)))
+        DEFATT(DEFLU)=CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *            MOTIGN,LONIGN,NMAXR,NFICDA,LEN(DEFATT(DEFLU)))
       ELSE
-        NULATT = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
-     *                 LONIGN,NMAXR,NFICDA,LEN(NULATT))
+        NULATT = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *            MOTIGN,LONIGN,NMAXR,NFICDA,LEN(NULATT))
       ENDIF
 C
-      ICOL = NEXT(ICOL+1,LIGNE)
+      ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
       IF (LIGNE(ICOL:ICOL) .EQ. PTVIRG) GO TO 100
 C
@@ -256,16 +256,16 @@ C
 C
 C   *** CHAMP 1 ***
 C
-         LGA = MAX(LONGLU(ANALYS),1)
+         LGA = MAX(LONGLUMASC(ANALYS),1)
          IF (ANALYS(ICOLA+1:ICOLA+1).EQ.';') THEN
            LCAR = 0
          ELSE
-           JCOLA = PRECAR(ICOLA+1,ANALYS,';',';',';')
-           LCAR = LONGLU(ANALYS(ICOLA+1:JCOLA-1))
+           JCOLA = PRECARMASC(ICOLA+1,ANALYS,';',';',';')
+           LCAR = LONGLUMASC(ANALYS(ICOLA+1:JCOLA-1))
            IF (LCAR.GT.0) THEN
-             FIELD0 = CARLU(LCAR,ICOLA,ANALYS,GUILLT,MOTCLE,SIZE,MOTIGN,
-     *                      LONIGN,NMAXR,NFICDA,LEN(FIELD0))
-             LCAR = LONGLU(FIELD0(1:LCAR))
+             FIELD0 = CARLUMASC(LCAR,ICOLA,ANALYS,GUILLT,MOTCLE,SIZE,
+     *                 MOTIGN,LONIGN,NMAXR,NFICDA,LEN(FIELD0))
+             LCAR = LONGLUMASC(FIELD0(1:LCAR))
           ENDIF
          ENDIF
          IF (LCAR.LE.0) THEN
@@ -283,7 +283,7 @@ C
          ENDIF
          IF (ERREUR) GO TO 1300
          FIELD = FIELD0
-         CALL MAJUS(FIELD)
+         CALL MAJUSMASC(FIELD)
 C
          CHAMP(1)=100
          DO 300 II=1,NBCHP1
@@ -308,12 +308,12 @@ C
          ELSEIF (ANALYS(ICOLA+1:ICOLA+1).EQ.';') THEN
            LCAR = 0
          ELSE
-           JCOLA = PRECAR(ICOLA+1,ANALYS,';',';',';')
-           LCAR = LONGLU(ANALYS(ICOLA+1:JCOLA-1))
+           JCOLA = PRECARMASC(ICOLA+1,ANALYS,';',';',';')
+           LCAR = LONGLUMASC(ANALYS(ICOLA+1:JCOLA-1))
            IF (LCAR.GT.0) THEN
-             FIELD0 = CARLU(LCAR,ICOLA,ANALYS,GUILLT,MOTCLE,SIZE,MOTIGN,
-     *                      LONIGN,NMAXR,NFICDA,LEN(FIELD0))
-             LCAR = LONGLU(FIELD0(1:LCAR))
+             FIELD0 = CARLUMASC(LCAR,ICOLA,ANALYS,GUILLT,MOTCLE,SIZE,
+     *                 MOTIGN,LONIGN,NMAXR,NFICDA,LEN(FIELD0))
+             LCAR = LONGLUMASC(FIELD0(1:LCAR))
            ENDIF
          ENDIF
          IF (LCAR.LE.0) THEN
@@ -332,7 +332,7 @@ C
 C
          IF (ERREUR) GO TO 1300
          FIELD = FIELD0
-         CALL MAJUS(FIELD)
+         CALL MAJUSMASC(FIELD)
 C
          IF (FIELD(1:3).EQ.'OPT') THEN
             CHAMP(2) = 1
@@ -382,7 +382,7 @@ C
            ERREUR = .TRUE.
            GO TO 1300
         ENDIF
-        JCOLA = PRECAR(ICOLA+1,ANALYS,';',';',';')
+        JCOLA = PRECARMASC(ICOLA+1,ANALYS,';',';',';')
 C
 C   *** CHAMP 4 ***
 C
@@ -392,8 +392,8 @@ C
         ELSEIF (ANALYS(ICOLA+1:ICOLA+1).EQ.';') THEN
            LCAR = 0
         ELSE
-           JCOLA = PRECAR(ICOLA+1,ANALYS,';',';',';')
-           LCAR = LONGLU(ANALYS(ICOLA+1:JCOLA-1))
+           JCOLA = PRECARMASC(ICOLA+1,ANALYS,';',';',';')
+           LCAR = LONGLUMASC(ANALYS(ICOLA+1:JCOLA-1))
         ENDIF
         IF (LCAR.LE.0) THEN
              IF (LNG.EQ.1) THEN
@@ -416,4 +416,3 @@ C
 1300  CONTINUE
       RETURN
       END
- 

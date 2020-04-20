@@ -1,6 +1,6 @@
-C                       ***************
-                        SUBROUTINE DICO
-C                       ***************
+C                       *******************
+                        SUBROUTINE DICOMASC
+C                       *******************
 C
      *( ITYP   , NUMERO , ILONG  , CHAINE , MOTCLE , NMOT   , MOTPRO ,
      *  LONPRO , SIZE   , UTINDX , LANGUE , AIDLNG , MOTIGN , NIGN   ,
@@ -273,4 +273,3 @@ C
 C
       RETURN
       END
- 

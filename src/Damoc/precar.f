@@ -1,5 +1,5 @@
-                       INTEGER FUNCTION PRECAR
-C                      ***********************
+                       INTEGER FUNCTION PRECARMASC
+C                      ***************************
 C
      *( ICOL , LIGNE , CAR1 , CAR2 , CAR3 )
 C
@@ -76,17 +76,17 @@ C                                    MARQUAGE RCS ET SCCS
 C
 C***********************************************************************
 C
-      PRECAR = LONGLI
+      PRECARMASC = LONGLI
 C
       DO 100 K = ICOL,LONGLI
       IF (LIGNE(K:K).EQ.CAR1.OR.LIGNE(K:K).EQ.CAR2.OR.
      *    LIGNE(K:K).EQ.CAR3) THEN
-        PRECAR = K
+        PRECARMASC = K
         GO TO 1000
       ENDIF
 100   CONTINUE
 C
-      PRECAR=LONGLI+1
+      PRECARMASC=LONGLI+1
 C
 1000  CONTINUE
 C
@@ -94,4 +94,3 @@ C-----------------------------------------------------------------------
 C
       RETURN
       END
- 

@@ -1,5 +1,5 @@
-                        INTEGER FUNCTION PREV
-C                       *********************
+                        INTEGER FUNCTION PREVMASC
+C                       *************************
 C
      *( ICOL , LIGNE )
 C
@@ -16,7 +16,7 @@ C
 C FONCTION  : RETOURNE L' INDICE DU PREMIER CARACTERE NON BLANC, NON
 C             TABULATION ET NON COMMENTAIRE QUE L'ON TROUVE AVANT LA
 C             COLONNE ICOL DE LA LIGNE. LA COLONNE ICOL EST EXCLUE.
-C             SI ON N'EN TROUVE PAS PREV = ICOL
+C             SI ON N'EN TROUVE PAS PREVMASC = ICOL
 C
 C-----------------------------------------------------------------------
 C                             ARGUMENTS
@@ -53,7 +53,7 @@ C
 C***********************************************************************
 C
       TABUL = CHAR(9)
-      PREV   = ICOL
+      PREVMASC   = ICOL
       I      = ICOL
 C
   100 CONTINUE
@@ -66,7 +66,7 @@ C-----------------------------------------------------------------------
 C          ELIMINATION DES COMMENTAIRES :
 C
            IF ( LIGNE(I:I).NE.'/' ) THEN
-                PREV = I
+                PREVMASC = I
                 GO TO 1000
            ELSE
                 IF ( I.LE.1 ) GO TO 1000
@@ -83,4 +83,3 @@ C
 C
       RETURN
       END
- 

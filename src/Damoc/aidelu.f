@@ -1,5 +1,5 @@
-                        SUBROUTINE AIDELU
-C                       *****************
+                        SUBROUTINE AIDELUMASC
+C                       *********************
 C
      *( ICOL , LIGNE, DOC )
 C
@@ -65,7 +65,7 @@ C     - PORTABILITE :             IBM,CRAY,HP,SUN
 C
 C     - APPELE PAR :              DAMOC
 C
-C     - FONCTIONS APPELEES :      NEXT,PRECAR
+C     - FONCTIONS APPELEES :      NEXTMASC,PRECARMASC
 C
 C***********************************************************************
 C
@@ -76,8 +76,8 @@ C
       LOGICAL       DOC
       CHARACTER*(*) LIGNE
 C
-      INTEGER  NEXT,PRECAR
-      EXTERNAL NEXT,PRECAR
+      INTEGER  NEXTMASC,PRECARMASC
+      EXTERNAL NEXTMASC,PRECARMASC
 C
       INTEGER       LNG,LU
       INTEGER       NLIGN,LONGLI
@@ -106,7 +106,7 @@ C
       QUOTE  = ''''
       PTVIRG = ';'
       TABUL =CHAR(9)
-9     ICOL   = NEXT( ICOL+1 , LIGNE )
+9     ICOL   = NEXTMASC( ICOL+1 , LIGNE )
 C
 C        //// CALCUL DES EXTREMITES DE LA CHAINE ////
 C
@@ -116,9 +116,9 @@ C           DE CARACTERE BLANC.
 C
       IF ( LIGNE(ICOL:ICOL).NE.QUOTE ) THEN
            IDEB = ICOL
-C                 PRECAR : MEME ROLE QUE PREVAL, MAIS NE SAUTE PAS
+C                 PRECARMASC : MEME ROLE QUE PREVAL, MAIS NE SAUTE PAS
 C                          LES ZONES COMMENTAIRES
-           ICOL = PRECAR (ICOL+1,LIGNE,' ',PTVIRG,TABUL) - 1
+           ICOL = PRECARMASC (ICOL+1,LIGNE,' ',PTVIRG,TABUL) - 1
            IFIN = ICOL
            IF (DOC) WRITE(LU,10) LIGNE(IDEB:IFIN)
 10         FORMAT(1X,A)
@@ -130,7 +130,7 @@ C
 C
 C TANT QU'IL N'Y A PAS DE QUOTE SUR LA LIGNE
 C
-100      ICOL = PRECAR(ICOL+1,LIGNE,QUOTE,QUOTE,QUOTE)
+100      ICOL = PRECARMASC(ICOL+1,LIGNE,QUOTE,QUOTE,QUOTE)
          IF (ICOL.GT.LONGLI) THEN
 C         PAS DE COTE SUR LA LIGNE, ON L'IMPRIME ET ON PASSE A LA SUITE
           IF (DOC) WRITE(LU,10) LIGNE(IDEB:LONGLI)
@@ -146,7 +146,7 @@ C         ET C'EST TOUT.
           IF (DOC) WRITE(LU,10) LIGNE(IDEB:ICOL-1)
          ELSE
 C         QUOTE SUIVANTE
-          JCOL = PRECAR(ICOL+1,LIGNE,QUOTE,QUOTE,QUOTE)
+          JCOL = PRECARMASC(ICOL+1,LIGNE,QUOTE,QUOTE,QUOTE)
 C         S'IL Y A UNE DOUBLE QUOTE, ON L'ENLEVE
           IF ((JCOL-ICOL).EQ.1) THEN
             ICOL=JCOL
@@ -159,7 +159,7 @@ C           ON IMPRIME L'AIDE LUE EN ENLEVANT LA DERNIERE QUOTE
 
          ENDIF
       ENDIF
-      ICOL = NEXT(ICOL+1,LIGNE)
+      ICOL = NEXTMASC(ICOL+1,LIGNE)
       IF(LIGNE(ICOL:ICOL).EQ.PTVIRG(1:1)) THEN
         GO TO 9
       ENDIF
@@ -192,4 +192,3 @@ C-----------------------------------------------------------------------
 C
       RETURN
       END
- 

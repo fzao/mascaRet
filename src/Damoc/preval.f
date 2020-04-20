@@ -1,5 +1,5 @@
-                        INTEGER FUNCTION PREVAL
-C                       ***********************
+                        INTEGER FUNCTION PREVALMASC
+C                       ***************************
 C
      *( ICOL , LIGNE , CAR1 , CAR2 , CAR3 )
 C
@@ -68,7 +68,7 @@ C                                    MARQUAGE RCS ET SCCS
 C
 C***********************************************************************
 C
-      PREVAL = LONGLI + 1
+      PREVALMASC = LONGLI + 1
       I      = ICOL -1
 C
 100   CONTINUE
@@ -92,11 +92,10 @@ C-----------------------------------------------------------------------
                 GO TO 100
            ENDIF
       ELSE
-           PREVAL = I
+           PREVALMASC = I
       ENDIF
 C
 1000  CONTINUE
 C
       RETURN
       END
- 

@@ -1,5 +1,5 @@
-                   CHARACTER*144 FUNCTION CARLU
-C                  ***************************
+                   CHARACTER*144 FUNCTION CARLUMASC
+C                  ********************************
 C
      *( LCAR   , ICOL  , LIGNE  , EXTREM , MOTCLE , SIZE , MOTIGN ,
      *  LONIGN , NMAXR , NFICDA , LGVAR  )
@@ -73,7 +73,7 @@ C     - PORTABILITE :             IBM,CRAY,HP,SUN
 C
 C     - APPELE PAR :              DAMOC,INFLU
 C
-C     - FONCTIONS APPELEES :      NEXT,PRECAR,LONGLU
+C     - FONCTIONS APPELEES :      NEXTMASC,PRECARMASC,LONGLUMASC
 C
 C***********************************************************************
 C
@@ -86,8 +86,8 @@ C
       CHARACTER*1   EXTREM
       CHARACTER*72  MOTIGN(100),MOTCLE(4,*)
 C
-      INTEGER  NEXT,PRECAR,LONGLU
-      EXTERNAL NEXT,PRECAR,LONGLU
+      INTEGER  NEXTMASC,PRECARMASC,LONGLUMASC
+      EXTERNAL NEXTMASC,PRECARMASC,LONGLUMASC
 C
       INTEGER       LNG,LU
       INTEGER       NLIGN,LONGLI
@@ -131,7 +131,7 @@ C
       LUFIC  = .FALSE.
       LUCOTE = .FALSE.
       LCAR   = 1
-      CARLU  = ' '
+      CARLUMASC  = ' '
       QUOTE  = ''''
       TABUL  = CHAR(9)
       NLIGN2 = NLIGN
@@ -141,7 +141,7 @@ C
       LGLU   = 0
       QCAS   = 0
 C
-      ICOL   = NEXT( ICOL+1 , LIGNE )
+      ICOL   = NEXTMASC( ICOL+1 , LIGNE )
 C
 C        //// CALCUL DES EXTREMITES DE LA CHAINE ////
 C
@@ -151,9 +151,9 @@ C           DE CARACTERE BLANC.
 C
       IF ( LIGNE(ICOL:ICOL).NE.EXTREM ) THEN
            IDEB = ICOL
-C                 PRECAR : MEME ROLE QUE PREVAL, MAIS NE SAUTE PAS
+C                 PRECARMASC : MEME ROLE QUE PREVAL, MAIS NE SAUTE PAS
 C                          LES ZONES COMMENTAIRES.
-           ICOL = PRECAR ( ICOL+1 , LIGNE , ' ' , ';' , TABUL) - 1
+           ICOL = PRECARMASC ( ICOL+1 , LIGNE , ' ' , ';' , TABUL) - 1
            IFIN = ICOL
            LIGNED = LIGNE(IDEB:IFIN)
            LGLU = IFIN-IDEB+1
@@ -177,7 +177,7 @@ C
             IF (NFIC.EQ.NFICDA) THEN
              DO 300 ITYP = 1,4
               DO 310 I=1,NMAXR(ITYP)
-C                K=LONGLU(MOTCLE(ITYP,I))
+C                K=LONGLUMASC(MOTCLE(ITYP,I))
                  K=SIZE(ITYP,I)
                  IF (K.GT.0.AND.LIGNE2(1:K).EQ.MOTCLE(ITYP,I)(1:K)) THEN
                     LISUIV = .FALSE.
@@ -186,7 +186,7 @@ C                K=LONGLU(MOTCLE(ITYP,I))
  310          CONTINUE
  300         CONTINUE
              DO 320 I=1,100
-C               K = LONGLU(MOTIGN(I))
+C               K = LONGLUMASC(MOTIGN(I))
                 K = LONIGN(I)
                 IF(K.GT.0.AND.LIGNE2(1:K).EQ.MOTIGN(I)(1:K)) THEN
                   LISUIV = .FALSE.
@@ -195,7 +195,7 @@ C               K = LONGLU(MOTIGN(I))
  320         CONTINUE
             ELSE
              DO 330 I=1,15
-C               K = LONGLU(MOTPRO(I))
+C               K = LONGLUMASC(MOTPRO(I))
                 K = LONPRO(I)
                 IF(K.GT.0.AND.LIGNE2(1:K).EQ.MOTPRO(I)(1:K)) THEN
                   LISUIV = .FALSE.
@@ -206,14 +206,14 @@ C               K = LONGLU(MOTPRO(I))
 C
 C SI ON ARRIVE ICI, ON DOIT DONC UTILISER LA LIGNE SUIVANTE
 C
-        ICOL2 =PRECAR (1 , LIGNE2 , ' ' , TABUL ,' ') - 1
+        ICOL2 =PRECARMASC (1 , LIGNE2 , ' ' , TABUL ,' ') - 1
 C
         LGLU = LGLU + ICOL2
 C
         IF (LGLU.GT.LGVAR) THEN
              ERREUR = .TRUE.
-             IF (LONGLU(LIGNED).GT.0) THEN
-               LIGNED = LIGNED(1:LONGLU(LIGNED))//LIGNE2(1:ICOL2)
+             IF (LONGLUMASC(LIGNED).GT.0) THEN
+               LIGNED = LIGNED(1:LONGLUMASC(LIGNED))//LIGNE2(1:ICOL2)
              ELSE
                LIGNED = LIGNE2(1:ICOL2)
              ENDIF
@@ -232,8 +232,8 @@ C
 C Il FAUT LIRE ENCORE UNE AUTRE LIGNE - ON SIMULE UN DECALAGE DE LIGNE
              LISUIV = .FALSE.
              LIGNE = LIGNE2
-             IF (LONGLU(LIGNED).GT.0) THEN
-               LIGNED = LIGNED(1:LONGLU(LIGNED))//LIGNE2(1:LONGLI)
+             IF (LONGLUMASC(LIGNED).GT.0) THEN
+               LIGNED = LIGNED(1:LONGLUMASC(LIGNED))//LIGNE2(1:LONGLI)
              ELSE
               LIGNED = LIGNE2(1:LONGLI)
              ENDIF
@@ -243,8 +243,8 @@ C Il FAUT LIRE ENCORE UNE AUTRE LIGNE - ON SIMULE UN DECALAGE DE LIGNE
              GO TO 290
         ENDIF
   96    IF (LISUIV) THEN
-            IF (LONGLU(LIGNED).GT.0) THEN
-               LIGNED = LIGNED(1:LONGLU(LIGNED))//LIGNE2(1:ICOL2)
+            IF (LONGLUMASC(LIGNED).GT.0) THEN
+               LIGNED = LIGNED(1:LONGLUMASC(LIGNED))//LIGNE2(1:ICOL2)
              ELSE
               LIGNED = LIGNE2(1:LONGLI)
              ENDIF
@@ -287,7 +287,7 @@ C
 C LA PREMIERE QUOTE EST EN DERNIERE COLONNE (QCAS=4 OU QCAS=5)
            IF (ICOL.EQ.LONGLI) QCAS=45
 C
- 100       ICOL   = PRECAR ( ICOL+1 , LIGNE , EXTREM , EXTREM , EXTREM )
+ 100       ICOL=PRECARMASC(ICOL+1,LIGNE,EXTREM,EXTREM,EXTREM)
            IF (ICOL.EQ.LONGLI) ICOL = LONGLI+1
 C
 C CAS DES DOUBLES QUOTES DANS LA PREMIERE LIGNE SAUF EN COLONNE 72
@@ -335,10 +335,10 @@ C
                    LUCOTE = .FALSE.
                    ICOL2=1
                 ENDIF
- 110            ICOL2 =PRECAR (ICOL2+1,LIGNE2,EXTREM,EXTREM,EXTREM)
+ 110            ICOL2 =PRECARMASC (ICOL2+1,LIGNE2,EXTREM,EXTREM,EXTREM)
                 IF (ICOL2.LT.LONGLI.AND.LIGNE2(ICOL2+1:ICOL2+1).EQ.
      *             EXTREM.AND.EXTREM.EQ.QUOTE) THEN
-C                   ICOL2 = PRECAR(ICOL2+1,LIGNE2,EXTREM,EXTREM,EXTREM)
+C                   ICOL2 = PRECARMASC(ICOL2+1,LIGNE2,EXTREM,EXTREM,EXTREM)
                     ICOL2=ICOL2+1
                     COTE=.TRUE.
                     IF (ICOL2.EQ.LONGLI) QCAS=3
@@ -394,7 +394,7 @@ C
  920  CONTINUE
       IF ( LGLU.NE.0  ) THEN
            LCAR = MIN(LGLU,LGVAR)
-           CARLU = LIGNED(1:LGLU)
+           CARLUMASC = LIGNED(1:LGLU)
       ENDIF
 C
 C  REMPLACEMENT DES DOUBLES COTES PAR DES SIMPLES COTES
@@ -407,8 +407,9 @@ C
             LCAR = NCAR
             GO TO 1000
          ENDIF
-         IF(CARLU(I:I).EQ.QUOTE.AND.CARLU(I+1:I+1).EQ.QUOTE) THEN
-            CARLU(I+1:LCAR) = CARLU(I+2:LCAR)//' '
+         IF(CARLUMASC(I:I).EQ.QUOTE.AND.
+     & CARLUMASC(I+1:I+1).EQ.QUOTE) THEN
+            CARLUMASC(I+1:LCAR) = CARLUMASC(I+2:LCAR)//' '
             NCAR = NCAR - 1
          ENDIF
          I = I + 1
@@ -440,4 +441,3 @@ C
       RETURN
 C
       END
- 

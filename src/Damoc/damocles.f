@@ -1,9 +1,9 @@
-C                       *******************
-                        SUBROUTINE DAMOCLES
-C                       *******************
+C                       ***********************
+                        SUBROUTINE DAMOCLESMASC
+C                       ***********************
 C
-     *( ADRESS , DIMENS , NMAX   , DOC    , LLNG , LLU , 
-     *  MOTINT , MOTREA , MOTLOG , MOTCAR , 
+     *( ADRESS , DIMENS , NMAX   , DOC    , LLNG , LLU ,
+     *  MOTINT , MOTREA , MOTLOG , MOTCAR ,
      *  MOTCLE , TROUVE , NFICMO , NFICDA , GESTD  )
 C
 C***********************************************************************
@@ -122,23 +122,23 @@ C
 C
 C     TABLEAUX AUTOMATIQUES
 C
-C      INTEGER :: DEFINT(NMAX),USRINT(NMAX)  
-C      INTEGER          :: SIZE(4,NMAX)  
-C      INTEGER          :: INDIC(4,NMAX)  
-C      LOGICAL          :: DEFLOG(NMAX),USRLOG(NMAX),UTINDX(4,NMAX)  
-C      CHARACTER(len=144) :: MOTATT(4,NMAX),DEFATT(NMAX),USRATT(NMAX)  
-C      CHARACTER(len=144) :: DEFCAR(NMAX),USRCAR(NMAX)  
-C      DOUBLE PRECISION :: DEFREA(NMAX),USRREA(NMAX)  
+C      INTEGER :: DEFINT(NMAX),USRINT(NMAX)
+C      INTEGER          :: SIZE(4,NMAX)
+C      INTEGER          :: INDIC(4,NMAX)
+C      LOGICAL          :: DEFLOG(NMAX),USRLOG(NMAX),UTINDX(4,NMAX)
+C      CHARACTER(len=144) :: MOTATT(4,NMAX),DEFATT(NMAX),USRATT(NMAX)
+C      CHARACTER(len=144) :: DEFCAR(NMAX),USRCAR(NMAX)
+C      DOUBLE PRECISION :: DEFREA(NMAX),USRREA(NMAX)
 
 C       PU2017 : Declaration
-      INTEGER, ALLOCATABLE :: DEFINT(:),USRINT(:)  
-      INTEGER, ALLOCATABLE :: SIZE(:,:)  
-      INTEGER, ALLOCATABLE :: INDIC(:,:)  
-      LOGICAL, ALLOCATABLE :: DEFLOG(:),USRLOG(:),UTINDX(:,:)  
-      CHARACTER(len=144),ALLOCATABLE:: MOTATT(:,:),DEFATT(:),USRATT(:)  
-      CHARACTER(len=144), ALLOCATABLE :: DEFCAR(:),USRCAR(:)  
-      DOUBLE PRECISION  , ALLOCATABLE :: DEFREA(:),USRREA(:)  
-C     
+      INTEGER, ALLOCATABLE :: DEFINT(:),USRINT(:)
+      INTEGER, ALLOCATABLE :: SIZE(:,:)
+      INTEGER, ALLOCATABLE :: INDIC(:,:)
+      LOGICAL, ALLOCATABLE :: DEFLOG(:),USRLOG(:),UTINDX(:,:)
+      CHARACTER(len=144),ALLOCATABLE:: MOTATT(:,:),DEFATT(:),USRATT(:)
+      CHARACTER(len=144), ALLOCATABLE :: DEFCAR(:),USRCAR(:)
+      DOUBLE PRECISION  , ALLOCATABLE :: DEFREA(:),USRREA(:)
+C
       INTEGER,PARAMETER :: NBLANG = 2
 C
 C     PU2017 : Allocation
@@ -152,14 +152,15 @@ C     PU2017 : Allocation
 C
 C     APPEL DE DAMOC
 C
-      CALL DAMOC( ADRESS , DIMENS , NMAX   , DOC    , LLNG   , LLU  ,
+      CALL DAMOCMASC( ADRESS , DIMENS , NMAX   , DOC ,
+     *            LLNG   , LLU  ,
      *            MOTINT , MOTREA , MOTLOG , MOTCAR , MOTATT ,
-     *            DEFINT , DEFREA , DEFLOG , DEFCAR , DEFATT , 
+     *            DEFINT , DEFREA , DEFLOG , DEFCAR , DEFATT ,
      *            USRINT , USRREA , USRLOG , USRCAR , USRATT ,
-     *            MOTCLE , SIZE   , TROUVE , UTINDX , NFICMO , NFICDA , 
+     *            MOTCLE , SIZE   , TROUVE , UTINDX , NFICMO , NFICDA ,
      *            INDIC  , GESTD  , NBLANG )
 C
 C-----------------------------------------------------------------------
 C
       RETURN
-      END 
+      END

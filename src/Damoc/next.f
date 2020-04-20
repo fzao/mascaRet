@@ -1,5 +1,5 @@
-                        INTEGER FUNCTION NEXT
-C                       *********************
+                        INTEGER FUNCTION NEXTMASC
+C                       *************************
 C
      *( ICOL , LIGNE )
 C
@@ -18,7 +18,7 @@ C FONCTION  : RETOURNE L' INDICE DU PREMIER CARACTERE NON BLANC, NON
 C             TABULATION ET NON COMMENTAIRE QUE L'ON TROUVE A PARTIR DE
 C             LA COLONNE ICOL DE LA LIGNE.
 C             SI ON N'EN TROUVE PAS ON CHERCHE SUR LA LIGNE SUIVANTE
-C             SI ON N'EN TROUVE VRAIMENT PAS NEXT = LONGLI + 1
+C             SI ON N'EN TROUVE VRAIMENT PAS NEXTMASC = LONGLI + 1
 C
 C-----------------------------------------------------------------------
 C                             ARGUMENTS
@@ -89,7 +89,7 @@ C
 C***********************************************************************
 C
       TABUL = CHAR(9)
-      NEXT  = LONGLI + 1
+      NEXTMASC  = LONGLI + 1
       I     = ICOL -1
 C
 100   CONTINUE
@@ -114,7 +114,7 @@ C          ELIMINATION DES COMMENTAIRES :
 C
 C          IF ( LIGNE(I:I).NE.'/'.OR.I.GE.LONGLI ) THEN
            IF (LIGNE(I:I).NE.'/') THEN
-                NEXT = I
+                NEXTMASC = I
                 GO TO 1000
            ELSE
                 DO 110 J = I+1 , LONGLI
@@ -143,4 +143,3 @@ C-----------------------------------------------------------------------
 C
       RETURN
       END
- 

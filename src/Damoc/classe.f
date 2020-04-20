@@ -1,5 +1,5 @@
-                        SUBROUTINE CLASSE
-C                       *****************
+                        SUBROUTINE CLASSEMASC
+C                       *********************
 C
      *(DIMENS , SIZE   , MOTCLE , UTINDX , NMAX   ,
      * OFFSET , ADRESS , INDIC  , LUIGN  ,
@@ -297,4 +297,3 @@ C-----------------------------------------------------------------------
 C
        RETURN
        END
- 

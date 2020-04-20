@@ -1,5 +1,5 @@
-                        LOGICAL FUNCTION LOGLU
-C                       **********************
+                        LOGICAL FUNCTION LOGLUMASC
+C                       **************************
 C
      *( ICOL , LIGNE )
 C
@@ -56,15 +56,15 @@ C
 C     - PRECAUTIONS D'EMPLOI :    LES NOTATIONS ACCEPTEES SONT
 C                                 VRAI OUI TRUE  YES .TRUE.  1
 C                                 FAUX NON FALSE NO  .FALSE. 0
-C                                 (EN MAJUSCULES OU MINUSCULES)
+C                                 (EN MAJUSMASCCULES OU MINUSCULES)
 C
 C     - PORTABILITE :             IBM,CRAY,HP,SUN
 C
 C     - APPELE PAR :              DAMOC
 C
-C     - SOUS PROGRAMMES APPELES : MAJUS
+C     - SOUS PROGRAMMES APPELES : MAJUSMASC
 C
-C     - FONCTIONS APPELEES :      NEXT,PRECAR
+C     - FONCTIONS APPELEES :      NEXTMASC,PRECARMASC
 C
 C***********************************************************************
 C
@@ -73,8 +73,8 @@ C
       INTEGER       ICOL
       CHARACTER*(*) LIGNE
 C
-      INTEGER  NEXT,PRECAR
-      EXTERNAL NEXT,PRECAR
+      INTEGER  NEXTMASC,PRECARMASC
+      EXTERNAL NEXTMASC,PRECARMASC
 C
       INTEGER       LNG,LU
       INTEGER       NLIGN,LONGLI
@@ -108,9 +108,9 @@ C
       LIGNE2 = ' '
       TABUL  = CHAR(9)
 C
-      I1     = NEXT( ICOL+1 , LIGNE )
+      I1     = NEXTMASC( ICOL+1 , LIGNE )
       L(1:7) = LIGNE(I1:I1+6)
-      I2 = PRECAR(I1,LIGNE,' ',';',TABUL)
+      I2 = PRECARMASC(I1,LIGNE,' ',';',TABUL)
 C
 C CAS OU ON POURRAIT AVOIR A LIRE LA LIGNE SUIVANTE
 C
@@ -123,9 +123,9 @@ C
            L(1:7)=LIGNE2(1:7)
          ENDIF
          I2 = 0
-         I2 = PRECAR(I2+1,LIGNE2,' ',';',TABUL)
+         I2 = PRECARMASC(I2+1,LIGNE2,' ',';',TABUL)
       ENDIF
-      CALL MAJUS(L)
+      CALL MAJUSMASC(L)
       GO TO 910
 C
  900  CONTINUE
@@ -136,40 +136,40 @@ C
 C ORDONNER DANS L'ORDRE LE PLUS PROBABLE : SOUVENT NON OUI NO YES 0 1 ..
 C
       IF (L(1:3).EQ.'NON') THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1 + 2
       ELSE IF (L(1:2).EQ.'NO') THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1 + 1
       ELSE IF ( L(1:3).EQ.'OUI' ) THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1 + 2
       ELSE IF ( L(1:3).EQ.'YES' ) THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1 + 2
       ELSE IF (L(1:1).EQ.'0') THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1
       ELSE IF (L(1:1).EQ.'1') THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1
       ELSE IF (L(1:7).EQ.'.FALSE.' ) THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1 + 6
       ELSE IF (L(1:5).EQ.'FALSE' ) THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1 + 4
       ELSE IF (L(1:4).EQ.'FAUX') THEN
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             ICOL = I1 + 3
       ELSE IF ( L(1:6).EQ.'.TRUE.' ) THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1 + 5
       ELSE IF ( L(1:4).EQ.'TRUE' ) THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1 + 3
       ELSE IF ( L(1:4).EQ.'VRAI' ) THEN
-            LOGLU = .TRUE.
+            LOGLUMASC = .TRUE.
             ICOL = I1 + 3
       ELSE
 C
@@ -187,7 +187,7 @@ C
               WRITE(LU,'(1X,A6,I4,A)') 'LOGLU (UTILE) : LINE: ',NLIGN,
      *                                 ' WRONG LOGICAL VALUE'
             ENDIF
-            LOGLU = .FALSE.
+            LOGLUMASC = .FALSE.
             GO TO 1000
 C
       ENDIF
@@ -221,4 +221,3 @@ C
       RETOUR = .TRUE.
       RETURN
       END
- 

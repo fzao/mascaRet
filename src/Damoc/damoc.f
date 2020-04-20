@@ -1,5 +1,5 @@
-                        SUBROUTINE DAMOC
-C                       ****************
+                        SUBROUTINE DAMOCMASC
+C                       ********************
 C
      *          ( ADRESS , DIMENS , NMAX   , DOC    , LLNG   , LLU    ,
      *            MOTINT , MOTREA , MOTLOG , MOTCAR , MOTATT ,
@@ -61,9 +61,9 @@ C !                !    ! = 2 : VALEUR TROUVEE (FICHIER DE DONNEES)    !
 C !                !    ! = 3 : AUCUNE VALEUR TROUVEE (OPTIONNELLE)    !
 C !                !    ! = 5 : TABLEAU DE MOTS A SUBMIT COMPACTE      !
 C !                !    ! = 6 : MOT CLE A SUBMIT FORCE NON AFFECTE     !
-C !                !    ! = 7 : MOT CLE A SUBMIT FORCE AFFECTE (DICO)  !
+C !                !    ! = 7 : MOT CLE A SUBMIT FORCE AFFECTE (DICOMASC)  !
 C !                !    ! = 8 : MOT CLE A SUBMIT FORCE AFFECTE (CAS)   !
-C !                !    ! = 9 : FICHIER DICO : SUBMIT + VALEUR LANCEUR !
+C !                !    ! = 9 : FICHIER DICOMASC : SUBMIT + VALEUR LANCEUR !
 C !                !    ! =10 : FICHIER CAS  : SUBMIT + VALEUR LANCEUR !
 C !  UTINDX        !<-- ! TABLEAU DE LOGIQUES D'UTILISATION DES INDEX  !
 C !  NFICMO        ! -->! NUMERO DE CANAL DU FICHIER DES MOTS-CLES     !
@@ -114,10 +114,10 @@ C
 C
 C     - APPELE PAR :              DAMOCLE.f & CODES DE CALCULS
 C
-C     - SOUS PROGRAMMES APPELES : CMD,DICO,CLASSE,INFLU
+C     - SOUS PROGRAMMES APPELES : CMDMASC,DICOMASC,CLASSEMASC,INFLUMASC
 C
-C     - FONCTIONS APPELEES :      INTLU,REALU,LOGLU,CARLU,NEXT,PREVAL,
-C                                 PREV,LONGLU
+C     - FONCTIONS APPELEES :      INTLUMASC,REALUMASC,LOGLUMASC,CARLUMASC,NEXTMASC,PREVALMASC,
+C                                 PREVMASC,LONGLUMASC
 C
 C     - PRECAUTIONS D'EMPLOI :
 C
@@ -139,10 +139,10 @@ C
       CHARACTER*144    MOTCAR(*),DEFCAR(*),USRCAR(*)
       DOUBLE PRECISION MOTREA(*),DEFREA(*),USRREA(*)
 C
-      INTEGER          INTLU,NEXT,PREV,PREVAL,LONGLU
-      LOGICAL          LOGLU
-      CHARACTER*144    CARLU
-      DOUBLE PRECISION REALU
+      INTEGER          INTLUMASC,NEXTMASC,PREVMASC,PREVALMASC,LONGLUMASC
+      LOGICAL          LOGLUMASC
+      CHARACTER*144    CARLUMASC
+      DOUBLE PRECISION REALUMASC
 C
       INTEGER          LNG,LU
       INTEGER          INDX,NTYP,ITAI,LONGU,NMOT(4),DEFLU
@@ -158,7 +158,7 @@ C
       INTEGER          TYPIGN(100),LONIGN(100),NMAXR(4),ORDRE
       INTEGER          ADSRC,ADDES,NULINT,NVAL,NIGN,L1,LONPRO(15)
       LOGICAL          DYNAM,LANGUE,NULLOG,LUIGN,AIDLNG,VUMOT  ! PU2017 : Mise en commentaire de LAID,
-      LOGICAL          ARRET,VUCMD(5),VUCMD0(5),EXECMD,GESTD
+      LOGICAL          ARRET,VUCMDMASC(5),VUCMDMASC0(5),EXECMDMASC,GESTD
       CHARACTER*1      PTVIRG,QUOTE  ! PU2017 : Mise en commentaire de TABUL
       CHARACTER*9      MOTPRO(15),TYPE
 !      CHARACTER*72     MOTIGN(100),LIGNE ! Modif PU2017
@@ -176,7 +176,8 @@ C
       COMMON / DCNGE  / INDX,NTYP,ITAI,LONGU,NMOT,DEFLU
       COMMON / DCNGEC / PARAM
 C
-      EXTERNAL         CARLU,INTLU,LOGLU,REALU,NEXT,PREV,PREVAL,LONGLU
+      EXTERNAL         CARLUMASC,INTLUMASC,LOGLUMASC,REALUMASC
+      EXTERNAL         NEXTMASC,PREVMASC,PREVALMASC,LONGLUMASC
       INTRINSIC CHAR
 C
 C-----------------------------------------------------------------------
@@ -213,9 +214,9 @@ C     LUIGN       : INDIQUE SI C'EST UN MOT POUR EDAMOX SEULEMENT
 C     MOTIGN(I)   : IEME MOT LU DANS LE FICHIER CAS DONNE PAR EDAMOX
 C                   ET LU COMME IGNORE DANS LE DICTIONNAIRE
 C     DYNAM       : LOGIQUE POUR LE DYNAMIQUE (.TRUE. SI MODE DYNAMIQUE)
-C     VUCMD(I)    : TABLEAU DE LOGIQUES (MEMORISATION DES COMMANDES)
+C     VUCMDMASC(I)    : TABLEAU DE LOGIQUES (MEMORISATION DES COMMANDES)
 C                   I=1->&LIS;I=2->&ETA;I=3->&IND;I=4->&STO;I=5->&FIN
-C     EXECMD      : LOGIQUE D'ACTIVATION DES COMMANDES MEMORISEES
+C     EXECMDMASC      : LOGIQUE D'ACTIVATION DES COMMANDES MEMORISEES
 C     NMAXR(I)    : INDEX MAXIMUM REELLEMENT UTILISE POUR LE TYPE I
 C
 C-----------------------------------------------------------------------
@@ -229,7 +230,7 @@ C
       RETOUR  = .FALSE.
       DYNAM   = .FALSE.
 !      LAID    = .FALSE.  ! PU2017 : Mise en commentaire
-      EXECMD  = .FALSE.
+      EXECMDMASC  = .FALSE.
       AIDLNG  = .FALSE.
       VUMOT   = .FALSE.
       LONGLI  = 72
@@ -248,8 +249,8 @@ C
       DEFLU  = 0
 C
       DO 2 K=1, 5
-       VUCMD(K) = .FALSE.
-       VUCMD0(K) = .FALSE.
+       VUCMDMASC(K) = .FALSE.
+       VUCMDMASC0(K) = .FALSE.
 2     CONTINUE
 C
       DO 3 K=1,100
@@ -307,7 +308,7 @@ C
 C
 C RECHERCHE DU PREMIER CARACTERE NON BLANC HORS COMMENTAIRES :
 C
-      ICOL = NEXT(ICOL+1,LIGNE)
+      ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 100   CONTINUE
 C
@@ -318,30 +319,30 @@ C
 C REPERAGE DES COMMANDES QUI COMMENCENT PAR &
 C
       IF ( LIGNE(ICOL:ICOL).EQ.'&' ) THEN
-           CALL CMD (ICOL,LIGNE,ADRESS,DIMENS,TROUVE,MOTCLE,NMOT,
+           CALL CMDMASC (ICOL,LIGNE,ADRESS,DIMENS,TROUVE,MOTCLE,NMOT,
      *          MOTINT,MOTREA,MOTLOG,MOTCAR,MOTATT,INDIC,SIZE,
-     *          UTINDX,DYNAM,VUCMD,EXECMD,NFICDA,NMAXR)
+     *          UTINDX,DYNAM,VUCMDMASC,EXECMDMASC,NFICDA,NMAXR)
 C
 C     SI ON A VU &FIN, ON VA FINIR APRES LE COMPACTAGE :
-           IF (VUCMD(5)) GO TO 900
+           IF (VUCMDMASC(5)) GO TO 900
 C     SI ON A VU &STO, ON FINIT LA LECTURE DU FICHIER :
-           IF (VUCMD(4)) GO TO 1000
+           IF (VUCMDMASC(4)) GO TO 1000
 C
-           ICOL = NEXT(ICOL+1,LIGNE)
+           ICOL = NEXTMASC(ICOL+1,LIGNE)
            IF(RETOUR) GO TO 900
       ELSE
 C
-              I2 = PREVAL(ICOL+1,LIGNE,'=',':','=')
+              I2 = PREVALMASC(ICOL+1,LIGNE,'=',':','=')
 C             CAS OU LE SIGNE EGAL EST SUR LA LIGNE SUIVANTE :
               IF(I2.GT.LONGLI) I2=LONGLI
-              JCOL = PREV  (I2,LIGNE)
+              JCOL = PREVMASC  (I2,LIGNE)
               ILONG = JCOL - ICOL + 1
 C
               LUIGN = .FALSE.
               IF (NFIC.EQ.NFICMO.AND.INDX.LE.0) LUIGN = .TRUE.
 C
 C              ILONG = 40
-              CALL DICO(ITYP,NUMERO,ILONG,LIGNE(ICOL:JCOL),
+              CALL DICOMASC(ITYP,NUMERO,ILONG,LIGNE(ICOL:JCOL),
      *             MOTCLE,NMOT,MOTPRO,LONPRO,SIZE,UTINDX,LANGUE,
      *             AIDLNG,MOTIGN,NIGN,LUIGN,TYPIGN,LONIGN,NFICDA,
      *             NBLANG,NMAXR)
@@ -361,10 +362,10 @@ C SI LE MOT EST INCONNU, ON ARRETE
                 GOTO 1300
               ENDIF
 C
-              ICOL = PREVAL(ICOL+1,LIGNE,'=',':','=')
+              ICOL = PREVALMASC(ICOL+1,LIGNE,'=',':','=')
 C             CAS OU LE SIGNE EGAL EST SUR LA LIGNE SUIVANTE :
               IF(ICOL.GT.LONGLI) THEN
-                ICOL  = NEXT(LONGLI,LIGNE)
+                ICOL  = NEXTMASC(LONGLI,LIGNE)
                 IF(RETOUR) GO TO 900
               ENDIF
 C
@@ -384,7 +385,7 @@ C
             ITAI = DIMENS(NTYP,INDX)
             ADD  = ADRESS(NTYP,INDX)
 C           PARAM = MOTCLE(NTYP,INDX)
-C           LONGU = LONGLU(PARAM)
+C           LONGU = LONGLUMASC(PARAM)
             IVAL = 1
             IF (TROUVE(NTYP,INDX).EQ.2.OR.TROUVE(NTYP,INDX).EQ.8) THEN
              WRITE(LU,*) ' '
@@ -403,13 +404,14 @@ C           LONGU = LONGLU(PARAM)
  10        CONTINUE
            IF (.NOT.(LUIGN)) THEN
              IF     (NTYP.EQ.1) THEN
-                     DEFINT(IVAL) = INTLU(ICOL,LIGNE)
+                     DEFINT(IVAL) = INTLUMASC(ICOL,LIGNE)
              ELSEIF (NTYP.EQ.2) THEN
-                     DEFREA(IVAL) = REALU(ICOL,LIGNE)
+                     DEFREA(IVAL) = REALUMASC(ICOL,LIGNE)
              ELSEIF (NTYP.EQ.3) THEN
-                     DEFLOG(IVAL) = LOGLU(ICOL,LIGNE)
+                     DEFLOG(IVAL) = LOGLUMASC(ICOL,LIGNE)
              ELSEIF (NTYP.EQ.4) THEN
-                     DEFCAR(IVAL) = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,
+                     DEFCAR(IVAL) = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,
+     *                                    MOTCLE,
      *                                    SIZE,MOTIGN,LONIGN,NMAXR,
      *                                    NFICDA,LEN(DEFCAR(IVAL)))
              ENDIF
@@ -419,7 +421,7 @@ C
 C CAS DU SUBMIT VIDE OPTIONNEL- RESTE OPTIONNEL
              IF (ITAI.LE.1.AND.INDIC(NTYP,INDX).GE.2.AND.
      *           TROUVE(NTYP,INDX).EQ.3) THEN
-                 L1 = LONGLU(DEFCAR(IVAL))
+                 L1 = LONGLUMASC(DEFCAR(IVAL))
                  IF (L1.GT.0) TROUVE(NTYP,INDX)=2
 C
              ELSEIF(TROUVE(NTYP,INDX).LT.6) THEN
@@ -433,19 +435,19 @@ C
             ELSE
              NTYP = ITYP
              IF     (NTYP .EQ. 1) THEN
-                     NULINT = INTLU(ICOL,LIGNE)
+                     NULINT = INTLUMASC(ICOL,LIGNE)
              ELSEIF (NTYP .EQ. 2) THEN
-                     NULREA = REALU(ICOL,LIGNE)
+                     NULREA = REALUMASC(ICOL,LIGNE)
              ELSEIF (NTYP .EQ. 3) THEN
-                     NULLOG = LOGLU(ICOL,LIGNE)
+                     NULLOG = LOGLUMASC(ICOL,LIGNE)
              ELSEIF (NTYP .EQ. 4) THEN
-                     NULCAR = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,
+                     NULCAR = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,
      *                              SIZE,MOTIGN,LONIGN,NMAXR,NFICDA,
      *                              LEN(NULCAR))
              ENDIF
            ENDIF
 C
-           ICOL = NEXT(ICOL+1,LIGNE)
+           ICOL = NEXTMASC(ICOL+1,LIGNE)
            IF (LIGNE(ICOL:ICOL) .EQ. PTVIRG) THEN
              IVAL = IVAL + 1
              GO TO 10
@@ -466,7 +468,7 @@ C SI IL Y A PLUS DE VALEURS QUE LE PARAMETRE TAILLE ALORS ON TRONQUE
 C A ITAI SI LE MOT CLE &DYN NE SE TROUVE PAS DANS LE FICHIER CAS
 C SINON ON LIT TOUTES LES VALEURS DU FICHIER CAS
 C
-C  RECLASSER EN MODE DYNAMIQUE A CHAQUE FOIS, EST-CE BIEN UTILE ???
+C  RECLASSEMASCR EN MODE DYNAMIQUE A CHAQUE FOIS, EST-CE BIEN UTILE ???
 C  NE PEUT-ON PAS SE CONTENTER DE LA MODIFICATION DE DIMENS
 C  SI LE LECDON EST BIEN ECRIT : PEUT IMPORTE S'IL Y A DES TROUS
 C  DANS LES TABLEAUX RENVOYES ... A MEDITER
@@ -548,7 +550,7 @@ C RANGEMENT DANS LES TABLEAUX DEFINITFS
            ENDIF
 C
 C
-C          ICOL = NEXT(ICOL,LIGNE)
+C          ICOL = NEXTMASC(ICOL,LIGNE)
 C
 C ENDIF DU IF(ITYP.LE.4) ...
            ENDIF
@@ -587,13 +589,13 @@ C
 C
              ORDRE = 1
 C
-C SI ON VIENT DU MOT PRECEDENT, ON LE CLASSE AVANT DE LIRE LE SUIVANT
+C SI ON VIENT DU MOT PRECEDENT, ON LE CLASSEMASC AVANT DE LIRE LE SUIVANT
 C PUISQUE TOUTES LES INFOS SUR LE MOT PRECEDENT SONT DISPONIBLES
 
 C
              IF (NBMOT.GT.1 .AND. (.NOT.(VUMOT)) ) THEN
                  IF (INDX.GT.NMAXR(NTYP)) NMAXR(NTYP)=INDX
-                 CALL CLASSE(DIMENS,SIZE,MOTCLE,UTINDX,NMAX,
+                 CALL CLASSEMASC(DIMENS,SIZE,MOTCLE,UTINDX,NMAX,
      *                       OFFSET,ADRESS,INDIC,LUIGN,
      *                       MOTINT,MOTREA,MOTLOG,MOTCAR,MOTATT ,
      *                       DEFCAR,DEFINT,DEFLOG,DEFREA,DEFATT )
@@ -604,16 +606,18 @@ C ON SIGNALE QU'ON A DEJA VU LE NOUVEAU MOT CLE DANS UNE AUTRE LANGUE
 C
 C            NOM DU MOT-CLE
              IF (LANGUE) THEN
-               PARAM = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
+               PARAM = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *                       MOTIGN,
      *                       LONIGN,NMAXR,NFICDA,LEN(PARAM))
                LONGU = LCAR
              ELSE
 C LECTURE D'UN NOM DE LANGUE NON DEMANDE (NON UTILISE)
-               NULCAR = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
+               NULCAR = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *                        MOTIGN,
      *                        LONIGN,NMAXR,NFICDA,LEN(NULCAR))
              ENDIF
 C
-             ICOL = NEXT(ICOL+1,LIGNE)
+             ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 C    TYPE
 C
@@ -621,7 +625,8 @@ C
                   VUMOT = .FALSE.
                   IF (ORDRE.NE.1) GOTO 1500
                   ORDRE=2
-                  TYPE = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
+                  TYPE = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *                         MOTIGN,
      *                         LONIGN,NMAXR,NFICDA,LEN(TYPE))
                   IF(TYPE(1:6).EQ.'ENTIER'
      *           .OR.TYPE(1:8).EQ.'INTEGER') THEN
@@ -645,15 +650,15 @@ C                 ERREUR : TYPE INCONNU
 1003              FORMAT(1X,A72,/,1X,'UNKNOWN TYPE ON THIS LINE')
                   STOP 'ERREUR DAMOCLES 2'
                   ENDIF
-                  ICOL = NEXT(ICOL+1,LIGNE)
+                  ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 C    INDEX
 C
           ELSE IF(NUMERO.EQ.3) THEN
                   IF (ORDRE.NE.2) GOTO 1500
                   ORDRE=3
-                  INDX = INTLU(ICOL,LIGNE)
-                  ICOL = NEXT(ICOL+1,LIGNE)
+                  INDX = INTLUMASC(ICOL,LIGNE)
+                  ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 C CAS INDEX=-1 - MOT POUR CONSTRUCTION EDAMOX A GARDER
 C
@@ -680,8 +685,8 @@ C
           ELSE IF(NUMERO.EQ.4) THEN
                   IF (ORDRE.NE.3) GOTO 1500
                   ORDRE=4
-                  ITAI = INTLU(ICOL,LIGNE)
-                  ICOL = NEXT(ICOL+1,LIGNE)
+                  ITAI = INTLUMASC(ICOL,LIGNE)
+                  ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 C    VALEUR PAR DEFAUT
 C    POUR LES TABLEAUX, IL N'EST PAS OBLIGATOIRE DE METTRE TOUTES LES VA
@@ -695,20 +700,20 @@ C
              DEFLU = 1
              IF (NTYP.NE.4) TROUVE(NTYP,INDX) = 1
 C
-C200          ICOL = NEXT(ICOL+1,LIGNE) -1
+C200          ICOL = NEXTMASC(ICOL+1,LIGNE) -1
 200          CONTINUE
 C
              IF (NTYP .EQ. 1) THEN
-                DEFINT(DEFLU) = INTLU(ICOL,LIGNE)
+                DEFINT(DEFLU) = INTLUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 2) THEN
-                DEFREA(DEFLU) = REALU(ICOL,LIGNE)
+                DEFREA(DEFLU) = REALUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 3) THEN
-                DEFLOG(DEFLU) = LOGLU(ICOL,LIGNE)
+                DEFLOG(DEFLU) = LOGLUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 4) THEN
-                DEFCAR(DEFLU) = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,
+                DEFCAR(DEFLU) = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,
      *                                SIZE,MOTIGN,LONIGN,NMAXR,NFICDA,
      *                                LEN(DEFCAR(DEFLU)))
-                L1 = LONGLU(DEFCAR(DEFLU))
+                L1 = LONGLUMASC(DEFCAR(DEFLU))
                 IF (ITAI.LE.1.AND.INDIC(NTYP,INDX).GE.2) THEN
                    IF (TROUVE(NTYP,INDX).LE.3) THEN
                        IF (L1.GT.0) TROUVE(NTYP,INDX)=1
@@ -721,7 +726,7 @@ C                      IF (L1.GT.0) TROUVE(NTYP,INDX)=7
                 ENDIF
              ENDIF
 C
-             ICOL = NEXT(ICOL+1,LIGNE)
+             ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
              IF (LIGNE(ICOL:ICOL) .EQ. PTVIRG) THEN
                 DEFLU = DEFLU + 1
@@ -736,21 +741,22 @@ C
 C
 C LECTURE D'UN DEFAUT DE LANGUE NON DEMANDE (NON UTILISE)
 C
-C210          ICOL = NEXT(ICOL+1,LIGNE) -1
+C210          ICOL = NEXTMASC(ICOL+1,LIGNE) -1
  210         CONTINUE
 C
              IF (NTYP .EQ. 1) THEN
-                NULINT = INTLU(ICOL,LIGNE)
+                NULINT = INTLUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 2) THEN
-                NULREA = REALU(ICOL,LIGNE)
+                NULREA = REALUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 3) THEN
-                NULLOG = LOGLU(ICOL,LIGNE)
+                NULLOG = LOGLUMASC(ICOL,LIGNE)
              ELSE IF (NTYP .EQ. 4) THEN
-                NULCAR = CARLU(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,MOTIGN,
+                NULCAR = CARLUMASC(LCAR,ICOL,LIGNE,QUOTE,MOTCLE,SIZE,
+     *                         MOTIGN,
      *                         LONIGN,NMAXR,NFICDA,LEN(NULCAR))
              ENDIF
 C
-             ICOL = NEXT(ICOL+1,LIGNE)
+             ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
              IF (LIGNE(ICOL:ICOL) .EQ. PTVIRG) THEN
                 GO TO 210
@@ -760,7 +766,7 @@ C               DEFLU=DEFLU
              ENDIF
           ENDIF
 C
-          ICOL = NEXT(ICOL+1,LIGNE)
+          ICOL = NEXTMASC(ICOL+1,LIGNE)
 C
 C    AIDE
 C
@@ -772,7 +778,7 @@ C
             WRITE(LU,*) PARAM(1:LONGU)
             WRITE(LU,511)
           ENDIF
-          CALL AIDELU(ICOL,LIGNE,DOC.AND.AIDLNG)
+          CALL AIDELUMASC(ICOL,LIGNE,DOC.AND.AIDLNG)
           AIDLNG = .FALSE.
 C
 C
@@ -780,15 +786,15 @@ C    CHOIX RUBRIQUE NIVEAU MNEMO COMPOSE COMPORT CONTROLE APPARENCE
 C    NUMERO 7 A 14 INCLUS
 C
           ELSE IF((NUMERO .GE. 7) .AND. (NUMERO .LE. 14)) THEN
-            CALL AIDELU(ICOL,LIGNE,.FALSE.)
+            CALL AIDELUMASC(ICOL,LIGNE,.FALSE.)
 C
 C    DEFINITION D'UN SUBMIT TYPE
           ELSE IF (NUMERO .EQ. 15) THEN
             IF (ORDRE.NE.3.AND.ORDRE.NE.4) GOTO 1500
             ORDRE=5
             IF (.NOT.(LUIGN)) INDIC(NTYP,INDX)=INDIC(NTYP,INDX)+2
-            ICOL = NEXT(ICOL+1,LIGNE) -1
-            CALL INFLU(ICOL,LIGNE,DEFATT,TROUVE,LUIGN,MOTCLE,SIZE,
+            ICOL = NEXTMASC(ICOL+1,LIGNE) -1
+            CALL INFLUMASC(ICOL,LIGNE,DEFATT,TROUVE,LUIGN,MOTCLE,SIZE,
      *                 MOTIGN,LONIGN,NMAXR,NFICDA,GESTD)
             DO 890 I=1,DEFLU
                DEFINT(I)    = 0
@@ -797,7 +803,7 @@ C    DEFINITION D'UN SUBMIT TYPE
                DEFCAR(I)    = ' '
  890        CONTINUE
             IF (ERREUR) GO TO 900
-            ICOL = NEXT(ICOL,LIGNE)
+            ICOL = NEXTMASC(ICOL,LIGNE)
           ENDIF
 C
           ENDIF
@@ -832,7 +838,7 @@ C
 C
       IF (NFIC .EQ. NFICMO) THEN
                 IF (INDX.GT.NMAXR(NTYP)) NMAXR(NTYP)=INDX
-                CALL CLASSE(DIMENS,SIZE,MOTCLE,UTINDX,NMAX,
+                CALL CLASSEMASC(DIMENS,SIZE,MOTCLE,UTINDX,NMAX,
      *                      OFFSET,ADRESS,INDIC,LUIGN,
      *                      MOTINT,MOTREA,MOTLOG,MOTCAR,MOTATT ,
      *                      DEFCAR,DEFINT,DEFLOG,DEFREA,DEFATT )
@@ -877,7 +883,7 @@ C
          I=I+1
  1185    CONTINUE
 C SI C'EST UN BLANC (LONGUEUR NULLE) :
-         IF (LONGLU(MOTCAR(ADD+I-1)).EQ.0) THEN
+         IF (LONGLUMASC(MOTCAR(ADD+I-1)).EQ.0) THEN
            DO 1190 J=I,NVAL-1
              MOTCAR(ADD+J-1)=MOTCAR(ADD+J)
 C
@@ -923,19 +929,19 @@ C
  1195 CONTINUE
 C
 C ON EXECUTE LES COMMANDES ENREGISTREES AVANT LA FIN
-      EXECMD = .TRUE.
+      EXECMDMASC = .TRUE.
       LIGNE = 'NUL'
       DO 1196 K = 1,5
-       VUCMD0(K) = VUCMD(K)
-       VUCMD(K) = .FALSE.
+       VUCMDMASC0(K) = VUCMDMASC(K)
+       VUCMDMASC(K) = .FALSE.
 1196  CONTINUE
       DO 1198 K=1,5
-        VUCMD(K)=VUCMD0(K)
-        IF (VUCMD(K).AND.(.NOT.(ERREUR))) THEN
-          CALL CMD (ICOL,LIGNE,ADRESS,DIMENS,TROUVE,MOTCLE,NMOT,
+        VUCMDMASC(K)=VUCMDMASC0(K)
+        IF (VUCMDMASC(K).AND.(.NOT.(ERREUR))) THEN
+          CALL CMDMASC (ICOL,LIGNE,ADRESS,DIMENS,TROUVE,MOTCLE,NMOT,
      *          MOTINT,MOTREA,MOTLOG,MOTCAR,MOTATT,INDIC,SIZE,
-     *          UTINDX,DYNAM,VUCMD,EXECMD,NFICDA,NMAXR)
-          VUCMD(K) = .FALSE.
+     *          UTINDX,DYNAM,VUCMDMASC,EXECMDMASC,NFICDA,NMAXR)
+          VUCMDMASC(K) = .FALSE.
         ENDIF
  1198 CONTINUE
 C
@@ -977,7 +983,7 @@ C
 C
       RETURN
 C
-C TRAITEMENT DES ERREURS D'ORDRE DE DECLARATION DANS LE DICO
+C TRAITEMENT DES ERREURS D'ORDRE DE DECLARATION DANS LE DICOMASC
 C
 1500  ERREUR=.TRUE.
       WRITE(LU,'(/,1X,A72,/)') LIGNE
@@ -995,4 +1001,3 @@ C
       GOTO 900
 C
       END
- 

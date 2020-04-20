@@ -1,5 +1,5 @@
-                        INTEGER FUNCTION INTLU
-C                       **********************
+                        INTEGER FUNCTION INTLUMASC
+C                       **************************
 C
      *( ICOL , LIGNE )
 C
@@ -60,7 +60,7 @@ C                              LE PROGRAMME.
 C
 C     - APPELE PAR :           DAMOC
 C
-C     - FONCTIONS APPELEES :   NEXT,PREVAL
+C     - FONCTIONS APPELEES :   NEXTMASC,PREVALMASC
 C
 C-----------------------------------------------------------------------
 C
@@ -69,8 +69,8 @@ C
       INTEGER          ICOL
       CHARACTER*(*)    LIGNE
 C
-      INTEGER          NEXT,PREVAL
-      EXTERNAL NEXT,PREVAL
+      INTEGER          NEXTMASC,PREVALMASC
+      EXTERNAL NEXTMASC,PREVALMASC
 C
       INTEGER          LNG,LU
       INTEGER          NLIGN,LONGLI
@@ -100,16 +100,16 @@ C
       LISUIV = .FALSE.
       TABUL = CHAR(9)
 C
-      I1     = NEXT( ICOL+1 , LIGNE )
+      I1     = NEXTMASC( ICOL+1 , LIGNE )
 C
 C        //// DECODAGE EVENTUEL DU SIGNE ////
 C
       IF ( LIGNE(I1:I1).EQ.'-' ) THEN
            ISIGNE = -1
-           I1     =   NEXT ( I1+1      , LIGNE )
+           I1     =   NEXTMASC ( I1+1      , LIGNE )
       ELSE IF ( LIGNE(I1:I1).EQ.'+' ) THEN
            ISIGNE = +1
-           I1     =   NEXT ( I1+1      , LIGNE )
+           I1     =   NEXTMASC ( I1+1      , LIGNE )
       ELSE
            ISIGNE = +1
       ENDIF
@@ -117,7 +117,7 @@ C
 C        //// RECHERCHE DU PREMIER BLANC APRES LE NOMBRE  ////
 C                       OU D'UN SEPARATEUR ;
 C
-      I2 = PREVAL (  I1  , LIGNE ,  ' ' , ';' , TABUL)
+      I2 = PREVALMASC (  I1  , LIGNE ,  ' ' , ';' , TABUL)
 C
 C     CAS OU L'ENTIER NE SE TERMINE PAS SUR LA LIGNE
 C
@@ -131,7 +131,7 @@ C
      *       CDEB.EQ.'9'.OR.CDEB.EQ.'.') THEN
             LISUIV = .TRUE.
             I3=1
-            I3=PREVAL(I3,LIGNE2 , ' ' , ';', TABUL)
+            I3=PREVALMASC(I3,LIGNE2 , ' ' , ';', TABUL)
             IF (I1.LE.LONGLI) THEN
               LIGNE = LIGNE(I1:LONGLI)//LIGNE2(1:I3)
             ELSE
@@ -170,7 +170,7 @@ C
 C        ////  DECODAGE ////
 C
       READ  ( LIGNE , FORMA , ERR=995 ) IVAL
-      INTLU = ISIGNE * IVAL
+      INTLUMASC = ISIGNE * IVAL
 C
 C        //// MISE A JOUR DU POINTEUR ////
 C
@@ -215,4 +215,3 @@ C
       RETURN
 C
       END
- 

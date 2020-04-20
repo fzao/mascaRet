@@ -291,7 +291,7 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
   DIMENS(3,:) = 0
   DIMENS(4,:) = 0
 
-  call DAMOCLES                        ( &
+  call DAMOCLESMASC                        ( &
            ADRESS                      , &
            DIMENS                      , &
            NMAX                        , &
@@ -589,4 +589,3 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
 
 End Subroutine PRETRAIT_COURLIS
-
