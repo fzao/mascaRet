@@ -12,8 +12,10 @@
 mascaRet_error <- function(id) {
   # types of parameters
   id <- as.integer(id)
-  message <- character(1)
-  
+  n <- 256
+  message <- ""
+  for(i in 1:n) message <- paste(message, " ", sep="")
+
   # call MASCARET
   Address <- getNativeSymbolInfo("C_GET_ERREUR_MASCARET")$address
   

@@ -18,8 +18,13 @@ mascaRet_vartype <- function(id, varname) {
   varname <- as.character(varname)
   
   # additional parameters
-  typevar <- "          "
-  category <- "          "
+  n <- 10
+  typevar <- ""
+  category <- ""
+  for(i in 1:n){
+    typevar <- paste(typevar, " ", sep="")
+    category <- paste(typevar, " ", sep="")
+  }
   modify <- as.integer(0)
   dimvar <- as.integer(0)
   

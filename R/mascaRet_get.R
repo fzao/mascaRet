@@ -41,7 +41,10 @@ mascaRet_get <- function(id, varname, i1, i2, i3) {
         Get <- .C(Address, id, varname, i1, i2, i3, value, trueref)
       }else if(grepl("STRING", vartype)){
         Address <- getNativeSymbolInfo("C_GET_STRING_MASCARET")$address
+        n <- 256
         value <- ""
+        for(i in 1:n) value <- paste(value, " ", sep="")
+        
         Get <- .C(Address, id, varname, i1, i2, i3, value)
       }
       return(Get[[6]])
