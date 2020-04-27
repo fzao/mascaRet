@@ -175,21 +175,16 @@
    // .................................................................................................................................
    int C_GET_ERREUR_MASCARET(int *Identifiant, char **Message)
    {
-      char messageFortran[256];
-      char *chaineC;
-      int erreurFortran, taille;
+     char messageFortran[256];
+     int erreurFortran, taille;
 
-      get_erreur_mascaret_(&erreurFortran, Identifiant, messageFortran);
+     get_erreur_mascaret_(&erreurFortran, Identifiant, messageFortran);
 
-      chaineC = (char*)malloc( 256 * sizeof( char ) );
-      memcpy(chaineC, messageFortran, 256 * sizeof(char));
-      taille = 256;
-      while(chaineC[taille-1] == ' ') chaineC[--taille] = 0;
+     memcpy(Message[0], messageFortran, 256 * sizeof(char));
+     taille = 256;
+     while(Message[0][taille-1] == ' ') Message[0][--taille] = 0;
 
-      *Message = chaineC;
-
-
-      return erreurFortran;
+     return erreurFortran;
    }
 
 
@@ -232,6 +227,8 @@
      }else{
          return -1;
      }
+     free(tabNomFichierFortran);
+     free(typeNomFichierFortran);
 
      return erreurFortran;
   }
@@ -251,6 +248,8 @@
      memset(FichierMascaret+strsize, ' ', 255-strsize);
 
      import_modele_mascaret_(&erreurFortran, Identifiant, tabNomFichierFortran, typeNomFichierFortran, &Taille, Impression, FichierMascaret);
+
+     free(FichierMascaret);
 
      return erreurFortran;
   }
@@ -404,16 +403,12 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
   {
      int erreurFortran, taille;
      char messageFortran[30];
-     char *chaineC;
 
      get_nom_condition_limite_mascaret_(&erreurFortran, &Identifiant, &NumCL, messageFortran, NumLoi);
 
-     chaineC = (char*)malloc( 30 * sizeof( char ) );
-     memcpy(chaineC, messageFortran, 30 * sizeof(char));
+     memcpy(NomCL[0], messageFortran, 30 * sizeof(char));
      taille = 30;
-     while(chaineC[taille-1] == ' ') chaineC[--taille] = 0;
-
-     *NomCL = chaineC;
+     while(NomCL[0][taille-1] == ' ') NomCL[0][--taille] = 0;
 
      return erreurFortran;
   }
@@ -698,7 +693,6 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
      int erreurFortran, taille;
      char nomVarFortran[40];
      char valeurFortran[256];
-     char *chaineC;
 
      taille = strlen(NomVar[0]);
      strcpy(nomVarFortran, NomVar[0]);
@@ -706,11 +700,9 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
 
      get_string_mascaret_(&erreurFortran, Identifiant, nomVarFortran, index1, index2, index3, valeurFortran);
 
-     chaineC = (char*)malloc( 256 * sizeof( char ) );
-     memcpy(chaineC, valeurFortran, 256 * sizeof(char));
+     memcpy(valeur[0], valeurFortran, 256 * sizeof(char));
      taille = 256;
-     while(chaineC[taille-1] == ' ') chaineC[--taille] = 0;
-     *valeur = chaineC;
+     while(valeur[0][taille-1] == ' ') valeur[0][--taille] = 0;
 
      return erreurFortran;
   }
