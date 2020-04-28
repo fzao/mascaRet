@@ -12,7 +12,7 @@ mascaRet_vartype(id, varname)
 \item{varname}{: (string) name of the variable to get the type}
 }
 \value{
-(string) Type
+(NA or string) NA if failed or Type if success
 }
 \description{
 Possible types are: "INT"  "DOUBLE"  "BOOL"  "STRING"  "TABINT"  "TABDOUBLE"  "TABBOOL" or "?" for unknown

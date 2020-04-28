@@ -14,7 +14,7 @@ mascaRet_varsize(id, varname, number)
 \item{number}{: (integer, scalar) dimension 1/2/3 to get the size from}
 }
 \value{
-(integers) three values for each possible dimension
+(NA or integers) NA if failed or three values for each possible dimension if success
 }
 \description{
 Sizes 1D, 2D, 3D of a variable named by 'Model.XXX' or 'State.YYY'
