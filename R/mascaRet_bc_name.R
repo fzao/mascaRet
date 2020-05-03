@@ -5,7 +5,7 @@
 #' @return  (string) the name of the boundary condition #numBC
 #'
 #' @examples
-#' # value <- mascaRet_bc_name(mascId, 2)
+#' # mascaRet_bc_name(mascId, 2)
 #' 
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #' 
@@ -23,5 +23,5 @@ mascaRet_bc_name <- function(id, numBC) {
   Name <- .C(Address, id, numBC, nameBC, numGraph)
 
   # return
-  return(Name[[3]])
+  return(list(Name=Name[[3]], GraphNumber=Name[[4]]))
 }
