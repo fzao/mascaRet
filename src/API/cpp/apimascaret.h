@@ -196,7 +196,7 @@
    //        NomCL  : Le nom de la condition limite dans le modele
    //        NumLoi : Numero de la Loi correspondant a la condition limite dans le modele
    //.................................................................................................................................
-   EXTC int C_GET_NOM_CONDITION_LIMITE_MASCARET(int , int , char **, int *);
+   EXTC int C_GET_NOM_CONDITION_LIMITE_MASCARET(int *, int *, char **, int *);
 
    //.................................................................................................................................
    // Calcul d'un nouvel etat au "TpsFinal" en utilisant le modele courant, les nouvelles contions limites et l'etat precedent

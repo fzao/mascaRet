@@ -399,12 +399,12 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
    //        NbCL   : le nombre de condition limite dans le modele
    //        NumLoi : Numero de la Loi correspondant a la condition limite dans le modele
    //.................................................................................................................................
-  int C_GET_NOM_CONDITION_LIMITE_MASCARET(int Identifiant, int NumCL, char **NomCL, int *NumLoi)
+  int C_GET_NOM_CONDITION_LIMITE_MASCARET(int *Identifiant, int *NumCL, char **NomCL, int *NumLoi)
   {
      int erreurFortran, taille;
      char messageFortran[30];
 
-     get_nom_condition_limite_mascaret_(&erreurFortran, &Identifiant, &NumCL, messageFortran, NumLoi);
+     get_nom_condition_limite_mascaret_(&erreurFortran, Identifiant, NumCL, messageFortran, NumLoi);
 
      memcpy(NomCL[0], messageFortran, 30 * sizeof(char));
      taille = 30;
