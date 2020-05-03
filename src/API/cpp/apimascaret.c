@@ -381,11 +381,11 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
    // Arguments en sortie :
    //        NbCL : le nombre de condition limite dans le modele
    //.................................................................................................................................
-  int C_GET_NB_CONDITION_LIMITE_MASCARET(int Identifiant, int *NbCL)
+  int C_GET_NB_CONDITION_LIMITE_MASCARET(int *Identifiant, int *NbCL)
   {
      int erreurFortran;
 
-     get_nb_condition_limite_mascaret_(&erreurFortran, &Identifiant, NbCL);
+     get_nb_condition_limite_mascaret_(&erreurFortran, Identifiant, NbCL);
 
      return erreurFortran;
   }

@@ -185,7 +185,7 @@
    // Arguments en sortie :
    //        NbCL : le nombre de condition limite dans le modele
    //.................................................................................................................................
-   EXTC int C_GET_NB_CONDITION_LIMITE_MASCARET(int , int *);
+   EXTC int C_GET_NB_CONDITION_LIMITE_MASCARET(int *, int *);
 
    //.................................................................................................................................
    // Recupere le nom d'une condition limite du modele ainsi que le numero de la loi correspondante
