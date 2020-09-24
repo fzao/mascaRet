@@ -5,7 +5,7 @@ date: "April 11 2020"
 output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Using the mascaRet R package with Tracer: a thermic example}
+  %\VignetteIndexEntry{Tracer: a thermic example}
   %\VignetteEncoding{UTF-8}
 ---
 

@@ -5,7 +5,7 @@ date: "April 08 2020"
 output: html_document
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Using the mascaRet R package: a simple example}
+  %\VignetteIndexEntry{A simple hydraulic example}
   %\VignetteEncoding{UTF-8}
 ---
 
