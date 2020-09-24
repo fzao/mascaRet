@@ -133,8 +133,6 @@ subroutine LEC_LIGNE_INTERFACE( &
    integer      :: RETOUR               ! code de retour des fonctions intrinseques
    real(DOUBLE) :: sigma                ! somme des differences entre deux maillages
    logical      :: presence_coeff_frott ! test de presence du coeff de frottement
-   real(DOUBLE) :: x_prec               ! abscisse
-   integer      :: branche_prec         ! numero de branche
 
    !============================ Instructions ==============================
    ! INITIALISATION

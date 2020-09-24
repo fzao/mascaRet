@@ -15,9 +15,9 @@ use M_PRECISION
 
   TYPE LOI_CONC_T
      sequence
-     character(30)							:: Nom        ! Nom de la couche
-     real(DOUBLE), dimension(:), pointer	:: Temps      ! temps
-     real(DOUBLE), dimension(:), pointer	:: Conc       ! concentration en MES
+     character(30)              :: Nom        ! Nom de la couche
+     real(DOUBLE), dimension(:), pointer  :: Temps      ! temps
+     real(DOUBLE), dimension(:), pointer  :: Conc       ! concentration en MES
   END TYPE LOI_CONC_T
 
 End Module M_LOI_CONC_T

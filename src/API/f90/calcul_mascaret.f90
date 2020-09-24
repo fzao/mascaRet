@@ -120,7 +120,7 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
    type(FICHIER_T) :: FichierListingCasier, FichierListingLiaison, &
       FichierResultatCasier, FichierResultatLiaison, FichierGeomCasier, &
       FichierListingTracer, FichierResuTracer
-   type(FICHIER_T) :: FichierRepriseLec, FichierRepriseEcr, FichierMotCle
+   type(FICHIER_T) :: FichierRepriseLec, FichierMotCle
    ! Tracer
    ! -------------
    type(FICHIER_T)                           :: message
@@ -266,7 +266,7 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
     TempsInitial = TpsInitial
     Temps1 = TpsInitial
     TempsMaximum = TpsFinal
-    NbPasTemps = ((TpsFinal - TpsInitial) / Etat%DT)+1
+    NbPasTemps = int(((TpsFinal - TpsInitial) / Etat%DT)+1)
   end if
   if (Etat%phaseSimulation == PHASE_CALCUL) then
     TempsInitial = Etat%TempsPrecedent
@@ -277,7 +277,7 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
     Temps   = TpsInitial + Etat%DT
     Temps1 = TpsInitial + Etat%DT
     TempsMaximum = TpsFinal
-    NbPasTemps = (TpsFinal - TpsInitial) / Etat%DT
+    NbPasTemps = int((TpsFinal - TpsInitial) / Etat%DT)
   endif
 
   if (Impression) then

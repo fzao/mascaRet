@@ -27,7 +27,7 @@ module M_LEC_SORTIES_I
    subroutine LEC_SORTIES( &
                       VarSto , &
                      VarCalc , &
-                    document , & ! Pointeur vers document XML
+                    unitNum  , & ! Unite logique .xcas
                       Erreur & ! Erreur
                          )
 
@@ -38,14 +38,14 @@ module M_LEC_SORTIES_I
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_INDEX_VARIABLE_C    ! Numeros des variables a sortir
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
    ! Arguments
    logical           , dimension(:)   , intent(  out) :: VarCalc
    logical           , dimension(:)   , intent(  out) :: VarSto
-   type(Node), pointer, intent(in)                    :: document   
+   integer, intent(in)                                :: unitNum
    type(ERREUR_T)                     , intent(inout) :: Erreur
 
    end subroutine LEC_SORTIES
@@ -53,4 +53,3 @@ module M_LEC_SORTIES_I
   end interface
 
 end module M_LEC_SORTIES_I
-

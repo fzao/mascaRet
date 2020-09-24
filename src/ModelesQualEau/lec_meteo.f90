@@ -79,13 +79,11 @@ subroutine LEC_METEO( &
    integer               :: ul                 ! Unite logique du fichier
    integer               :: retour             ! Code de retour de la fonction read
    integer               :: ipoint             ! Compteur sur les points d'une loi
-   integer               :: jpoint             ! Compteur sur les points d'une loi
    integer               :: indice_abscisse    ! Index des valeurs d'abscisse
    integer               :: nb_point           ! Nombre d'abscisses dans une loi
    character(LEN_CHAINE) :: chaine     ! Chaine contenant une ligne du fichier
    integer               :: rang
    character(LEN=1)      :: chaine_unite_temps
-   character(132)        :: arbredappel_old    ! Arbredappel initial
 
    !============================ Commentaires ============================
    ! Description du fichier lu :

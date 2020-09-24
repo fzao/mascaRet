@@ -104,6 +104,7 @@ function FPERD( &
    JG  = int( Y / DZD(NOEUD) ) + 1
    JD  = JG + 1
    if( JD > NMLARG ) then
+      FPERD = 0.
       Erreur%Numero = 100
       Erreur%ft   = err_100
       Erreur%ft_c = err_100c

@@ -52,14 +52,14 @@ module M_LOI_T
      sequence
      character(30)                         :: Nom
      integer                               :: Type
-     real(DOUBLE), dimension(:)  , pointer :: Temps     => null() 
-     real(DOUBLE), dimension(:)  , pointer :: Cote      => null() 
-     real(DOUBLE), dimension(:)  , pointer :: Debit     => null() 
+     real(DOUBLE), dimension(:)  , pointer :: Temps     => null()
+     real(DOUBLE), dimension(:)  , pointer :: Cote      => null()
+     real(DOUBLE), dimension(:)  , pointer :: Debit     => null()
 
-     real(DOUBLE), dimension(:)  , pointer :: CoteSup   => null() 
-     real(DOUBLE), dimension(:)  , pointer :: CoteInf   => null() 
-     real(DOUBLE), dimension(:)  , pointer :: CoteAval  => null() 
-     real(DOUBLE), dimension(:,:), pointer :: CoteAmont => null() 
+     real(DOUBLE), dimension(:)  , pointer :: CoteSup   => null()
+     real(DOUBLE), dimension(:)  , pointer :: CoteInf   => null()
+     real(DOUBLE), dimension(:)  , pointer :: CoteAval  => null()
+     real(DOUBLE), dimension(:,:), pointer :: CoteAmont => null()
 
   end type LOI_T
 
@@ -117,7 +117,7 @@ contains
       GET_TYPE_VAR_LOI = 0
       TypeVar               = ""
       Categorie             = "MODEL"
-      Modifiable            = .FALSE.
+      Modifiable            = .TRUE.
       dimVar                = 0
       MessageErreur         = ""
 
@@ -161,7 +161,7 @@ contains
     end function GET_TYPE_VAR_LOI
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -256,7 +256,7 @@ contains
    end function GET_TAILLE_VAR_LOI
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -434,7 +434,7 @@ contains
    end function SET_TAILLE_VAR_LOI
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -604,7 +604,7 @@ contains
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.Graph.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:30)
       else
          SET_STRING_LOI = 1
          MessageErreur         = "SET_STRING_LOI - Unknown variable name"
@@ -626,8 +626,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_LOI = 0
       MessageErreur = ""
       err           = 0
@@ -736,10 +734,6 @@ contains
       type(LOI_T),            intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_LOI = 0
       MessageErreur          = ""
 

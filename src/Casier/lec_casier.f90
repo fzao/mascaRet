@@ -19,7 +19,7 @@
 subroutine LEC_CASIER( &
                        Casier            , & ! tableau des casiers
                        FichierGeomCasier , &
-                       document          , & ! Pointeur vers document XML
+                       unitNum           , & ! unite logique du fichier .xcas
                        Erreur )              ! erreur
 
 ! ******************************************************************
@@ -49,7 +49,7 @@ subroutine LEC_CASIER( &
    use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
    use M_LEC_GEOM_CASIER2_I
    use M_LEC_GEOM_CASIER1_I
-   use Fox_dom                    ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -57,15 +57,16 @@ subroutine LEC_CASIER( &
    type(CASIER_T) , dimension(:)     , pointer       :: Casier
    type(ERREUR_T)                    , intent(inout) :: Erreur
    type(FICHIER_T)                   , intent(inout) :: FichierGeomCasier
-   type(Node), pointer, intent(in)                   :: document 
+   integer, intent(in)                               :: unitNum
 
    !.. Variables locales ..
-   integer :: nombre_casier, icasier, icote, option_calcul
+   integer :: nombre_casier, icasier, option_calcul
    integer :: retour          ! code de retour des fonctions intrinseques
    integer :: option_planim
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: arbredappel_old
 
    !========================== Instructions ==============================
@@ -79,19 +80,9 @@ subroutine LEC_CASIER( &
 
    ! Nombre de casiers
    !------------------
-   champ1 => item(getElementsByTagname(document, "parametresCasier"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresCasier"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "nbCasiers"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => nbCasiers"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,nombre_casier)
+   pathNode = 'parametresCasier/nbCasiers'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nombre_casier
    if( nombre_casier == 0 ) then
       Erreur%Numero = 900
       Erreur%ft     = err_900
@@ -119,7 +110,7 @@ subroutine LEC_CASIER( &
        call TRAITER_ERREUR( Erreur , 'itab' )
        return
    end if
-   
+
    allocate( rtab(nombre_casier) , STAT = retour )
    if( retour /= 0 ) then
        Erreur%Numero = 5
@@ -128,15 +119,11 @@ subroutine LEC_CASIER( &
        call TRAITER_ERREUR( Erreur , 'rtab' )
        return
    end if
-   
-   champ2 => item(getElementsByTagname(champ1, "cotesInitiale"), 0)
-   if(associated(champ2).eqv..false.) then
-         print*,"Parse error => cotesInitiale"
-         call xerror(Erreur)
-         return
-   endif
-   call extractDataContent(champ2,rtab)
-   
+
+   pathNode = 'parametresCasier/cotesInitiale'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab
+
    do icasier = 1 , nombre_casier
       ! Initialisation des pointeurs pour l'API
       nullify(Casier(icasier)%LiaisonCC)
@@ -148,46 +135,40 @@ subroutine LEC_CASIER( &
       Casier(icasier)%Cote = rtab(icasier)
    end do
 
-   champ2 => item(getElementsByTagname(champ1, "optionPlanimetrage"), 0)
-   if(associated(champ2).eqv..false.) then
-         print*,"Parse error => optionPlanimetrage"
-         call xerror(Erreur)
-         return
-   endif
-   call extractDataContent(champ2,itab)
+   pathNode = 'parametresCasier/optionPlanimetrage'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab
+
    option_planim = itab(1)
-   
+
    if( option_planim == AUTOMATIQUE ) then
-      champ2 => item(getElementsByTagname(champ1, "optionCalcul"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => optionCalcul"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ2,option_calcul)
+      pathNode = 'parametresCasier/optionCalcul'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) option_calcul
    end if
 
    if( option_planim == AUTOMATIQUE ) then
-
-      champ2 => item(getElementsByTagname(champ1, "pasPlanimetrage"), 0)
-      if(associated(champ2).eqv..false.) then
+      pathNode = 'parametresCasier/pasPlanimetrage'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          print*,"Parse error => pasPlanimetrage"
          call xerror(Erreur)
          return
-   endif
-      call extractDataContent(champ2,rtab) 
-       
-      champ2 => item(getElementsByTagname(champ1, "nbCotesPlanimetrage"), 0)
-      if(associated(champ2).eqv..false.) then
+      endif
+      read(unit=line, fmt=*) rtab
+
+      pathNode = 'parametresCasier/nbCotesPlanimetrage'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          print*,"Parse error => nbCotesPlanimetrage"
          call xerror(Erreur)
          return
       endif
-      call extractDataContent(champ2,itab) 
-      
+      read(unit=line, fmt=*) rtab
+
       do icasier = 1, size( Casier )
 
-         Casier(icasier)%PasPlanim = rtab(icasier) 
+         Casier(icasier)%PasPlanim = rtab(icasier)
          if( Casier(icasier)%PasPlanim <= 0._DOUBLE ) then
             Erreur%Numero = 902
             Erreur%ft     = err_902
@@ -275,28 +256,28 @@ subroutine LEC_CASIER( &
 
    deallocate(itab)
    deallocate(rtab)
-   
+
    !.. Fin des traitements ..
    !Erreur%arbredappel = !arbredappel_old
 
    return
-   
+
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
+
    end subroutine xerror
 
 end subroutine LEC_CASIER

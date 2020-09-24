@@ -29,7 +29,7 @@ subroutine BOUSSI( &
                    ZF , &
                 NSECG , &
                NSECDL , &
-                    X , & 
+                    X , &
                    DX , &
                    DT , &
                    NS , &
@@ -74,23 +74,17 @@ subroutine BOUSSI( &
 
    !.. Variables locales ..
    !-----------------------
-   integer      :: ENERG ,i
-   integer      :: INFO,NOEUDC,ic,is,ii
-   real(Double) :: Dx1,DX0
+   integer      :: ENERG
+   integer      :: INFO,NOEUDC,is,ii
    real(double) :: dA1m(NS),dA1p(NS),Scubem(NS)
    real(double) :: A1(NS),A1p(NS-1),A1m(NS-1)
    real(double) :: A0(NS),A0p(NS-1),A0m(NS-1),B(NS)
-   real(double) :: qn0(NS),qn1(NS),zero,un,deux,trois
-   real(double) :: dh1(NS),dh0(NS),ZFm(NS+1)
-   real(double) :: deltax2,cor(NS),cor1(NS),cor3(NS)
+   real(double) :: qn0(NS),zero,un,deux,trois
+   real(double) :: ZFm(NS+1)
+   real(double) :: deltax2
    real(double) :: dzb(NS)
    real(double) :: qn(NS),qo(NS),alpha(NS),H(NS),DELTAX(NS)
    !
-   ! variables section constante 
-   real(double) :: ho(NS),hn(NS)
-   real(double) :: hm(NS),hen(NS),h3(NS),etaa(NS),deta(NS),dhhen(NS)
-   real(double) :: h2(NS),etaen(NS)
-   real(double) :: cor2,cor4,largeur
 
    ENERG   = 1
    Deltax2 = DX**2
@@ -114,7 +108,7 @@ subroutine BOUSSI( &
    dzb(1)  = ZF(2) - ZF(1)
 
    !
-   ! A verifier le decalage des noeuds 
+   ! A verifier le decalage des noeuds
    do ii = 1 , NS
       SCUBEm(ii) = ( SCUBE1(ii) + SCUBE(II) ) / 2.D0
       H(ii)      = ( Z(ii) - ZF(ii) + YNODE (ii) ) / 2.D0

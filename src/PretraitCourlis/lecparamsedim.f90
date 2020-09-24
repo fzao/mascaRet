@@ -206,7 +206,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
  ! Boucle de definition des parametres de couches de sediments
  !------------------------------------------------------------------
  Do iCouche = 1, NbCouches
-   CoucheSed(iCouche)%Nom = MOTCAR(ADRESS(4,601)+iCouche-1)
+   CoucheSed(iCouche)%Nom = MOTCAR(ADRESS(4,601)+iCouche-1)(1:30)
    CoucheSed(iCouche)%Cfond = MOTREA(ADRESS(2,601)+iCouche-1)
    CoucheSed(iCouche)%Psable = MOTREA(ADRESS(2,602)+iCouche-1)
    CoucheSed(iCouche)%D50 = MOTREA(ADRESS(2,603)+iCouche-1)
@@ -483,35 +483,8 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
 ! SERIE DE FORMATS
 !=========================================================================
 
-  2000  format ('2',//,5X,'CONDITIONS SEDIMENTAIRES ',/,5X,24('-'))
-  2001  format ('Mode de saisie par fichier. Nom du fichier    : ', A)
-  2002  format ('Mode de saisie par clavier                      '   )
-  2003  format ('***Couche de sediments')
-  2004  format (A3,2x,A20,2A8,A12,A10,A8,A10,A7,A8)
-  2005  format (i3,2x,A20,2F8.2,E12.3,E10.3,F8.2,F10.5,F7.2,F8.5)
-  2006  format (  'Contrainte crit. de depot des vases (couche 1) : ',F8.2)
-  2007  format (/,'Concentration limite de sable                  : ',F8.2)
-  2008  format (/,'***Parametres des berges'         ,/, &
-      'Modele                                : ',i3  ,/, &
-      'Pente de stabilite des talus immerges : ',F8.2,/, &
-      'Pente de stabilite des talus emerges  : ',F8.2)
-  2009  format ('Coefficient d''homothetie              : ',F8.2)
-  2010  format ('Coefficient de resistance residuelle  : ',F8.2)
-  2011  format ('Poids volumique de l''eau              : ',F8.2)
-  2012  format ('Poids volumique des sediments par couche :',/,A3,A8)
-  2013  format (i3,F8.2)
 
 
-  1000 format (/,'PARAMETRES DE CONVECTION-DIFFUSION',/, &
-             &   '----------------------------------',/)
-  1010 format ("Prise en compte de la convection : ", A3)
-  1020 format ("Schema de convection : ", A60)
-  1030 format ("   Ordre du schema = ", I2)
-  1040 format ("   Parametre W     = ", F5.2)
-  1050 format ("   Limiteur pente  = ", A3)
-  1060 format ("Prise en compte de la diffusion  : ", A3)
-  1070 format ("Coefficient de diffusion pour les vases  = ", F5.2)
-  1080 format ("Coefficient de diffusion pour les sables = ", F5.2)
 
 
 !=========================================================================

@@ -47,8 +47,8 @@ SUBROUTINE CALAGE_N2QN1( &
 !
 !                LA METHODE RETENUE EST UNE METHODE DE QUASI-NEWTON BFGS
 !                --- SOLVEUR D'OPTIMISATION : N2QN1 - INRIA ---
-!                       AUTEURS : C. LEMARECHAL et J.-Ch. GILBERT 
-!                
+!                       AUTEURS : C. LEMARECHAL et J.-Ch. GILBERT
+!
 !                LES DERIVEES dZ/dCF12 SONT CALCULEES PAR DERIVATION AUTOMATIQUE
 !                --- DIFFERENTIATEUR : TAPENADE - INRIA ---
 !                       AUTEURS : L. HASCOET et V. PASCUAL
@@ -94,8 +94,7 @@ SUBROUTINE CALAGE_N2QN1( &
    INTEGER :: retour ! Code de retour d'erreur des fonctions intrinseques
    INTEGER :: iter, ic
    INTEGER :: km, indice, j, k
-   INTEGER :: i
-   INTEGER :: indic, n 
+   INTEGER :: indic, n
    INTEGER :: imp
    INTEGER :: io
    INTEGER :: mode
@@ -107,11 +106,11 @@ SUBROUTINE CALAGE_N2QN1( &
    DOUBLE PRECISION ::zinit
    DOUBLE PRECISION :: f
    DOUBLE PRECISION :: df1, dk, ftemp
-   DOUBLE PRECISION :: epsabs, eps 
+   DOUBLE PRECISION :: epsabs, eps
    DOUBLE PRECISION, DIMENSION(:), POINTER :: z_calc
    DOUBLE PRECISION, DIMENSION(:), POINTER :: cfzone
-   DOUBLE PRECISION, DIMENSION(:), POINTER :: g   
-   DOUBLE PRECISION, DIMENSION(:), POINTER :: gnext      
+   DOUBLE PRECISION, DIMENSION(:), POINTER :: g
+   DOUBLE PRECISION, DIMENSION(:), POINTER :: gnext
    DOUBLE PRECISION, DIMENSION(:), POINTER :: dxmin
    DOUBLE PRECISION, DIMENSION(:), POINTER  :: binf
    DOUBLE PRECISION, DIMENSION(:), POINTER  :: bsup
@@ -304,7 +303,7 @@ SUBROUTINE CALAGE_N2QN1( &
 ! CALCUL DE LA DIAGONAL DE LA HESSIENNE PAR DIFFERENCES FINIES
 !
    j = 1
-   DO k = 1, n    
+   DO k = 1, n
       cfzone(k) = cfzone(k) + dk
       CALL SIMUL(indic, n, cfzone, ftemp, gnext, izs, rzs, dzs)
       IF (gnext(k) .LT. 0.D0+eps.AND. gnext(k) .GT. 0.D0-eps)  THEN
@@ -353,8 +352,8 @@ SUBROUTINE CALAGE_N2QN1( &
 !
 ! RECOPIE DE LA SOLUTION
 !
-   DO k=1,n/2  
-       calage_frott(k)%valeur_coeff_min = cfzone(k) 
+   DO k=1,n/2
+       calage_frott(k)%valeur_coeff_min = cfzone(k)
        calage_frott(k)%valeur_coeff_maj = cfzone(k+n/2)
    ENDDO
 

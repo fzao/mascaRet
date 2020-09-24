@@ -73,7 +73,6 @@ subroutine BISSND_tracer( &
    integer        :: KM1,K
    logical        :: premier_tour
    real(DOUBLE)   :: DET
-   character(132) :: arbredappel_old ! arbre d'appel precedent
 
    !============================= Instructions ===========================
    ! INITIALISATION

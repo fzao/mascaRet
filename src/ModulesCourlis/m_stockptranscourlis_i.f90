@@ -2,49 +2,49 @@ Module M_StockPTransCourlis_I
 
 Interface
 
-Subroutine  StockPTransCourlis	( &
+Subroutine  StockPTransCourlis  ( &
 
-	FicStockPTransCourlis		, & ! Unite logique fichier listing
-    PhaseStockPTransCourlis		, & ! Phase de la simulation (init, calcul, ??)
-	Temps						, & ! Temps courant
-    NbProfil					, & ! Nombre de profils
-	NbInterface					, & ! Nombre d'interfaces
-    ProfilCourlis				, & ! Profils sedimentaires
-	Zsurf						, & ! Cote de la surface libre
-	TauH						, & ! Contrainte hydr. loc. (depend du tirant d'eau local)
-	TauE						, & ! Contrainte hydr. eff. (depend du rayon hydr.)
-	Ceq							, & ! Conc. d'equilibre des sables 
-	Erreur						)
+  FicStockPTransCourlis    , & ! Unite logique fichier listing
+    PhaseStockPTransCourlis    , & ! Phase de la simulation (init, calcul, ??)
+  Temps            , & ! Temps courant
+    NbProfil          , & ! Nombre de profils
+  NbInterface          , & ! Nombre d'interfaces
+    ProfilCourlis        , & ! Profils sedimentaires
+  Zsurf            , & ! Cote de la surface libre
+  TauH            , & ! Contrainte hydr. loc. (depend du tirant d'eau local)
+  TauE            , & ! Contrainte hydr. eff. (depend du rayon hydr.)
+  Ceq              , & ! Conc. d'equilibre des sables
+  Erreur            )
 
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       05/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       05/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !
-!  Fonction :	Ecriture du fichier resultat de Courlis pour POSTCOURLIS
-!  --------		- trace des profils en travers
+!  Fonction :  Ecriture du fichier resultat de Courlis pour POSTCOURLIS
+!  --------    - trace des profils en travers
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
 !
-!  Sous-programme appele :	SurfaceLibre
-!  ---------------------	
-!		
+!  Sous-programme appele :  SurfaceLibre
+!  ---------------------
+!
 !=========================================================================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_CONSTANTES_CALCUL_C	! Constantes num, phys et info
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
 
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T		! Definition du type PROFIL_COURLIS
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
 
@@ -53,7 +53,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 !

@@ -20,13 +20,13 @@ subroutine LEC_APPORT_PLUIE ( &
                               ApportPluie  , &
                               NbCasier     , &
                               Loi          , &
-                              document     , & ! Pointeur vers document XML                             
+                              unitNum      , & ! unite logique du fichier .xcas
                               UniteListing , &
                               Erreur )
 
 ! ******************************************************************
 ! PROGICIEL : MASCARET             C. RISSOAN
-!                                  F. ZAOUI                              
+!                                  F. ZAOUI
 !
 ! VERSION : V8P2R0                  EDF-CEREMA
 !
@@ -47,11 +47,11 @@ subroutine LEC_APPORT_PLUIE ( &
    use M_ERREUR_T
    use M_LOI_T
    use M_TRAITER_ERREUR_CASIER_I
-   use M_TRAITER_ERREUR_I         ! Traitement de l'errreur   
+   use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
    use M_MESSAGE_CASIER_C
    use M_PRECISION
-   use Fox_dom                    ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    !.. Arguments ..
@@ -59,15 +59,16 @@ subroutine LEC_APPORT_PLUIE ( &
    type(ERREUR_T)                        , intent(inout) :: Erreur
    type(LOI_T)            , dimension(: ), intent(in   ) :: Loi
    integer                               , intent(in   ) :: NbCasier, UniteListing
-   type(Node), pointer, intent(in)                       :: document
-   
+   integer, intent(in)                                   :: unitNum
+
    !.. Variables locales ..
    !character(132) :: arbredappel_old
    integer :: nombre_apport, iapport, nbloi
    integer :: retour          ! code de retour des fonctions intrinseques
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab1(:),itab2(:)
-   
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
+
    !========================== Instructions =============================
 
    ! INITIALISATION
@@ -79,26 +80,27 @@ subroutine LEC_APPORT_PLUIE ( &
 
    ! Nombre d apports
    !-----------------
-   champ1 => item(getElementsByTagname(document, "parametresApportDeversoirs"), 0)
-   if(associated(champ1).eqv..false.) then
+   pathNode = 'parametresApportDeversoirs'
+   line = xcasReader(unitNum, pathNode)
+
+   if(len(trim(line)).eq.0) then
          print*,"Parse error => parametresApportDeversoirs"
          call xerror(Erreur)
          return
    endif
-   champ2 => item(getElementsByTagname(champ1, "apportCasier"), 0)
-   if(associated(champ2).eqv..false.) then
+
+   pathNode = 'parametresApportDeversoirs/apportCasier'
+   line = xcasReader(unitNum, pathNode)
+
+   if(len(trim(line)).eq.0) then
        nombre_apport = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nbApportPluie"), 0)
-       if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nbApportPluie"
-         call xerror(Erreur)
-         return
-       endif
-       call extractDataContent(champ3,nombre_apport)
+       pathNode = 'parametresApportDeversoirs/apportCasier/nbApportPluie'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nombre_apport
    endif
    if( nombre_apport == 0 ) then
-      if (UniteListing >0) then 
+      if (UniteListing >0) then
          write( UniteListing , 10010 )
       end if
       allocate( ApportPluie(0) , STAT = retour )
@@ -139,22 +141,15 @@ subroutine LEC_APPORT_PLUIE ( &
        call TRAITER_ERREUR( Erreur , 'itab2' )
        return
    end if
-   
-   champ3 => item(getElementsByTagname(champ2, "numCasier"), 0)
-   if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numCasier"
-         call xerror(Erreur)
-         return
-   endif
-   call extractDataContent(champ3,itab1)
-   champ3 => item(getElementsByTagname(champ2, "numLoi"), 0)
-   if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numLoi"
-         call xerror(Erreur)
-         return
-      endif
-   call extractDataContent(champ3,itab2)
-   
+
+   pathNode = 'parametresApportDeversoirs/apportCasier/numCasier'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab1
+
+   pathNode = 'parametresApportDeversoirs/apportCasier/numLoi'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab1
+
    do iapport = 1 , nombre_apport
 
       ApportPluie(iapport)%Numero = itab1(iapport)
@@ -190,7 +185,7 @@ subroutine LEC_APPORT_PLUIE ( &
 
    deallocate(itab1)
    deallocate(itab2)
-   
+
    !.. Fin des traitements ..
 
    !Erreur%arbredappel = arbredappel_old
@@ -199,23 +194,23 @@ subroutine LEC_APPORT_PLUIE ( &
 
    !.. Format Declarations ..
    10010 format( 'Il n''y a aucun apport de pluie dans les casiers' )
-   
+
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
+
    end subroutine xerror
 
 end subroutine LEC_APPORT_PLUIE

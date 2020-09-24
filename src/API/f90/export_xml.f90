@@ -37,23 +37,17 @@ subroutine EXPORT_XML(RetourErreur, Identifiant, NomFichier, avecDesc, exportMod
    logical, intent(in)                         :: avecDesc            ! si vrai, on ajoute la description de la variable
    logical, intent(in)                         :: exportModele        ! si vrai export du modele, sinon export de l'etat
 
-   integer erreur, uniteLogique, versionMaj, versionMin, versionMic
-   integer i, j, k, l
-   character(len=10) version
+   integer erreur, uniteLogique
+   integer i
    character(len=40) , dimension(NB_VAR_MASCARET) :: TabNom
    character(len=110), dimension(NB_VAR_MASCARET) :: TabDesc
-   character(len=110) description
    character(len=40)  nomVar
    character(LEN=10) TypeVar                  ! "INT" ou "DOUBLE" ou "BOOL" ou "STRING" ou "TABINT" ou "TABDOUBLE" ou "TABBOOL"
    character(LEN=10) Categorie                ! "MODEL" ou "STATE"
    logical           Modifiable               ! Si vrai alors on peut utiliser une fonction SET_XXXX_MASCARET sur la variable
    integer           dimVar                   ! dimension (c'est a dire le nombre d'indexe de 0 a 3)
    character(LEN=256) MessageErreur           ! Message d'erreur
-   integer index1, index2, index3, valInt, tailleString
-   real(8) valDouble
-   logical valBool
-   character(LEN=256) valString
-   integer taille1, taille2, taille3,taille
+   logical tracerOption
    character(len=255) baliseModeleEtat
 
    if (exportModele) then
@@ -69,6 +63,9 @@ subroutine EXPORT_XML(RetourErreur, Identifiant, NomFichier, avecDesc, exportMod
       RETURN
    end if
 
+   ! Test for Tracer option
+   call GET_BOOL_MASCARET(RetourErreur, Identifiant, 'Model.TracerOn', 0, 0, 0, tracerOption)
+
    call OUVERTURE_BALISE_XML(RetourErreur, Identifiant, NomFichier, uniteLogique, baliseModeleEtat)
 
    ! Initialisation des noms et des descriptions des variables MASCARET
@@ -80,22 +77,23 @@ subroutine EXPORT_XML(RetourErreur, Identifiant, NomFichier, avecDesc, exportMod
 
    do i=1, NB_VAR_MASCARET
       nomVar = TabNom(i)
-      erreur = GET_TYPE_VAR_MASC(nomVar, TypeVar, Categorie, Modifiable, dimVar, MessageErreur)
-      if (erreur /= 0) then
-         RetourErreur = erreur
-         RETURN
-      end if
+     if(xor(index(nomVar, '.Tracer').gt.0, tracerOption).eqv..false.) then
+        erreur = GET_TYPE_VAR_MASC(nomVar, TypeVar, Categorie, Modifiable, dimVar, MessageErreur)
+        if (erreur /= 0) then
+           RetourErreur = erreur
+           RETURN
+        end if
 
-      if ((exportModele       .AND. (Categorie=='MODEL')).OR. &
-         ((.NOT.exportModele) .AND. (Categorie/='MODEL'))    ) then
+        if ((exportModele       .AND. (Categorie=='MODEL')).OR. &
+           ((.NOT.exportModele) .AND. (Categorie/='MODEL'))    ) then
 
-         call EXPORT_VAR_XML(erreur, Identifiant, uniteLogique, nomVar, avecDesc)
-         if (erreur /= 0) then
-            RetourErreur = erreur
-            RETURN
-         end if
-      end if
-
+           call EXPORT_VAR_XML(erreur, Identifiant, uniteLogique, nomVar, avecDesc)
+           if (erreur /= 0) then
+              RetourErreur = erreur
+              RETURN
+           end if
+        end if
+      endif
    end do
 
    ! Fermeture de l'entete XML
@@ -119,11 +117,8 @@ subroutine EXPORT_XML_SAINT_VENANT(RetourErreur, Identifiant, NomFichier)
    integer, intent(in )               :: Identifiant         ! Identifiant de l'instance Mascaret retourne par "CREATE_MASCARET"
    character(len=255), intent(in )    :: NomFichier          ! Nom du fichier XML cree contenant le Modele Mascaret
 
-   integer erreur, uniteLogique, versionMaj, versionMin, versionMic
-   integer i, j, k, l
-   character(len=10) version
-   character(LEN=40) , dimension(NB_VAR_MASCARET) :: TabNom
-   character(LEN=110), dimension(NB_VAR_MASCARET) :: TabDesc
+   integer erreur, uniteLogique
+   integer i
    character(len=110) descrip
    character(len=40)  nomVar
    character(len=40)  nomBalise
@@ -133,12 +128,11 @@ subroutine EXPORT_XML_SAINT_VENANT(RetourErreur, Identifiant, NomFichier)
    logical           bDesc                 ! si vrai, on ajoute la description de la variable
    integer           dimVar                ! dimension (c'est a dire le nombre d'indexe de 0 a 3)
    character(LEN=256) MessageErreur        ! Message d'erreur
-   integer index1, index2, index3, valInt
+   integer index1, valInt
    character(LEN=20) tailleChar
-   real(8) valDouble
    logical valBool
    character(LEN=256) valString
-   integer taille1, taille2, taille3, taille
+   integer taille1, taille2, taille3
    integer nbVar, nbTaille
    character(len=255) baliseModeleEtat
    ! Tableau des infos a exporter
@@ -498,11 +492,7 @@ subroutine EXPORT_USERVAR_XML(RetourErreur, Identifiant, uniteLogique, nomUserVa
    character(len=110), intent(in) :: descVar       ! texte de la description en francais de la variable
    character(len=20), intent(in)  :: valeurVar     ! valeur de la variable au format texte
 
-   character(len=256) valString, MessageErreur
-   character(len=110) description
    !character(LEN=10) Categorie                ! "MODEL" ou "STATE"
-   logical           Modifiable               ! Si vrai alors on peut utiliser une fonction SET_XXXX_MASCARET sur la variable
-   integer           dimVar                   ! dimension (c'est a dire le nombre d'indexe de 0 a 3)
    integer           erreur
 
 
@@ -612,7 +602,7 @@ subroutine EXPORT_DIM1(Erreur, Identifiant, NomVar, TypeVar, UniteLogique)
 
    integer i, taille1, taille2, taille3
    character(len= 256)     valeur
-   character(len=12) tailleString, iString
+   character(len=12) tailleString
 
    taille1 = 1
    taille2 = 1
@@ -665,7 +655,7 @@ subroutine EXPORT_DIM2(Erreur, Identifiant, NomVar, TypeVar, UniteLogique)
 
    integer i, taille1, taille2, taille3
    character(len= 256)     valeur
-   character(len=12) tailleString, iString
+   character(len=12) tailleString
 
    integer j, t
 
@@ -690,7 +680,7 @@ subroutine EXPORT_DIM2(Erreur, Identifiant, NomVar, TypeVar, UniteLogique)
 
       write(UniteLogique,"(3x,'<',A,' dim=""1"" taille=""',A,'"">')") TRIM(TypeVar), TRIM(adjustl(tailleString))
       do j=1, taille2
-         call getValeurString(Erreur, Identifiant, NomVar, TypeVar, i, j, 1, valeur)
+         call getValeurString(Erreur, Identifiant, NomVar, TypeVar, i, j, 0, valeur)
          if (Erreur /= 0) then
            return
          end if
@@ -734,7 +724,7 @@ subroutine EXPORT_DIM3(Erreur, Identifiant, NomVar, TypeVar, UniteLogique)
 
    integer i, taille1, taille2, taille3
    character(len= 256)     valeur
-   character(len=12) tailleString, iString
+   character(len=12) tailleString
 
    integer j, k, t1,t2
 
@@ -849,5 +839,3 @@ subroutine FERMETURE_BALISE_XML(erreur, Identifiant, uniteLogique, balise)
    write(uniteLogique,"('</',A,'>')") TRIM(balise)
    close(uniteLogique)
 end subroutine FERMETURE_BALISE_XML
-
-

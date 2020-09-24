@@ -17,265 +17,391 @@
 !
 
 ! *********************************************************************
-! PROGICIEL : MASCARET       B.MARCHAND (marchand@deltacad.fr)
+! PROGICIEL : MASCARET       Fabrice Zaoui
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
 
 
-!.................................................................................................................................
+!......................................................................
 ! Import d'un modele Mascaret en XML
-! .................................................................................................................................
-subroutine IMPORT_XML(RetourErreur, Identifiant, NomFichier, importModele)
+! .....................................................................
+subroutine import_xml(errorCode, Identifiant, NomFichier, importModele)
 
    use M_APIMASCARET_STATIC
    use M_MASCARET_T
    use M_MODELE_MASCARET_T
-   use FOX_SAX ! Le parser XML
 
    implicit none
 
-   integer, intent(out)                        :: RetourErreur        ! different de 0 si erreur
+   integer, intent(out)                        :: errorCode        ! different de 0 si erreur
    integer, intent(in )                        :: Identifiant         ! Identifiant de l'instance Mascaret retourne par "CREATE_MASCARET"
-   character (len=255), intent(in )            :: NomFichier          ! Nom du fichier XML  contenant le Modele Mascaret
+   character(len=255), intent(in )             :: NomFichier          ! Nom du fichier XML  contenant le Modele Mascaret
    logical, intent(in)                         :: importModele        ! si vrai import du modele, sinon import de l'etat
 
-   type(xml_t) :: xparser
-   character (len=255) :: baliseModeleEtat
-   character (len=255) :: curVar="" ! Le nom courant de la variable. Si "", aucune variable en cours
-   character (len=80) :: tpVar ! Le type de la variable
-   integer :: idimVar ! La dimension de la variable
+   character(len=14) :: baliseModeleEtat
+   character(len=7) :: nameType
+   character(len=7) :: nameType2
    logical :: mascaretFile ! Le fichier est bien un fichier mascaret
-   integer :: taille1, taille2, taille3 ! Les tailles
-   integer :: ind1, ind2, ind3 ! Les indice sur les tailles
-   character (len=255) :: baliseText
+   character(len=1024) :: line
+   integer             :: unitNum
+   integer             :: numLine
+   character(len=64)   :: varName
+   character(len=64)   :: varType
+   integer             :: varDimension
+   integer j
 
-   logical, parameter :: DEBUG=.false. ! Pour debugger
+   mascaretFile = .false.
 
-   mascaretFile=.false.
-
-   if (importModele) then
-       baliseModeleEtat="MASCARET_Model"
+   if(importModele)then
+       baliseModeleEtat = "MASCARET_Model"
+       nameType = '<Model.'
+       nameType2 = '</Model'
    else
-       baliseModeleEtat="MASCARET_State"
+       baliseModeleEtat = "MASCARET_State"
+       nameType = '<State.'
+       nameType2 = '</State'
    endif
 
-   RetourErreur = TEST_INIT_AND_ID(Identifiant, 'IMPORT_XML')
-   if (RetourErreur > 0 ) then
+   errorCode = TEST_INIT_AND_ID(Identifiant, 'IMPORT_XML')
+   if (errorCode > 0 ) then
         RETURN
    end if
 
-
-   call open_xml_file(xparser, NomFichier, iostat=RetourErreur)
-   if (RetourErreur/=0) then
-     ptrMsgsErreurs(Identifiant) = "IMPORT_XML - Impossible d'ouvrir "//NomFichier
-     return
+   unitNum = 123
+   open(unit=unitNum, file=NomFichier, status="old", action="read", iostat=errorCode)
+   if(errorCode.ne.0) then
+       ptrMsgsErreurs(Identifiant) = 'IMPORT_XML - Unable to open the .xml file ' // NomFichier
+       return
    endif
 
-   call parse(xparser, &
-              startElement_handler=START_ELEMENT_HANDLER, endElement_handler=END_ELEMENT_HANDLER, &
-              characters_handler=CHARACTERS_HANDLER)
+   read(unitNum, '(A)', iostat=errorCode) line
+   read(unitNum, '(A)', iostat=errorCode) line
 
-   call close_xml_t(xparser)
+   if(index(line, baliseModeleEtat).eq.0) then
+       if(importModele) then
+           ptrMsgsErreurs(Identifiant) = 'IMPORT_XML - The file is not a Mascaret model'
+       else
+           ptrMsgsErreurs(Identifiant) = 'IMPORT_XML - The file is not a Mascaret state'
+       endif
+       errorCode = 2
+       close(unitNum)
+       return
+   endif
+
+   do
+       read(unitNum, '(A)', iostat=errorCode) line
+       if(errorCode > 0) then
+           ptrMsgsErreurs(Identifiant) = 'IMPORT_XML - Unable to read from the .xml file ' // NomFichier
+           errorCode = 2
+           close(unitNum)
+           return
+       elseif(errorCode < 0) then
+           exit
+       else
+           j = index(line, nameType)
+           if(j.gt.0) then
+               call tagxml(line(j:), varName, varType, varDimension)
+               write(*,*) varName, varType, varDimension
+               if(index(varType, 'INT').gt.0) then
+                   call readInt(unitNum, identifiant, line(j:), varName, varDimension, nameType2)
+               elseif(index(varType, 'DOUBLE').gt.0) then
+                   call readDouble(unitNum, identifiant, line(j:), varName, varDimension, nameType2)
+               elseif(index(varType, 'BOOL').gt.0) then
+                   call readBool(unitNum, identifiant, line(j:), varName, varDimension, nameType2)
+               elseif(index(varType, 'STRING').gt.0) then
+                   call readString(unitNum, identifiant, line(j:), varName, varDimension, nameType2)
+               endif
+           endif
+       endif
+   end do
+
+   if(errorCode < 0) errorCode = 0  ! EOF normal condition
+
    geometrieModifiee(Identifiant) = .false.
+
+   close(unitNum)
 
 contains
 
-!.................................................................................................................................
-! Debut d'une balise
-! .................................................................................................................................
-subroutine START_ELEMENT_HANDLER(uri, localname, name,attributes)
-   use FOX_SAX
+    subroutine xmeshGrid(d, ind)
+        integer, intent(in)                                 :: d(3)
+        integer, intent(inout), dimension(:,:), allocatable :: ind
+        integer :: i, j, k, ii
 
-   implicit none
+        ii = 0
+        do i = 1, d(1)
+            if(d(2).eq.0) then
+                ii = ii + 1
+                ind(ii, 1) = i
+            else
+                do j = 1, d(2)
+                    if(d(3).eq.0) then
+                        ii = ii + 1
+                        ind(ii, 1) = i
+                        ind(ii, 2) = j
+                    else
+                        do k = 1, d(3)
+                            ii = ii + 1
+                            ind(ii, 1) = i
+                            ind(ii, 2) = j
+                            ind(ii, 3) = k
+                        end do
+                    endif
+                end do
+            endif
+        end do
+        return
+    end subroutine xmeshGrid
 
-   character(len=*), intent(in)   :: uri
-   character(len=*), intent(in)   :: localname
-   character(len=*), intent(in)   :: name
-   type(dictionary_t), intent(in) :: attributes
+    subroutine tagxml(line, varName, varType, varDimension)
+        implicit none
+        character(len=1024), intent(in) :: line
+        character(len=64), intent(out)  :: varName
+        character(len=64), intent(out)  :: varType
+        integer, intent(out)            :: varDimension
+        integer :: i, j
+        character :: d
 
-   integer :: i, icurdim, icurtaille
-   character (len=*), parameter :: MODELE_NAME = 'MASCARET_Model', ETAT_NAME = 'MASCARET_State'
-   character (len=80) :: curDim, curTaille
-   character (len=5) :: dimVar
+        ! Variable name
+        i = scan(line, ' ')
+        varName = line(2:i-1)
 
-   baliseText=""
+        ! Variable type
+        i = index(line, 'type=')
+        j = index(line, 'description=')
+        if(j.eq.0) then
+            j = index(line, 'dimension=')
+        endif
+        varType = line(i+6:j-3)
 
-   ! Aucune balise n'a ete lue => Balise document
-   if (.not.mascaretFile) then
-     if ((name==MODELE_NAME .and. importModele) .or. &
-         (name==ETAT_NAME .and. .not.importModele)) then
-       mascaretFile=.true.
-       return
-     else
-       if (importModele) then
-         ptrMsgsErreurs(Identifiant) = "IMPORT_XML - Le fichier n'est pas de type modele Mascaret"
-       else
-         ptrMsgsErreurs(Identifiant) = "IMPORT_XML - Le fichier n'est pas de type etat Mascaret"
-       endif
-       RetourErreur = 2
-       call stop_parser(xparser)
-       return
-     endif
+        ! Variable dimension
+        j = index(line, 'dimension=')
+        d = line(j+11:j+11)
+        read(d, '(i1)') varDimension
 
-   ! Pas de variable courante => On stocke la variable et ses attributs
-   else if (curVar=="") then
-     curVar=name
-     tpVar=getValue(attributes,uri,"type")
-     dimVar=getValue(attributes,uri,"dimension")
-     read (dimVar,'(i5)') idimVar
+    end subroutine tagxml
 
-     taille1=0
-     taille2=0
-     taille3=0
-     ind1=0
-     ind2=0
-     ind3=0
+    subroutine readInt(unitNum, identifiant, line, varName, varDimension, nameType2)
+        implicit none
+        integer, intent(in)                :: unitNum
+        integer, intent(in )               :: identifiant
+        character(len=1024), intent(inout) :: line
+        character(len=64), intent(in)      :: varName
+        integer, intent(in)                :: varDimension
+        character(len=7), intent(in)       :: nameType2
+        integer :: valint
+        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer, dimension(:,:), allocatable :: ind
+        integer :: errorCode
 
+        if(varDimension.eq.0) then
+            i = index(line, 'dimension=')
+            j = i+14
+            i = index(line, nameType2)
+            read(line(j:i-1), '(i6)') valint
+            call set_int_mascaret(errorCode, identifiant, trim(varName), &
+              0, 0, 0, valint)
+        else
+            prodsize = 1
+            d(1:3) = 0
+            do ii = 1, varDimension
+                read(unitNum, '(A)', iostat=errorCode) line
+                i = index(line, 'taille=')
+                j = index(line, '">')
+                read(line(i+8:j-1), '(i6)') size
+                prodsize = prodsize * size
+                d(ii) = size
+            end do
+            if(prodsize.gt.0) then
+                allocate(ind(prodsize, 3))
+                ind(:,:) = 0
+                call xmeshGrid(d, ind)
+                ii = 0
+                do
+                    read(unitNum, '(A)', iostat=errorCode) line
+                    i = index(line, '<v>')
+                    if(i.ne.0) then
+                        j = index(line, '</v>')
+                        read(line(i+3:j-1), '(i6)') valint
+                        ii = ii + 1
+                        call set_int_mascaret(errorCode, identifiant, trim(varName), &
+                          ind(ii,1), ind(ii,2), ind(ii,3), valint)
+                        if(ii.eq.prodsize) exit
+                    endif
+                end do
+                deallocate(ind)
+            endif
+        endif
+    end subroutine readInt
 
-     if (DEBUG) print *,'START_ELEMENT_HANDLER/curVar=',trim(curVar),' type=',trim(tpVar),' dimension=',trim(dimVar)
+    subroutine readDouble(unitNum, identifiant, line, varName, varDimension, nameType2)
+        implicit none
+        integer, intent(in)                :: unitNum
+        integer, intent(in )               :: identifiant
+        character(len=1024), intent(inout) :: line
+        character(len=64), intent(in)      :: varName
+        integer, intent(in)                :: varDimension
+        character(len=7), intent(in)       :: nameType2
+        double precision :: valdouble
+        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer, dimension(:,:), allocatable :: ind
+        integer :: errorCode
 
-   ! Sous balises pour les dimensions > 1
-   else if (name=="TABDOUBLE" .or. name=="TABINT" .or. name=="TABBOOL" .or. name=="TABSTRING" .or. &
-            name=="DOUBLE" .or. name=="INT" .or. name=="BOOL" .or. name=="STRING") then
-     curDim=getValue(attributes,uri,"dim")
-     read (curDim,'(i5)') icurdim
-     curTaille=getValue(attributes,uri,"taille")
-     read (curTaille,'(i5)') icurtaille
+        if(varDimension.eq.0) then
+            i = index(line, 'dimension=')
+            j = i+14
+            i = index(line, nameType2)
+            read(line(j:i-1), '(g32.4)') valdouble
+            call set_double_mascaret(errorCode, identifiant, trim(varName), &
+              0, 0, 0, valdouble)
+        else
+            prodsize = 1
+            d(1:3) = 0
+            do ii = 1, varDimension
+                read(unitNum, '(A)', iostat=errorCode) line
+                i = index(line, 'taille=')
+                j = index(line, '">')
+                read(line(i+8:j-1), '(i6)') size
+                prodsize = prodsize * size
+                d(ii) = size
+            end do
+            if(prodsize.gt.0) then
+                allocate(ind(prodsize, 3))
+                ind(:,:) = 0
+                call xmeshGrid(d, ind)
+                ii = 0
+                do
+                    read(unitNum, '(A)', iostat=errorCode) line
+                    i = index(line, '<v>')
+                    if(i.ne.0) then
+                        j = index(line, '</v>')
+                        read(line(i+3:j-1), '(g32.4)') valdouble
+                        ii = ii + 1
+                        call set_double_mascaret(errorCode, identifiant, trim(varName), &
+                          ind(ii,1), ind(ii,2), ind(ii,3), valdouble)
+                        if(ii.eq.prodsize) exit
+                    endif
+                end do
+                deallocate(ind)
+            endif
+        endif
+    end subroutine readDouble
 
-     if (icurdim==idimVar) then
-       taille1=icurtaille
-       ind1=0
-       ind2=0
-       ind3=0
+    subroutine readBool(unitNum, identifiant, line, varName, varDimension, nameType2)
+        implicit none
+        integer, intent(in)                :: unitNum
+        integer, intent(in )               :: identifiant
+        character(len=1024), intent(inout) :: line
+        character(len=64), intent(in)      :: varName
+        integer, intent(in)                :: varDimension
+        character(len=7), intent(in)       :: nameType2
+        logical :: valbool
+        character(len=4) :: frenchVal
+        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer, dimension(:,:), allocatable :: ind
+        integer :: errorCode
 
-     else if (icurdim==idimVar-1) then
-       taille2=icurtaille
-       ind1=ind1+1
-       ind2=0
-       ind3=0
+        if(varDimension.eq.0) then
+            i = index(line, 'dimension=')
+            j = i+14
+            i = index(line, nameType2)
+            frenchVal = line(j:i-1)
+            if(index(frenchVal, 'VRAI').ne.0) then
+                valbool = .true.
+            else
+                valbool = .false.
+            endif
+            call set_bool_mascaret(errorCode, identifiant, trim(varName), &
+              0, 0, 0, valbool)
+        else
+            prodsize = 1
+            d(1:3) = 0
+            do ii = 1, varDimension
+                read(unitNum, '(A)', iostat=errorCode) line
+                i = index(line, 'taille=')
+                j = index(line, '">')
+                read(line(i+8:j-1), '(i6)') size
+                prodsize = prodsize * size
+                d(ii) = size
+            end do
+            if(prodsize.gt.0) then
+                allocate(ind(prodsize, 3))
+                ind(:,:) = 0
+                call xmeshGrid(d, ind)
+                ii = 0
+                do
+                    read(unitNum, '(A)', iostat=errorCode) line
+                    i = index(line, '<v>')
+                    if(i.ne.0) then
+                        j = index(line, '</v>')
+                        frenchVal = line(i+3:j-1)
+                        if(index(frenchVal, 'VRAI').ne.0) then
+                            valbool = .true.
+                        else
+                            valbool = .false.
+                        endif
+                        ii = ii + 1
+                        call set_bool_mascaret(errorCode, identifiant, trim(varName), &
+                          ind(ii,1), ind(ii,2), ind(ii,3), valbool)
+                        if(ii.eq.prodsize) exit
+                    endif
+                end do
+                deallocate(ind)
+            endif
+        endif
+    end subroutine readBool
 
-     else if (icurdim==idimVar-2) then
-       taille3=icurtaille
-       ind2=ind2+1
-       ind3=0
-     endif
+    subroutine readString(unitNum, identifiant, line, varName, varDimension, nameType2)
+        implicit none
+        integer, intent(in)                :: unitNum
+        integer, intent(in )               :: identifiant
+        character(len=1024), intent(inout) :: line
+        character(len=64), intent(in)      :: varName
+        integer, intent(in)                :: varDimension
+        character(len=7), intent(in)       :: nameType2
+        character(len=128) :: valstring
+        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer, dimension(:,:), allocatable :: ind
+        integer :: errorCode
 
-     ! Si la dimension courante est 1, on redefinit systematiquement la taille de var
-     if (icurtaille==0 .or. icurdim==1) then
-       if (DEBUG) write (*,"('SET_TAILLE_VAR_MASCARET/curVar=',a,' ind1=',i0,' taille1=',i0,' taille2=',i0,' taille3=',i0)") &
-         trim(curVar),ind1,taille1,taille2,taille3
-       call SET_TAILLE_VAR_MASCARET(RetourErreur,Identifiant,curVar,ind1,taille1,taille2,taille3)
-     endif
-
-   endif
-
-end subroutine START_ELEMENT_HANDLER
-
-!.................................................................................................................................
-! Affecte la valeur lue sur le fichier a la variable
-! .................................................................................................................................
-subroutine SET_VAR()
-  implicit none
-
-  integer :: ival
-  real(8) :: dval
-  logical :: bval
-
-    if (tpVar=="TABDOUBLE" .or. tpVar=="DOUBLE") then
-      read(baliseText,'(g160.3)') dval
-      if (DEBUG) write (*,"('SET_DOUBLE_MASCARET/curVar=',a,' ind1=',i0,' ind2=',i0,' ind3=',i0,' val=',f0.0)") &
-         trim(curVar),ind1,ind2,ind3,dval
-      call SET_DOUBLE_MASCARET(RetourErreur,Identifiant,curVar,ind1,ind2,ind3,dval)
-
-    else if (tpVar=="TABINT" .or. tpVar=="INT") then
-      read(baliseText,'(i160)') ival
-      if (DEBUG) write (*,"('SET_INT_MASCARET/curVar=',a,' ind1=',i0,' ind2=',i0,' ind3=',i0,' val=',i0)") &
-         trim(curVar),ind1,ind2,ind3,ival
-      call SET_INT_MASCARET(RetourErreur,Identifiant,curVar,ind1,ind2,ind3,ival)
-
-    else if (tpVar=="TABSTRING" .or. tpVar=="STRING") then
-      if (DEBUG) write (*,"('SET_STRING_MASCARET/curVar=',a,' ind1=',i0,' ind2=',i0,' ind3=',i0,' val=',a)") &
-         trim(curVar),ind1,ind2,ind3,baliseText
-      call SET_STRING_MASCARET(RetourErreur,Identifiant,curVar,ind1,ind2,ind3,baliseText)
-
-    else if (tpVar=="TABBOOL" .or. tpVar=="BOOL") then
-      if (baliseText=="FAUX") then
-        bval=.false.
-      else if (baliseText=="VRAI") then
-        bval=.true.
-      else
-        ptrMsgsErreurs(Identifiant) = "IMPORT_XML - Variable "//trim(curVar)// &
-          " de type BOOL, valeur "//trim(baliseText)//" invalide"
-      endif
-      if (DEBUG) write (*,"('SET_BOOL_MASCARET/curVar=',a,' ind1=',i0,' ind2=',i0,' ind3=',i0,' val=',a)") &
-         trim(curVar),ind1,ind2,ind3,bval
-      call SET_BOOL_MASCARET(RetourErreur,Identifiant,curVar,ind1,ind2,ind3,bval)
-
-    else
-      ptrMsgsErreurs(Identifiant) = "IMPORT_XML - Variable "//trim(curVar)// &
-        " type invalide " // tpVar
-      call stop_parser(xparser)
-      RetourErreur = 2
-    endif
-
-end subroutine SET_VAR
-
-
-!.................................................................................................................................
-! Fermeture d'une balise
-! .................................................................................................................................
-subroutine END_ELEMENT_HANDLER(uri, localname, name)
-  use FOX_SAX
-
-  implicit none
-
-  character(len=*), intent(in)   :: uri
-  character(len=*), intent(in)   :: localname
-  character(len=*), intent(in)   :: name
-
-!  print *,'END_ELEMENT_HANDLER/BaliseText=',baliseText
-
-  if (name==curVar) then
-
-    if (idimVar==0) then
-      call SET_VAR()
-    endif
-
-    if (DEBUG) print *,'END_ELEMENT_HANDLER/Fin Variable ',trim(curVar)
-    curVar=""
-
-
-  else if (name=="v") then
-
-    if (idimVar==1) then
-      ind1=ind1+1
-    else if (idimVar==2) then
-      ind2=ind2+1
-    else
-      ind3=ind3+1
-    endif
-
-    call SET_VAR()
-  endif
-
-end subroutine END_ELEMENT_HANDLER
-
-!.................................................................................................................................
-! Texte dans la balise
-! .................................................................................................................................
-subroutine CHARACTERS_HANDLER(str)
-   use FOX_SAX
-
-   implicit none
-
-   character(len=*), intent(in) :: str
-
-   baliseText=trim(baliseText)//str
-
-end subroutine CHARACTERS_HANDLER
-
-end subroutine IMPORT_XML
-
-
-
+        if(varDimension.eq.0) then
+            i = index(line, 'dimension=')
+            j = i+14
+            i = index(line, nameType2)
+            valstring = line(j:i-1)
+            call set_string_mascaret(errorCode, identifiant, trim(varName), &
+                0, 0, 0, trim(valstring))
+        else
+            prodsize = 1
+            d(1:3) = 0
+            do ii = 1, varDimension
+                read(unitNum, '(A)', iostat=errorCode) line
+                i = index(line, 'taille=')
+                j = index(line, '">')
+                read(line(i+8:j-1), '(i6)') size
+                prodsize = prodsize * size
+                d(ii) = size
+            end do
+            if(prodsize.gt.0) then
+                allocate(ind(prodsize, 3))
+                ind(:,:) = 0
+                call xmeshGrid(d, ind)
+                ii = 0
+                do
+                    read(unitNum, '(A)', iostat=errorCode) line
+                    i = index(line, '<v>')
+                    if(i.ne.0) then
+                        j = index(line, '</v>')
+                        valstring = line(i+3:j-1)
+                        ii = ii + 1
+                        call set_string_mascaret(errorCode, identifiant, trim(varName), &
+                            ind(ii,1), ind(ii,2), ind(ii,3), trim(valstring))
+                        if(ii.eq.prodsize) exit
+                    endif
+                end do
+                deallocate(ind)
+            endif
+        endif
+    end subroutine readString
+end subroutine import_xml

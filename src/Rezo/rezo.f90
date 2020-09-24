@@ -223,7 +223,6 @@ subroutine  REZO    ( &
    real(DOUBLE)   :: Celerite
    real(DOUBLE)   :: DT, dt_lim
    real(DOUBLE)   :: HI, VI, v_amont_sing
-   character(132) :: arbredappel_old   ! Arbre d'appel precedent l'entree du sous programme
    real(DOUBLE)   :: v_moyen           ! Vitesse moyenne
    real(DOUBLE)   :: debitance         ! Debitance
    integer        :: num_bief          ! Numero de bief
@@ -235,8 +234,6 @@ subroutine  REZO    ( &
    integer      :: NumLiai, Appel_Kliaison
    real(DOUBLE) :: ZAM, ZAV, ZfAM, ZfAV
    real(DOUBLE)         , dimension(:)  , allocatable   :: Aliai, Bliai, Cliai, Dliai, Qliai
-   real(DOUBLE) :: DiffDebit
-   real(DOUBLE) :: Factor
    ! Save
    Save DT
    Save Matrice

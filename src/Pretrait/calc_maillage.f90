@@ -28,7 +28,7 @@ subroutine CALC_MAILLAGE ( &
      AbscRelExtFinBief   , & ! Abscisse rel de l'extremite debut du bief
      impression_geo      , & ! Flag d'impression de la geometrie
      UniteListing        , & ! Unite logique fichier listing
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 ! *********************************************************************
@@ -52,7 +52,7 @@ subroutine CALC_MAILLAGE ( &
    use M_MAILLER_I           ! Interface de sous-programme
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -74,8 +74,8 @@ subroutine CALC_MAILLAGE ( &
    integer                         , intent(in   ) :: UniteListing
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtFinBief
-   type(Node), pointer, intent(in)                   :: document
-   type(ERREUR_T)                    , intent(inout) :: Erreur
+   integer, intent(in)                             :: unitNum
+   type(ERREUR_T)                  , intent(inout) :: Erreur
    ! Variables locales
    type(SECTION_REL_T) :: section
    integer             :: mode_saisie_maillage
@@ -88,9 +88,10 @@ subroutine CALC_MAILLAGE ( &
                                   ! intrinseques
    integer :: k                   ! compteur sur les mailles
    integer :: imail               ! compteur sur les mailles
-   type(Node), pointer :: champ1,champ2,champ3,champ4
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -106,25 +107,9 @@ subroutine CALC_MAILLAGE ( &
 
    ! Mode de saisie du maillage
    !---------------------------
-   champ1 => item(getElementsByTagname(document, "parametresPlanimetrageMaillage"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresPlanimetrageMaillage"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "maillage"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => maillage"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "modeSaisie"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => modeSaisie"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,mode_saisie_maillage)
+   pathNode = 'parametresPlanimetrageMaillage/maillage/modeSaisie'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) mode_saisie_maillage
 
    if( mode_saisie_maillage /= SAISIE_PAR_FICHIER .and. &
       mode_saisie_maillage /= SAISIE_PAR_CLAVIER) then
@@ -138,13 +123,14 @@ subroutine CALC_MAILLAGE ( &
    if( mode_saisie_maillage == SAISIE_PAR_CLAVIER ) then
       if (UniteListing >0) write(UniteListing,10480) 'PAR CLAVIER'
       ! Methode de calcul du maillage
-      champ2 => item(getElementsByTagname(champ1, "methodeMaillage"), 0)
-      if(associated(champ2).eqv..false.) then
-      print*,"Parse error => methodeMaillage"
-      call xerror(Erreur)
-      return
-   endif
-      call extractDataContent(champ2,TypeMaillage)
+      pathNode = 'parametresPlanimetrageMaillage/methodeMaillage'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
+        print*,"Parse error => methodeMaillage"
+        call xerror(Erreur)
+        return
+      endif
+      read(unit=line, fmt=*) TypeMaillage
       if( TypeMaillage < 1 .or. TypeMaillage > TYPE_MAILLAGE_NB_MAX ) then
          Erreur%Numero = 371
          Erreur%ft   = err_371
@@ -168,25 +154,10 @@ subroutine CALC_MAILLAGE ( &
 
       select case( TypeMaillage )
          case( TYPE_MAILLAGE_SERIE )
-            champ2 => item(getElementsByTagname(champ1, "maillage"), 0)
-            if(associated(champ2).eqv..false.) then
-               print*,"Parse error => maillage"
-               call xerror(Erreur)
-               return
-            endif
-            champ3 => item(getElementsByTagname(champ2, "maillageClavier"), 0)
-            if(associated(champ3).eqv..false.) then
-               print*,"Parse error => maillageClavier"
-               call xerror(Erreur)
-               return
-            endif
-            champ4 => item(getElementsByTagname(champ3, "nbZones"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => nbZones"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,nb_maille)
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/nbZones'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) nb_maille
+
             if( nb_maille <= 0 ) then
                Erreur%Numero = 306
                Erreur%ft     = err_306
@@ -213,38 +184,22 @@ subroutine CALC_MAILLAGE ( &
                return
             end if
 
-            champ4 => item(getElementsByTagname(champ3, "numBrancheZone"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => numBrancheZone"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_r%Branche)
-            
-            champ4 => item(getElementsByTagname(champ3, "absDebutZone"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => absDebutZone"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_r%AbscisseDeb)
-            
-            champ4 => item(getElementsByTagname(champ3, "absFinZone"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => absFinZone"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_r%AbscisseFin)
-            
-            champ4 => item(getElementsByTagname(champ3, "nbSectionZone"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => nbSectionZone"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_r%NbSection)
-            
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/numBrancheZone'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_r%Branche
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/absDebutZone'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_r%AbscisseDeb
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/absFinZone'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_r%AbscisseFin
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/nbSectionZone'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_r%NbSection
+
             do k = 1 , nb_maille
 
                if( maille_r(k)%AbscisseDeb < AbscRelExtDebBief(maille_r(k)%Branche ) .or. &
@@ -323,25 +278,11 @@ subroutine CALC_MAILLAGE ( &
             end do
 
          case( TYPE_MAILLAGE_SERIE_PROFIL )
-            champ2 => item(getElementsByTagname(champ1, "maillage"), 0)
-            if(associated(champ2).eqv..false.) then
-               print*,"Parse error => maillage"
-               call xerror(Erreur)
-               return
-            endif
-            champ3 => item(getElementsByTagname(champ2, "maillageClavier"), 0)
-            if(associated(champ3).eqv..false.) then
-               print*,"Parse error => maillageClavier"
-               call xerror(Erreur)
-               return
-            endif
-            champ4 => item(getElementsByTagname(champ3, "nbPlages"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => nbPlages"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,nb_maille)
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/nbPlages'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) nb_maille
+
             if( nb_maille <= 0 ) then
                Erreur%Numero = 306
                Erreur%ft     = err_306
@@ -368,30 +309,18 @@ subroutine CALC_MAILLAGE ( &
                return
             end if
 
-            champ4 => item(getElementsByTagname(champ3, "num1erProfPlage"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => num1erProfPlage"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_e(1:nb_maille)%ProfilDeb)
-            
-            champ4 => item(getElementsByTagname(champ3, "numDerProfPlage"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => numDerProfPlage"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_e(1:nb_maille)%ProfilFin)
-            
-            champ4 => item(getElementsByTagname(champ3, "pasEspacePlage"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => pasEspacePlage"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,maille_e(1:nb_maille)%Pas)
-            
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/num1erProfPlage'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_e(1:nb_maille)%ProfilDeb
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/numDerProfPlage'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_e(1:nb_maille)%ProfilFin
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/pasEspacePlage'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) maille_e(1:nb_maille)%Pas
+
             do k = 1 , nb_maille
 
                if( maille_e(k)%ProfilDeb <= 0 ) then
@@ -446,26 +375,10 @@ subroutine CALC_MAILLAGE ( &
                return
             end if
 
-            champ2 => item(getElementsByTagname(champ1, "maillage"), 0)
-            if(associated(champ2).eqv..false.) then
-               print*,"Parse error => maillage"
-               call xerror(Erreur)
-               return
-            endif
-            champ3 => item(getElementsByTagname(champ2, "maillageClavier"), 0)
-            if(associated(champ3).eqv..false.) then
-               print*,"Parse error => maillageClavier"
-               call xerror(Erreur)
-               return
-            endif
-            champ4 => item(getElementsByTagname(champ3, "nbSections"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => nbSections"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,nb_section)
-            
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/nbSections'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) nb_section
+
             if( nb_section <= 0 ) then
                Erreur%Numero = 306
                Erreur%ft     = err_306
@@ -482,7 +395,7 @@ subroutine CALC_MAILLAGE ( &
                call TRAITER_ERREUR( Erreur , 'itab' )
                return
             end if
-            
+
             allocate( rtab(nb_section) , STAT = retour )
             if( retour /= 0 ) then
                Erreur%Numero = 5
@@ -491,7 +404,7 @@ subroutine CALC_MAILLAGE ( &
                call TRAITER_ERREUR( Erreur , 'rtab' )
                return
             end if
-            
+
             allocate( X(nb_section) , STAT = retour )
             if( retour /= 0 ) then
                Erreur%Numero = 5
@@ -500,9 +413,11 @@ subroutine CALC_MAILLAGE ( &
                call TRAITER_ERREUR( Erreur , 'X' )
                return
             end if
-            
-            champ4 => item(getElementsByTagname(champ3, "branchesSection"), 0)
-            call extractDataContent(champ4,itab)
+
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/branchesSection'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) itab
+
             section%Branche = itab(1)
             if( section%Branche <= 0 ) then
                 Erreur%Numero = 325
@@ -512,8 +427,10 @@ subroutine CALC_MAILLAGE ( &
                 return
             end if
 
-            champ4 => item(getElementsByTagname(champ3, "absSection"), 0)
-            call extractDataContent(champ4,rtab)
+            pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/absSection'
+            line = xcasReader(unitNum, pathNode)
+            read(unit=line, fmt=*) rtab
+
             section%AbscisseRel = rtab(1)
             if( section%AbscisseRel < AbscRelExtDebBief(section%Branche) .or. &
                 section%AbscisseRel > AbscRelExtFinBief(section%Branche)) then
@@ -541,7 +458,7 @@ subroutine CALC_MAILLAGE ( &
 
                section%Branche     = itab(k)
                section%AbscisseRel = rtab(k)
-               
+
                ! Passage en abscisses absolues
                X(k) = ABS_ABS_S            ( &
                    section%Branche         , &
@@ -554,7 +471,7 @@ subroutine CALC_MAILLAGE ( &
                if( Erreur%Numero /= 0 ) then
                   return
                end if
-                                  
+
                if( X(k) <= X(k-1) ) then
                   Erreur%Numero = 310
                   Erreur%ft     = err_310
@@ -563,7 +480,7 @@ subroutine CALC_MAILLAGE ( &
                   return
                end if
             end do
-            
+
             deallocate(itab)
             deallocate(rtab)
 
@@ -617,19 +534,10 @@ subroutine CALC_MAILLAGE ( &
    !--------------------------------
    ! Sauvegarde eventuel du maillage
    !--------------------------------
-   champ2 => item(getElementsByTagname(champ1, "maillage"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => maillage"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "sauvMaillage"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => sauvMaillage"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,sauvegarde_maillage)
+   pathNode = 'parametresPlanimetrageMaillage/maillage/sauvMaillage'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) sauvegarde_maillage
+
    if( sauvegarde_maillage ) then
       if (UniteListing >0) write(UniteListing,10490) 'OUI'
    else
@@ -666,23 +574,23 @@ subroutine CALC_MAILLAGE ( &
    10470 format ('Type de calcul du maillage : ',A)
    10480 format ('Mode de saisie du maillage : ',A)
    10490 format (/,'Sauvegarde du maillage : ',A3)
-   
+
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
+
    end subroutine xerror
-   
+
 end subroutine CALC_MAILLAGE

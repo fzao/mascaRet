@@ -38,11 +38,10 @@
     integer, intent(in)                          :: Taille             ! Taille des tableaux des noms et des descriptions de variable
 
     ! Variable locale
-    integer                                      :: errTabVar, errTabDescVar ! indicateurs d'erreurs lors des allocations
     integer                                      :: i
 
     character(len=4)                             :: istring
-    
+
     Erreur = 0
 
     if (.not. tabNomVarInitialise) then
@@ -103,7 +102,6 @@
     integer erreur             ! different de 0 si erreur
     character(len= 40), dimension(NB_VAR_MASCARET) :: TabNom             ! Tableau des noms de variable du modele ou de l'etat
     character(len=110), dimension(NB_VAR_MASCARET) :: TabDesc            ! Tableau des descriptions de variable du modele ou de l'etat
-    integer Taille             ! Taille des tableaux des noms et des descriptions de variable
 
     if (.not.tabNomVarInitialise) then
       call GET_DESC_VAR_MASCARET(erreur, 1, TabNom, TabDesc, NB_VAR_MASCARET)

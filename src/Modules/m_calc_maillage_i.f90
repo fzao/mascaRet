@@ -36,9 +36,9 @@ module M_CALC_MAILLAGE_I
      AbscRelExtFinBief   , & ! Abscisse rel de l'extremite debut du bief
      impression_geo      , & ! Flag d'impression de la geometrie
      UniteListing        , & ! Unite logique fichier listing
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
-                         ) 
+                         )
 
    !========================= Declarations ===========================
    use M_PRECISION
@@ -53,11 +53,11 @@ module M_CALC_MAILLAGE_I
    use M_MAILLER_I           ! Interface de sous-programme
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
-   type SECTION_REL_T 
+   type SECTION_REL_T
       sequence
       integer      :: Branche     ! Numero de branche
       real(DOUBLE) :: AbscisseRel ! Abscisse relative
@@ -68,15 +68,15 @@ module M_CALC_MAILLAGE_I
    integer                         , intent(  out) :: TypeMaillage
    type(FICHIER_T)                 , intent(inout) :: FichierMaillage
    type(FICHIER_T)                 , intent(inout) :: FichierSauveMaillage
-   type(PROFIL_T)    , dimension(:), intent(in   ) :: Profil 
+   type(PROFIL_T)    , dimension(:), intent(in   ) :: Profil
    integer           , dimension(:), intent(in   ) :: ProfDebBief
    integer           , dimension(:), intent(in   ) :: ProfFinBief
    logical                         , intent(in   ) :: impression_geo
    integer                         , intent(in   ) :: UniteListing
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtFinBief
-   type(Node), pointer, intent(in)                   :: document
-   type(ERREUR_T)                    , intent(inout) :: Erreur
+   integer, intent(in)                             :: unitNum
+   type(ERREUR_T)                  , intent(inout) :: Erreur
 
    end subroutine CALC_MAILLAGE
 

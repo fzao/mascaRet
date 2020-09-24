@@ -1268,8 +1268,6 @@ end function GET_TYPE_VAR_REZOMAT
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_REZOMAT = 0
       MessageErreur     = ""
       err               = 0
@@ -1558,10 +1556,6 @@ end function GET_TYPE_VAR_REZOMAT
       type(REZOMAT_T),        intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_REZOMAT = 0
       MessageErreur          = ""
 

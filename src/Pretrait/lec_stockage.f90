@@ -20,13 +20,13 @@ subroutine LEC_STOCKAGE  ( &
      Profil              , & ! Profils geometriques
      PresenceZoneStockage, & ! Flag d'existence de zones de stockage
      UlLst               , & ! Unite logique fichier listing
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                         
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -39,7 +39,7 @@ subroutine LEC_STOCKAGE  ( &
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -47,7 +47,7 @@ subroutine LEC_STOCKAGE  ( &
    type(PROFIL_T)    , dimension(:)  , intent(inout) :: Profil
    logical                           , intent(  out) :: PresenceZoneStockage
    integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document   
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer, dimension(:), allocatable :: deja_traite  ! numero du profil deja traite
@@ -62,9 +62,10 @@ subroutine LEC_STOCKAGE  ( &
    !character(132) :: !arbredappel_old
    integer      :: retour               ! code de retour d'erreur
                                         ! des fonctions intrinseques
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
 
    !========================= Instructions ===========================
    ! INITIALISATION
@@ -80,25 +81,10 @@ subroutine LEC_STOCKAGE  ( &
 
    ! Nombre de profils avec zones de stockage
    !-----------------------------------------
-   champ1 => item(getElementsByTagname(document, "parametresCalage"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresCalage"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "zoneStockage"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => zoneStockage"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nbProfils"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbProfils"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nb_profil_zone_sto)
+   pathNode = 'parametresCalage/zoneStockage/nbProfils'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_profil_zone_sto
+
    if( nb_profil_zone_sto < 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -145,35 +131,25 @@ subroutine LEC_STOCKAGE  ( &
            call TRAITER_ERREUR( Erreur , 'rtab2' )
            return
        end if
-      
+
       deja_traite(:) = 0
 
-      champ3 => item(getElementsByTagname(champ2, "numProfil"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numProfil"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab)
-      champ3 => item(getElementsByTagname(champ2, "limGauchLitMaj"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => limGauchLitMaj"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab1)
-      champ3 => item(getElementsByTagname(champ2, "limDroitLitMaj"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => limDroitLitMaj"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab2)
-      
+      pathNode = 'parametresCalage/zoneStockage/numProfil'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab
+
+      pathNode = 'parametresCalage/zoneStockage/limGauchLitMaj'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab1
+
+      pathNode = 'parametresCalage/zoneStockage/limDroitLitMaj'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab2
+
       ! Affectation des valeurs
       !------------------------
       do iprof = 1 , nb_profil_zone_sto
-         num_profil_sto = itab(iprof) 
+         num_profil_sto = itab(iprof)
          if( num_profil_sto <= 0 ) then
             Erreur%Numero = 374
             Erreur%ft     = err_374
@@ -261,11 +237,11 @@ subroutine LEC_STOCKAGE  ( &
          call TRAITER_ERREUR( Erreur , 'deja_traite' )
          return
       end if
-      
+
        deallocate(itab)
        deallocate(rtab1)
-       deallocate(rtab2)      
-      
+       deallocate(rtab2)
+
    endif
 
    !Erreur%arbredappel = !arbredappel_old
@@ -276,23 +252,23 @@ subroutine LEC_STOCKAGE  ( &
                 &  '-----------------',/)
    10000 format ('Nombre de profil avec zones de stockage : ',i3,/)
    10010 format (i3,' Profil n0 ',i3,' Limite majeur gauche : ',f12.3,' droite : ',f12.3)
-   
+
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-   
+
+   end subroutine xerror
+
 end subroutine LEC_STOCKAGE

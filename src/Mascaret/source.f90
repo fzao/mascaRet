@@ -147,8 +147,8 @@ subroutine SOURCE(          &
 
    !.. Variables locales ..
    !-----------------------
-   real(DOUBLE)   :: HDPRI,HGPRI,SDPRI,SGPRI,DSDX,VG,VD,Y,Y1,Y2,DY,SG,SD
-   real(DOUBLE)   :: PREPIG,PREPID,SMIL,QMIL,FROT,SPERT,UMIL,Z,test, SAPP
+   real(DOUBLE)   :: HDPRI,HGPRI,SDPRI,SGPRI,DSDX,VG,VD,DY,SG,SD
+   real(DOUBLE)   :: SMIL,QMIL,FROT,SPERT,UMIL,Z,SAPP
    Integer        ::JG,JD
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 

@@ -314,6 +314,12 @@ subroutine  INIT_LIGNE_MASCARET(Erreur, Identifiant, Q, Z, Taille)
    endif
    nullify(Etat%ZINIT)                     ! ligne initiale (noyau Mascaret)
 
+   Etat%tempsPrecedent = 0.
+   Etat%numPasTps = 0
+   Etat%DT = 0.
+   Etat%DTRezo = 0.
+   Etat%NBARAD = 0
+
 ! LIGNE D'EAU INITIALE
 !---------------------
 

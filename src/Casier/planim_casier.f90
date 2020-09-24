@@ -56,8 +56,7 @@ subroutine PLANIM_CASIER( Casier , Icasier , Option , Erreur )
               iinterieur         , &  ! compteur sur le nombre de points interieurs
               compteur           , &  ! compteur quelconque
               stock              , &  ! variable de stockage
-              icote              , &  ! compteur sur le nombre de cotes de planimetrage
-              NbPoint                 ! argument de la fonction AIRE
+              icote                   ! compteur sur le nombre de cotes de planimetrage
    integer , dimension(:) , allocatable :: rangement_cote ! rangement des cotes par ordre croissant
    !character(132) :: !arbredappel_old
    real(DOUBLE) :: surface_max        , &  ! surface maximale du casier

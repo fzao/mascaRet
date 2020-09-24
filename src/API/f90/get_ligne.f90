@@ -41,7 +41,6 @@ subroutine  GET_LIGNE(Erreur, Identifiant, Q, Z)
    !-- Scalaires locaux
    type(MODELE_MASCARET_T)  :: Model
    type(ETAT_MASCARET_T)    :: Etat
-   integer :: retour
    integer :: nb_sect
 
    Erreur = TEST_INIT_AND_ID(Identifiant, 'GET_LIGNE')

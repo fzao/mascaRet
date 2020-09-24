@@ -59,7 +59,7 @@ subroutine RESOL( &
         Impli_Trans , &
  PerteElargissementTrans , &
  Boussinesq              , &
-  CQMV                   , &  
+  CQMV                   , &
                   ERREUR &
                          )
 
@@ -77,7 +77,7 @@ subroutine RESOL( &
 ! !___________!____!____!______________________________________________!
 ! !  SNODE    ! TR !  M ! SURFACE MOUILLEE                             !
 ! !  QNODE    ! TR !  M ! DEBIT                                        !
-! !  UNODE    ! TR !  M ! VITESSE                                      !  
+! !  UNODE    ! TR !  M ! VITESSE                                      !
 ! !  ZNODE    ! TR !    !                                              !
 ! !  YNODE    ! TR !    !                                              !
 ! !  FROUD    ! TR !    !                                              !
@@ -118,14 +118,14 @@ subroutine RESOL( &
 !            A (AUXILIAIRE MODIFIE)
 !
 !***********************************************************************
-! ALGEO, PRGEOD, SGEOD, DEBGEO, DEBGED STRUCTURES DE DONNEEES 
+! ALGEO, PRGEOD, SGEOD, DEBGEO, DEBGED STRUCTURES DE DONNEEES
 
    !============================= Declarations ===========================
 
    !.. Modules importes ..
    !----------------------
    use M_PRECISION
-   use M_ERREUR_T  ! ERREUR  
+   use M_ERREUR_T  ! ERREUR
    use M_SECTION_PLAN_T  ! Type SECTION_PLAN_T
    use M_SINGULARITE_T   ! Type SINGULARITE_T
    use M_CLIPP_I   ! Interface du sous-programme CLIPP
@@ -144,7 +144,7 @@ subroutine RESOL( &
    real(DOUBLE), dimension(:)    , intent(in)    :: CNODE,DTI
    integer     , dimension(:)    , intent(in)    :: JGNODE,JDNODE,IFIGE
    real(DOUBLE), dimension(:)    , intent(inout) :: SPREC,QPREC
-   real(DOUBLE), dimension(:)    , intent(in)    :: BETA  
+   real(DOUBLE), dimension(:)    , intent(in)    :: BETA
    real(DOUBLE),                   intent(in)    :: SDROIT,QDROIT,SGAUCH,QGAUCH
    ! 1ere dimension IM
    real(DOUBLE), dimension(:)    , intent(in)    :: QIN
@@ -159,14 +159,14 @@ subroutine RESOL( &
    real(DOUBLE),                   intent(in)    :: DT,HEPS,SEPS
    integer     ,                   intent(in)    :: NSECG,NSECD
    integer     ,                   intent(in)    :: NBARAD,NBBAR
-   type(Singularite_T), dimension(:),intent(inout) :: SINGULARITE 
+   type(Singularite_T), dimension(:),intent(inout) :: SINGULARITE
    integer     ,                   intent(in)    :: NMLARG
    integer     ,                   intent(in)    :: NBSECT
    logical     ,                   intent(in)    :: FRTIMP
    logical     ,                   intent(in)    :: Impli_Trans
    logical     ,                   intent(in)    :: PerteElargissementTrans
    logical     ,                   intent(in)    :: Boussinesq
-   integer     ,                   intent(in)    :: CQMV 
+   integer     ,                   intent(in)    :: CQMV
    ! 1ere dimension IM, 2nde dimension NMLARG
    real(DOUBLE), dimension(:,:)  ,intent(in)     :: SGEO
    real(DOUBLE), dimension(:,:)  ,intent(in)     :: S1GEO
@@ -183,10 +183,9 @@ subroutine RESOL( &
    integer                       ,intent(in)     :: icompt
    !.. Variables locales ..
    !-----------------------
-   Integer     , dimension(2,NBBAR)             :: IBAR
-   Integer                                      :: K,I,KMAX
+   Integer                                      :: K
   !character(132) :: !arbredappel_old ! arbre d'appel precedent
-   real(DOUBLE)   :: t1,T0,DT0
+   real(DOUBLE)   :: T0
 
    !============================= Instructions ===========================
 

@@ -102,6 +102,7 @@ function AKIV( &
    ! RECHERCHE DE L'INTERVALLE CONTENANT SURF PAR DICHOTOMIE
    call DICHO( JG , JD , SURF , SGEO(NOEUD,:) , ERREUR )
    if( Erreur%Numero /= 0 ) then
+       AKIV = 0.
       return
    endif
 

@@ -159,7 +159,7 @@ contains
     end function GET_TYPE_VAR_SOURCE_TRACER
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -172,7 +172,7 @@ contains
       integer,                intent(out):: taille2                        ! valeur max du 2e  indice
       integer,                intent(out):: taille3                        ! valeur max du 3e  indice
       character(LEN=256),     intent(out):: MessageErreur                  ! Message d'erreur
-      
+
       GET_TAILLE_VAR_SOURCE_TRACER = 0
       taille1                = 0
       taille2                = 0
@@ -233,7 +233,7 @@ contains
    end function GET_TAILLE_VAR_SOURCE_TRACER
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -247,7 +247,7 @@ contains
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer t1, t2, t3, err
+      integer t1, err
 
       SET_TAILLE_VAR_SOURCE_TRACER = 0
       MessageErreur          = ""
@@ -285,7 +285,7 @@ contains
     end function SET_TAILLE_VAR_SOURCE_TRACER
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -327,7 +327,7 @@ contains
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       integer,                intent(out):: valeur                     ! valeur du integer de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-      
+
       GET_INT_SOURCE_TRACER = 0
       valeur                = -9999
       MessageErreur          = ""
@@ -361,7 +361,7 @@ contains
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       logical,                intent(out):: valeur                     ! valeur du logical de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-      
+
       GET_BOOL_SOURCE_TRACER = 0
       valeur                = .FALSE.
       MessageErreur          = ""
@@ -398,7 +398,7 @@ contains
          MessageErreur         = "GET_STRING_SOURCE_TRACER - Unknown variable name"
       end if
    end function GET_STRING_SOURCE_TRACER
-   
+
 ! .................................................................................................................................
 ! Mutateurs permettant de modifier les differents champs du type
 !                     -- Generer automatiquement --
@@ -505,7 +505,7 @@ contains
          MessageErreur         = "SET_STRING_SOURCE_TRACER - Unknown variable name"
       end if
    end function SET_STRING_SOURCE_TRACER
-   
+
 ! .................................................................................................................................
 ! Desalloue tous les pointeurs et fait appel aux desalloues des membres
 !                     -- Generer automatiquement --
@@ -519,8 +519,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_SOURCE_TRACER = 0
       MessageErreur          = ""
 
@@ -556,10 +554,6 @@ contains
       type(SOURCE_TRACER_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_SOURCE_TRACER = 0
       MessageErreur          = ""
 

@@ -70,7 +70,7 @@ subroutine MASCARET_INTERFACE( &
                      Impli_Trans , Opt ,         & ! Indicateur pour l'implicitation du solveur
                      PerteElargissementTrans ,   & !Perte de Charge elargissement
                      Boussinesq ,                & ! Ajout des termes non hydrostatiques
-                     CQMV ,                      & ! Apport dans la quantite de mvt 
+                     CQMV ,                      & ! Apport dans la quantite de mvt
                      STOCKAGE ,                  & ! Indicateur de zones de stockage
                      PastempsVariable ,          & ! Indicateur de pas de temps variable
                      NombreCourant ,             & ! Nombre de Courant limite
@@ -275,40 +275,33 @@ subroutine MASCARET_INTERFACE( &
    integer                        :: nb_ext
    integer                        :: nb_pas
    real(DOUBLE) QSTO(nb_sect)
-   real(DOUBLE) FRNODE(nb_sect),V(nb_sect)
+   real(DOUBLE) FRNODE(nb_sect)
    real(DOUBLE) Y1(nb_sect),Q1(nb_sect),S1(nb_sect)
    real(DOUBLE), dimension(size(Connect%OrigineBief))      :: CONSB
    real(DOUBLE), dimension(size(Connect%NbBiefConfluence)) :: CONSC
    real(DOUBLE)                                            :: CONSG
-   real(DOUBLE)                                            :: SS
-   real(DOUBLE)                                            :: DELTAS
-   real(DOUBLE)                                            :: TMAX
    real(DOUBLE)                                            :: T,DTCFL
    real(DOUBLE), dimension(nb_sect)                        :: SNODE
    real(DOUBLE), dimension(nb_sect)                        :: DTI
    real(DOUBLE), dimension(nb_sect)                        :: QNODE
    real(DOUBLE), dimension(nb_sect)                        :: AKNODE
    real(DOUBLE), dimension(nb_sect)                        :: KVOLS
-   real(DOUBLE), dimension(67) :: toto
-   integer IP,ICL,IEX,IS,IN,NB,IBIEF,IAPPO,IP1,IP2
-   integer NHY,KHY,IB,IL,IPAS,KHYLIM
-   integer, dimension(2,20) :: IBAR
+   integer IP,ICL,IS,NB,IP1,IP2,IBIEF
+   integer KHYLIM
    integer                                 :: INOEUD,icompt
    integer I,INDIC(20)
    integer INDCO(20)
-   integer IFI,IDE,Ia,IC,I_ZONE,I_SECT
-   integer retour,ITEMP
+   integer IFI,IDE,I_ZONE,I_SECT
+   integer retour
    real(DOUBLE) FROD,ZFIX,YFIX,DTPREC
    real(DOUBLE) SLD,QLD,SLF,QLF
    real(DOUBLE) PRIS,PRISM1,CHARIS,CHARM1,PRIP,PRIPM1
    real(DOUBLE) SMOY,QMOY
    real(DOUBLE) ZIS,ZISM1,YZIS,YZISM1,YIS,YISM1,SZIS,SZISM1
-   real(DOUBLE) SOURC,SMIL,QMIL,FROT,QFIX,QLI(2,20)
-   real(DOUBLE) ZLI(2,20),YLI(2,20),XDEB,XFIN
+   real(DOUBLE) SOURC,FROT,QFIX
    !character(132) :: !arbredappel_old
-   logical AMONT,AVAL,SUITE,AVANT
+   logical AMONT,AVAL,SUITE
    ! save ITEM0,IDEB,IFIN,NBARAD
-   real Temps0,Temps1,Temps2,Temps3,Temps4,Temps5,Temps6,T0,T1
 
    !============================= Instructions ===========================
 

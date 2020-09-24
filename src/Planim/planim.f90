@@ -148,12 +148,7 @@ subroutine  PLANIM         ( &
    real(DOUBLE) :: Hp     ! PU2017: Tirant d'eau pour chaque cote de planimetrage
    real(DOUBLE) :: Smtp   ! PU2017: Surface mouillee pour chaque cote de planimetrage
    real(DOUBLE) :: Pmc, Pm0    ! PU2017: Perimetre mouille cumul
-   real(DOUBLE) :: Z0, Z1, Zp ! PU2017: Cote de planimetrage temporaire
    !real(DOUBLE) :: Zold   ! PU2017: Cote du point bas a l'iteration precedente
-   real(DOUBLE) :: XG, XD ! PU2017: Abscisse rive gauche, rive droite d'un chenal
-   real(DOUBLE) :: XG0, XD0 ! PU2017: Abscisse rive gauche, rive droite d'un chenal
-   integer :: N, Nmin, Nmax, Nold ! PU2017: Indices pour recherche dichotomique
-   integer :: Ncpt
    !integer      :: dz     ! PU2017: Signe de la pente pour chaque profil transverse
    real(DOUBLE), dimension(:), allocatable :: DZP  ! PU2017: Tableau pas de planimetrage
    integer :: ok = 0
@@ -188,6 +183,10 @@ subroutine  PLANIM         ( &
    Allocate(DZP(size(Profil)),STAT=retour)  ! PU2017: Allocation d'un tableau pour pas de planimetrage (utile pour CSUR)
 
    if(temps.EQ.TempsInitial)then
+   if(.not.associated(vsed)) then
+     allocate(vsed(size(profil)), STAT=retour)
+     Vsed(:) = 0.0D0
+   endif
    if(.not.associated(ProfilPlan%B1)) allocate( ProfilPlan%B1(size( Profil ),nb_pas) , STAT = retour )
    if( retour /= 0 ) then
       Erreur%Numero = 5
@@ -451,7 +450,7 @@ subroutine  PLANIM         ( &
         ok = 0
 
         If (Temps .EQ. TempsInitial .OR. suspension_option .OR.  &
-		(NiteSed < 1).OR.(Vsed(iprof) < 0.D0) ) Then
+          (NiteSed < 1).OR.(Vsed(iprof) < 0.D0) ) Then
 
           ok = 1  ! PU2017: Test pour savoir si planim mis a jour
 
@@ -543,7 +542,7 @@ subroutine  PLANIM         ( &
           ProfilPlan%SS(iprof,:)  = DSS(:)
           ProfilPlan%S2G(iprof,:) = DS2G(:)
 
-        Else If ( bedload_option .AND. (Vsed(iprof) > 0.D0).AND.(NiteSed > 0) ) Then  ! PU2017: Planim pour cas Depot
+        Else If ( bedload_option .AND. (vsed(iprof) > 0.D0).AND.(NiteSed > 0) ) Then  ! PU2017: Planim pour cas Depot
 
           ok = 1  ! PU2017: Test pour savoir si planim mis a jour
           DZP(iprof) = pas

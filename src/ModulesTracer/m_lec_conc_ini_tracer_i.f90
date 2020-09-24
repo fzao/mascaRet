@@ -35,7 +35,7 @@ module M_LEC_CONC_INI_TRACER_I
                          nb_trac , & ! nombre de traceurs
                          Connect , & ! Table de connectivite du reseau
                           Profil , & ! Profils geometriques
-                        document , & ! Pointeur vers document XML                          
+                         unitNum , & ! Unite logique du fichier .xcas
                           Erreur )   ! Erreur
 
    ! .....................................................................
@@ -71,8 +71,8 @@ module M_LEC_CONC_INI_TRACER_I
    use M_INTERPOLATION_S       ! Interface du sous programme INTERPOLATION_S
    use M_ABS_ABS_S             ! Calcul de l'abscisse absolue
    use M_TRAITER_ERREUR_I      ! Traitement des erreurs
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    !.. Declarations explicites ..
    implicit none
 
@@ -86,7 +86,7 @@ module M_LEC_CONC_INI_TRACER_I
    integer                      , intent(in   ) :: TypeMaillage
    logical                      , intent(in   ) :: ImpressionConcIni
    integer                      , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)              :: document   
+   integer, intent(in)                          :: unitNum
    type(ERREUR_T)               , intent(inout) :: Erreur
 
    end subroutine LEC_CONC_INI_TRACER

@@ -46,7 +46,6 @@ subroutine LEC_PARPHY( &
    !  Variables locales
    !
    Integer i,retour
-   Character(132) :: arbredappel_old   ! arbre dappel precedent
 
    !========================= Instructions ===========================
    ! INITIALISATION
@@ -92,18 +91,13 @@ subroutine LEC_PARPHY( &
       enddo
 
    endif
+   close( unit = fichier_Parphy%Unite )
+
 
    ! Fin des traitements
    !--------------------
 
    !Erreur%Arbredappel = arbredappel_old
-
-   return
-
-   ! Formats
-   10000 format (/,'Parametres physiques',/, &
-               &  '------------',/)
-   10010 format ('Nombre de parametres physiques : ',i3)
 
    return
 

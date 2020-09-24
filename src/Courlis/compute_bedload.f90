@@ -143,7 +143,7 @@ use M_INTERPOLATION_S           ! Sous-programme INTERPOLATION_S
   integer      :: NPtmax                                ! Nombre de point max
   real(DOUBLE) :: NPtd                                  ! Nombre de points de la section en travers i (double)
   real(DOUBLE) :: Rho, RhoS                   ! constantes du calcul  !, W52, W14
-  real(DOUBLE) :: V, Sm, Rh, Rh13, Rh43   ! variables hydrauliques du profil !H13,Rh43,H,Zsl
+  real(DOUBLE) :: V, Sm, Rh, Rh13  ! variables hydrauliques du profil !H13,Rh43,H,Zsl
   real(DOUBLE) :: V2
   real(DOUBLE) :: Kp, Kt, d50      ! parametres sedimentaires de la couche affleurante ! Cf,M,Ps,Tce,W
   real(DOUBLE) :: d50m                                  ! diametre de grain moyen
@@ -161,7 +161,7 @@ use M_INTERPOLATION_S           ! Sous-programme INTERPOLATION_S
   real(DOUBLE), dimension(:)  , allocatable :: Hroe     ! Hauteur d'eau (Roe)
   real(DOUBLE), dimension(:)  , allocatable :: Uroe     ! Vitesse (Roe)
   real(DOUBLE) :: H1,H2                                 ! Hauteurs d'eau temporaires
-  real(DOUBLE) :: Volp, Tiro                            ! Variables planimetrees
+  real(DOUBLE) :: Tiro                            ! Variables planimetrees
   real(DOUBLE), dimension(:)  , allocatable :: DZP      ! Tableau pas de planimetrage
   real(DOUBLE) :: B1
   integer :: nb_pas

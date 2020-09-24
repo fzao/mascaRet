@@ -37,13 +37,13 @@ subroutine LEC_RESEAU    ( &
      ProfDebBief         , & ! Premiers profils des biefs
      ProfFinBief         , & ! Derniers profils des biefs
      Noyau               , & ! Noyau de calcul
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                         
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -66,7 +66,7 @@ subroutine LEC_RESEAU    ( &
    use M_PARAMETRE_C         ! Parametres de calcul
    use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -91,7 +91,7 @@ subroutine LEC_RESEAU    ( &
    integer           , dimension(:)  , intent(in   ) :: ProfDebBief
    integer           , dimension(:)  , intent(in   ) :: ProfFinBief
    integer                           , intent(in   ) :: Noyau
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer :: num_loi
@@ -100,10 +100,11 @@ subroutine LEC_RESEAU    ( &
    integer :: inoeud ! compteur sur les noeud
    integer :: iext   ! compteur sur les extremites
    integer :: i      ! compteur
-   integer :: int    !
    integer :: retour ! code de retour des fonctions intrinseques
    logical :: test_loi ! test si au moins une extremite est reliee a une loi hydrau
-   type(Node), pointer :: champ1,champ2,champ3,champ4,champ5
+   integer :: itab(5)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -120,52 +121,18 @@ subroutine LEC_RESEAU    ( &
 
    ! Nombre de branches
    !-------------------
-   champ1 => item(getElementsByTagname(document, "parametresGeometrieReseau"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresGeometrieReseau"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "listeBranches"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => listeBranches"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nb"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nb"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,NbBief)
-   champ2 => item(getElementsByTagname(champ1, "listeNoeuds"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => listeNoeuds"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nb"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nb"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,NbNoeud)
-   champ2 => item(getElementsByTagname(champ1, "extrLibres"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => extrLibres"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nb"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nb"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,NbExtLibre)
-   
+   pathNode = 'parametresGeometrieReseau/listeBranches/nb'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NbBief
+
+   pathNode = 'parametresGeometrieReseau/listeNoeuds/nb'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NbNoeud
+
+   pathNode = 'parametresGeometrieReseau/extrLibres/nb'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NbExtLibre
+
    if(.not.associated(ExtDebBief)) allocate( ExtDebBief(NbBief) , STAT = retour )
    if( retour /= 0 ) then
       Erreur%Numero = 5
@@ -280,45 +247,22 @@ subroutine LEC_RESEAU    ( &
       write(UlLst,10010) NbBief
    endif
 
-   champ2 => item(getElementsByTagname(champ1, "listeBranches"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => listeBranches"
-      call xerror(Erreur)
-      return
-   endif
-   ! Numero des extremites de debut des branches
-   champ3 => item(getElementsByTagname(champ2, "numExtremDebut"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numExtremDebut"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,ExtDebBief)
-   ! Numeros des extremites de fin des branches
-   champ3 => item(getElementsByTagname(champ2, "numExtremFin"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numExtremFin"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,ExtFinBief)
-   ! Abscisse des extremites de debut des branches
-   champ3 => item(getElementsByTagname(champ2, "abscDebut"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => abscDebut"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,AbscRelExtDebBief)
-   ! Abscisse des extremites de fin des branches
-   champ3 => item(getElementsByTagname(champ2, "abscFin"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => abscFin"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,AbscRelExtFinBief)
-   
+   pathNode = 'parametresGeometrieReseau/listeBranches/numExtremDebut'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ExtDebBief
+
+   pathNode = 'parametresGeometrieReseau/listeBranches/numExtremFin'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ExtFinBief
+
+   pathNode = 'parametresGeometrieReseau/listeBranches/abscDebut'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) AbscRelExtDebBief
+
+   pathNode = 'parametresGeometrieReseau/listeBranches/abscFin'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) AbscRelExtFinBief
+
    do ibief = 1 , NbBief
 
       if( AbscRelExtDebBief(ibief) < (Profil(ProfDebBief(ibief))%AbsRel-EPS4) &
@@ -399,48 +343,30 @@ subroutine LEC_RESEAU    ( &
    endif
 
    if( NbNoeud > 0 ) then
-      ! Numeros des extremites des noeuds
-      champ2 => item(getElementsByTagname(champ1, "listeNoeuds"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => listeNoeuds"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "noeuds"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => noeuds"
-         call xerror(Erreur)
-         return
-      endif
       do inoeud = 1 , NbNoeud
          NbExtNoeud(inoeud) = 5
-         do i = 1 , 5
-            champ4 => item(getElementsByTagname(champ3, "noeud"), inoeud-1)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => noeud"
-               call xerror(Erreur)
-               return
+            if(inoeud.eq.1) then
+              pathNode = 'parametresGeometrieReseau/listeNoeuds/noeuds/noeud/num'
+              line = xcasReader(unitNum, pathNode)
+            else
+              pathNode = 'noeud/num'
+              line = xcasReader(unitNum, pathNode, 1)
             endif
-            champ5 => item(getElementsByTagname(champ4, "num"), 0)
-            if(associated(champ5).eqv..false.) then
-               print*,"Parse error => num"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ5,ExtNoeud(:,inoeud))
-            
-            if( ExtNoeud(i,inoeud) < 0 ) then
-               Erreur%Numero = 351
-               Erreur%ft     = err_351
-               Erreur%ft_c   = err_351c
-               call TRAITER_ERREUR( Erreur , i , inoeud )
-               return
-            end if
-            if( ExtNoeud(i,inoeud) == 0 ) then
-               NbExtNoeud(inoeud) = i-1
-               exit
-            endif
-         end do
+            read(unit=line, fmt=*) itab
+            do i = 1,5
+              ExtNoeud(i,inoeud) = itab(i)
+              if( ExtNoeud(i,inoeud) < 0 ) then
+                 Erreur%Numero = 351
+                 Erreur%ft     = err_351
+                 Erreur%ft_c   = err_351c
+                 call TRAITER_ERREUR( Erreur , i , inoeud )
+                 return
+              end if
+              if( ExtNoeud(i,inoeud) == 0 ) then
+                 NbExtNoeud(inoeud) = i-1
+                 exit
+              endif
+            enddo
 
          if( ImpressionReseau ) then
             write(UlLst,10050) inoeud , ( ExtNoeud(i,inoeud) , i = 1 , 5 )
@@ -501,38 +427,19 @@ subroutine LEC_RESEAU    ( &
    endif
 
    ! Numeros des extremites libres
-   champ2 => item(getElementsByTagname(champ1, "extrLibres"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => extrLibres"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "numExtrem"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numExtrem"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,NumExtLibre)
-   
-   ! Types des extremites libres
-   champ3 => item(getElementsByTagname(champ2, "typeCond"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => typeCond"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,Extremite%Type)
-   
+   pathNode = 'parametresGeometrieReseau/extrLibres/numExtrem'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NumExtLibre
+
+   pathNode = 'parametresGeometrieReseau/extrLibres/typeCond'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Extremite%Type
+
    ! Numeros des lois des extremites libres ! ne sert pas pour Connect
-   champ3 => item(getElementsByTagname(champ2, "numLoi"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numLoi"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3, Extremite%NumeroLoi)
-   
+   pathNode = 'parametresGeometrieReseau/extrLibres/numLoi'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Extremite%NumeroLoi
+
    do iext = 1 , NbExtLibre
       ! Numeros des extremites libres
       if( NumExtLibre(iext) < 0 ) then
@@ -544,20 +451,14 @@ subroutine LEC_RESEAU    ( &
       end if
 
       ! Noms des extremites libres
-      champ3 => item(getElementsByTagname(champ2, "noms"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => noms"
-         call xerror(Erreur)
-         return
+      if(iext.eq.1) then
+        pathNode = 'parametresGeometrieReseau/extrLibres/noms/string'
+        Extremite(iext)%Nom = xcasReader(unitNum, pathNode)
+      else
+        pathNode = 'string'
+        Extremite(iext)%Nom = xcasReader(unitNum, pathNode, 0)
       endif
-      champ4 => item(getElementsByTagname(champ3, "string"), iext-1)
-      if(associated(champ4).eqv..false.) then
-         print*,"Parse error => string"
-         call xerror(Erreur)
-         return
-      endif
-      Extremite(iext)%Nom = getTextContent(champ4)
-      
+
       ! Types des extremites libres
       if( Extremite(iext)%Type < 1 .or. Extremite(iext)%Type > CONDITION_TYPE_NB_MAX ) then
          Erreur%Numero = 331
@@ -784,21 +685,21 @@ subroutine LEC_RESEAU    ( &
    10070 format (i3,' Numero d''extremite = ',i3,' Type de condition = ',i3,' Numero de loi =',i3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-   
+
+   end subroutine xerror
+
 end subroutine LEC_RESEAU

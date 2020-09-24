@@ -34,7 +34,7 @@ module M_LEC_ZONE_SECHE_I
              AbscRelExtDebBief    , &
              AbscRelExtFinBief    , &
              UniteListing         , & ! Unite logique fichier listing
-             document             , & ! Pointeur vers document XML
+             unitNum              , & ! Unite logique .xcas
              Erreur                 & ! Erreur
                           )
 
@@ -49,7 +49,7 @@ module M_LEC_ZONE_SECHE_I
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calcul de l'indice de section de calcul
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -63,7 +63,7 @@ module M_LEC_ZONE_SECHE_I
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document  
+   integer, intent(in)                               :: unitNum  
    type(ERREUR_T)                    , intent(inout) :: Erreur
 
    end subroutine LEC_ZONE_SECHE

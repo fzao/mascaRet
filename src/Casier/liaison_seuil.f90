@@ -106,9 +106,7 @@ subroutine  LIAISON_SEUIL       ( &
                                          ! haval/hamont est superieur a la constante COEF
                     dC_dzamont,       &  ! variation de C par rapport a hamont
                     dC_dzaval,        &  ! variation de C par rapport a haval
-                    X, Y,             &  ! variables des fonctions
                     coef_beta,        &  ! valeur de la fonction BETA en hamont et haval
-                    hlim,             &
                     LargeurEcoulement
 
    integer      :: sens_ecoul            ! repere le sens de l ecoulement

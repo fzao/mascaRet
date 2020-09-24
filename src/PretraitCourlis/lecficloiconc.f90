@@ -1,26 +1,26 @@
-Subroutine  LecFicLoiConc	( &
+Subroutine  LecFicLoiConc  ( &
 
-	FicLoiConc				, &	! Fic. contenant une evolution temporelle de conc
-	LoiConc0				, & ! Concentration initiale des traceurs
-    UniteTemps		        , & ! unite de temps des chroniques temporelles
-	NumLoi					, & ! Numero de loi
-    Erreur					)
+  FicLoiConc        , &  ! Fic. contenant une evolution temporelle de conc
+  LoiConc0        , & ! Concentration initiale des traceurs
+    UniteTemps            , & ! unite de temps des chroniques temporelles
+  NumLoi          , & ! Numero de loi
+    Erreur          )
 
 
-!************************************************************************* 
+!*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       02/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       02/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !  Fonction : Lecture du fichier contenant une loi de type temps-concentration
-!  --------	  
+!  --------
 !
 !  Sous-programme appelant : LecLoiConc
 !  -----------------------
 !
-!  Sous-programme appele : 
+!  Sous-programme appele :
 !  ---------------------
 !=========================================================================
 !
@@ -54,54 +54,54 @@ Subroutine  LecFicLoiConc	( &
 !=========================================================================
 
 
-!============================ Declarations =============================== 
+!============================ Declarations ===============================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_LIRE_CHAINE_S			! Lecture de lignes de commentaire du fichier
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_LOI_CONC_T			! Definition du type LOI_CONC_T
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_LIRE_CHAINE_S      ! Lecture de lignes de commentaire du fichier
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_LOI_CONC_T      ! Definition du type LOI_CONC_T
 
-use M_ERREUR_T				! Definition du type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Definition du type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Constantes
-  integer, parameter	  :: LEN_CHAINE			= 80
+  integer, parameter    :: LEN_CHAINE      = 80
   character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui
-														! debute une ligne commentaire
+                            ! debute une ligne commentaire
 
 ! Variables d'entrée
   type(FICHIER_T) , intent(in   ) :: FicLoiConc
-  integer		  , intent(in   ) :: NumLoi
+  integer      , intent(in   ) :: NumLoi
 
 ! Variables de sortie
   type(LOI_CONC_T), intent(  out) :: LoiConc0
   integer         , intent(  out) :: UniteTemps
 
 ! Variables locales
-  integer		:: iPts					! Compteur de points
-  integer		:: NbPts				! Nombre de points decrivant la loi
-  integer		:: UniteLoi				! Unite logique du fichier des lois
-  integer		:: rang					! position du mot cle sur la ligne
-  character(72)	:: txt					! chaine de caractere temporaire
+  integer    :: iPts          ! Compteur de points
+  integer    :: NbPts        ! Nombre de points decrivant la loi
+  integer    :: UniteLoi        ! Unite logique du fichier des lois
+  integer    :: rang          ! position du mot cle sur la ligne
+  character(72)  :: txt          ! chaine de caractere temporaire
 
-  character(LEN_CHAINE) :: chaine		! Chaine contenant une ligne du fichier
-!  character(LEN_CHAINE) :: chaine_opt	! chaine au format opthyca  ! PU2017 : Mise en commentaire
-!  character(LEN_CHAINE) :: chaine_fort	! chaine convertie au format fortran  ! PU2017 : Mise en commentaire
-  character(1)			:: ChaineVar
+  character(LEN_CHAINE) :: chaine    ! Chaine contenant une ligne du fichier
+!  character(LEN_CHAINE) :: chaine_opt  ! chaine au format opthyca  ! PU2017 : Mise en commentaire
+!  character(LEN_CHAINE) :: chaine_fort  ! chaine convertie au format fortran  ! PU2017 : Mise en commentaire
+  character(1)      :: ChaineVar
 
 
 ! Traitement des erreurs
-  integer        :: retour			 ! code de retour des fonctions d'e/s
-!  character(132) :: arbredappel_old	 ! ancien arbre  ! PU2017 : Mise en commentaire
+  integer        :: retour       ! code de retour des fonctions d'e/s
+!  character(132) :: arbredappel_old   ! ancien arbre  ! PU2017 : Mise en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
 
 
-!============================ Instructions =============================== 
+!============================ Instructions ===============================
 
     Erreur%Numero      = 0
 !    arbredappel_old    = trim(Erreur%arbredappel)  ! PU2017 : Mise en commentaire
@@ -109,13 +109,13 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 
 
 !=========================================================================
-! PREMIERE LECTURE DU FICHIER AFIN DE CONNAITRE LE NOMBRE DE LOIS 
+! PREMIERE LECTURE DU FICHIER AFIN DE CONNAITRE LE NOMBRE DE LOIS
 ! ET DE DECELER LES ERREURS
 !=========================================================================
 
     ! Ouverture du fichier a lire
     ! ---------------------------
-	UniteLoi = FicLoiConc%Unite
+  UniteLoi = FicLoiConc%Unite
 
     open(unit=UniteLoi, file=FicLoiConc%Nom, access='SEQUENTIAL', &
          action='READ'    , form='FORMATTED', iostat=retour     , &
@@ -131,22 +131,22 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 
 
     ! LECTURE DE LA PREMIERE LIGNE (LES LIGNES DE COMMENTAIRE NE SONT PAS LUES)
-	!--------------------------------------------------------------
+  !--------------------------------------------------------------
     call LIRE_CHAINE_S (chaine, FicLoiConc, CHAINE_COMMENTAIRE, retour)
 
     If (retour /= 0) Then
-	  Erreur%Numero = 50
-      Erreur%ft   = err_50	
+    Erreur%Numero = 50
+      Erreur%ft   = err_50
       Erreur%ft_c = err_50c
       call TRAITER_ERREUR (Erreur, trim(FicLoiConc%Nom))
       return
     End if
 
     rang = scan(chaine,'SsMmHhJj')
- 
-	! Message d'erreur si erreur a la ligne d'unite de temps
-	If (rang == 0) Then
-	  Erreur%Numero = 379
+
+  ! Message d'erreur si erreur a la ligne d'unite de temps
+  If (rang == 0) Then
+    Erreur%Numero = 379
       Erreur%ft   = err_379
       Erreur%ft_c = err_379c
       call TRAITER_ERREUR (Erreur, 'Concentration',trim(FicLoiConc%Nom))
@@ -159,38 +159,38 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
     ! ===============================================================
     NbPts = 0
 
-	! lecture jusqu'a la fin du fichier
+  ! lecture jusqu'a la fin du fichier
     LabelDimLois: Do While (retour == 0)
-	  NbPts = NbPts + 1
-	  call LIRE_CHAINE_S (chaine, FicLoiConc, CHAINE_COMMENTAIRE, retour)
+    NbPts = NbPts + 1
+    call LIRE_CHAINE_S (chaine, FicLoiConc, CHAINE_COMMENTAIRE, retour)
     End do LabelDimLois
 
 
     ! Si Erreur de lecture ==> message d'erreur
-	!------------------------------------------
-	If (retour > 0) Then
+  !------------------------------------------
+  If (retour > 0) Then
       Erreur%Numero = 11
       Erreur%ft   = err_11
       Erreur%ft_c = err_11c
       call TRAITER_ERREUR (Erreur, trim(FicLoiConc%Nom), NbPts)
       return
-    Endif 
+    Endif
 
 
     ! Stockage du nombre de points decrivant la loi
-	!---------------------------------------------
+  !---------------------------------------------
     NbPts = NbPts - 1
 
 
     ! Controle du nombre de points minimum
     !-------------------------------------
-	write(txt,'(a,i3)') 'Nombre de Pts decrivant la loi ',NumLoi
+  write(txt,'(a,i3)') 'Nombre de Pts decrivant la loi ',NumLoi
     If (NbPts < 2) Then
-	  Erreur%Numero = 408
-	  Erreur%ft   = err_408
-	  Erreur%ft_c = err_408c
-	  call TRAITER_ERREUR (Erreur,trim(txt),'> ou egal a 2')
-	  return
+    Erreur%Numero = 408
+    Erreur%ft   = err_408
+    Erreur%ft_c = err_408c
+    call TRAITER_ERREUR (Erreur,trim(txt),'> ou egal a 2')
+    return
     End if
 
 
@@ -198,11 +198,11 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
     !---------------------------------------------------------
     allocate(LoiConc0%Temps(NbPts), STAT = retour)
     If (retour /= 0) Then
-	  Erreur%Numero = 5
-	  Erreur%ft   = err_5
-	  Erreur%ft_c = err_5c
-	  call TRAITER_ERREUR (Erreur, 'LoiConc0%Temps')
-	  return
+    Erreur%Numero = 5
+    Erreur%ft   = err_5
+    Erreur%ft_c = err_5c
+    call TRAITER_ERREUR (Erreur, 'LoiConc0%Temps')
+    return
     End if
 
     ! Allocations de memoire du tableau de la variable "Conc"
@@ -216,7 +216,7 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
       return
     End if
 
-	    
+
 !=========================================================================
 ! 2-EME LECTURE : LECTURE EFFECTIVE DES LOIS DE CONCENTRATION
 !=========================================================================
@@ -228,10 +228,10 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
     call LIRE_CHAINE_S (chaine, FicLoiConc, CHAINE_COMMENTAIRE, retour)
     read(chaine(rang:rang+1),*,IOSTAT = retour) ChaineVar
 
-	! Si erreur de 2eme lecture de la ligne d'unite de temps ==> message d'erreur
-	!----------------------------------------------------------------------------
+  ! Si erreur de 2eme lecture de la ligne d'unite de temps ==> message d'erreur
+  !----------------------------------------------------------------------------
     If (retour /= 0) Then
-	  Erreur%Numero = 380
+    Erreur%Numero = 380
       Erreur%ft   = err_380
       Erreur%ft_c = err_380c
       call TRAITER_ERREUR (Erreur, 'Concentration',trim(FicLoiConc%Nom))
@@ -239,37 +239,37 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
     End if
 
 
-	! Stockage de l'unite de la variable 'Temps' donnee en saisie
-	!-------------------------------------------------------
+  ! Stockage de l'unite de la variable 'Temps' donnee en saisie
+  !-------------------------------------------------------
     Select case (ChaineVar)
-	Case ("S","s")
-	  UniteTemps = 1
-	Case ("M","m")
-	  UniteTemps = 2
-	Case ("H","h")
-	  UniteTemps = 3
-	Case ("J","j")
-	  UniteTemps = 4
+  Case ("S","s")
+    UniteTemps = 1
+  Case ("M","m")
+    UniteTemps = 2
+  Case ("H","h")
+    UniteTemps = 3
+  Case ("J","j")
+    UniteTemps = 4
     End select
 
-          
-	!	Lecture des points decrivant la loi de concentration
-	!-------------------------------------------------------
+
+  !  Lecture des points decrivant la loi de concentration
+  !-------------------------------------------------------
     Do iPts = 1, NbPts
 
-	  !Lecture
+    !Lecture
       call LIRE_CHAINE_S (chaine, FicLoiConc, CHAINE_COMMENTAIRE, retour)
       read(chaine,*,IOSTAT = retour) LoiConc0%Temps(iPts), LoiConc0%Conc(iPts)
 
-	  ! Traitement d'erreur
+    ! Traitement d'erreur
       If (retour /= 0) Then
-		Erreur%Numero = 11
-		Erreur%ft   = err_11
-		Erreur%ft_c = err_11c
-		call TRAITER_ERREUR (Erreur, trim(FicLoiConc%Nom), iPts)
-		return
-	  End if
-        
+    Erreur%Numero = 11
+    Erreur%ft   = err_11
+    Erreur%ft_c = err_11c
+    call TRAITER_ERREUR (Erreur, trim(FicLoiConc%Nom), iPts)
+    return
+    End if
+
     End do
 
 
@@ -282,6 +282,6 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !    Erreur%arbredappel = arbredappel_old
 
 !=========================================================================
-!	FIN DU SOUS-PROGRAMME
+!  FIN DU SOUS-PROGRAMME
 !=========================================================================
  End Subroutine LecFicLoiConc

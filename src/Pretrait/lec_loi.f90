@@ -23,7 +23,7 @@ subroutine LEC_LOI    ( &
      UniteListing     , & ! Unite logique fichier listing
      CritereArret     , & ! Critere d'arret du calcul
      TempsMaximum     , & ! Temps maximum du calcul
-     document         , & ! Pointeur vers document XML
+     unitNum          , & ! Unite logique du fichier .xcas
      Erreur             & ! Erreur
                       )
 
@@ -43,7 +43,7 @@ subroutine LEC_LOI    ( &
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_LEC_HYDRAU_I        ! Interface de sous-programme
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
    ! Arguments
@@ -53,19 +53,19 @@ subroutine LEC_LOI    ( &
    integer                      , intent(in   ) :: UniteListing
    integer                      , intent(in   ) :: CritereArret
    real(DOUBLE)                 , intent(in   ) :: TempsMaximum
-   type(Node), pointer, intent(in) :: document
+   integer, intent(in)                          :: unitNum
    ! Variables locales
    integer :: nb_loi   ! nombre de lois
    integer :: nb_point ! nombre de points
-   integer :: nb_point_z,nb_point_q ! nombre de points
    integer :: iloi     ! compteur sur les lois
    integer :: i        ! compteur sur les points
-   integer :: j ,k       ! compteur sur les points
    integer :: retour   ! code de retour des fonctions intrinseques
    integer :: mode_entree_loi ! type d'entree clavier/fichier
    integer :: unite_temps     ! unite de temps des lois entres par clavier
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
-   type(Node), pointer :: champ1,champ2,champ3,champ4,champ5
+
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
 
@@ -81,19 +81,10 @@ subroutine LEC_LOI    ( &
 
    ! Nombre de lois
    !---------------
-   champ1 => item(getElementsByTagname(document, "parametresLoisHydrauliques"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresLoisHydrauliques"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "nb"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => nb"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,nb_loi)
+   pathNode = 'parametresLoisHydrauliques/nb'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_loi
+
    if( nb_loi < 2 ) then
       Erreur%Numero = 305
       Erreur%ft     = err_305
@@ -117,8 +108,9 @@ subroutine LEC_LOI    ( &
       return
    end if
 
-   champ2 => item(getElementsByTagname(champ1, "lois"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresLoisHydrauliques/lois'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
       print*,"Parse error => lois"
       call xerror(Erreur)
       return
@@ -126,27 +118,22 @@ subroutine LEC_LOI    ( &
 
    do iloi = 1 , nb_loi
 
-      champ3 => item(getElementsByTagname(champ2, "structureParametresLoi"), iloi-1)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => structureParametresLoi"
-         call xerror(Erreur)
-         return
+      if(iloi.eq.1) then
+        pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/nom'
+        LoiHydrau(iloi)%Nom = xcasReader(unitNum, pathNode)
+      else
+        pathNode = 'structureParametresLoi/nom'
+        LoiHydrau(iloi)%Nom = xcasReader(unitNum, pathNode, 1)
       endif
-      champ4 => item(getElementsByTagname(champ3, "nom"), 0)
-      if(associated(champ4).eqv..false.) then
-         print*,"Parse error => nom"
-         call xerror(Erreur)
-         return
-      endif
-      LoiHydrau(iloi)%Nom  = getTextContent(champ4)
 
-      champ4 => item(getElementsByTagname(champ3, "type"), 0)
-      if(associated(champ4).eqv..false.) then
-         print*,"Parse error => type"
-         call xerror(Erreur)
-         return
+      if(iloi.eq.1) then
+        pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/type'
+        line = xcasReader(unitNum, pathNode)
+      else
+        pathNode = 'type'
+        line = xcasReader(unitNum, pathNode, 0)
       endif
-      call extractDataContent(champ4,LoiHydrau(iloi)%Type)
+      read(unit=line, fmt=*) LoiHydrau(iloi)%Type
 
       if( LoiHydrau(iloi)%Type < 1 .or. LoiHydrau(iloi)%Type > LOI_TYPE_NB_MAX ) then
          Erreur%Numero = 317
@@ -156,19 +143,15 @@ subroutine LEC_LOI    ( &
          return
       end if
 
-      champ4 => item(getElementsByTagname(champ3, "donnees"), 0)
-      if(associated(champ4).eqv..false.) then
-         print*,"Parse error => donnees"
-         call xerror(Erreur)
-         return
+      if(iloi.eq.1) then
+        pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/donnees/modeEntree'
+        line = xcasReader(unitNum, pathNode)
+      else
+        pathNode = 'donnees/modeEntree'
+        line = xcasReader(unitNum, pathNode, 0)
       endif
-      champ5 => item(getElementsByTagname(champ4, "modeEntree"), 0)
-      if(associated(champ5).eqv..false.) then
-         print*,"Parse error => modeEntree"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ5,mode_entree_loi)
+      read(unit=line, fmt=*) mode_entree_loi
+
 
       if( mode_entree_loi /= SAISIE_PAR_FICHIER .and. mode_entree_loi /= SAISIE_PAR_CLAVIER ) then
          Erreur%Numero = 318
@@ -184,13 +167,14 @@ subroutine LEC_LOI    ( &
 
       if( mode_entree_loi == SAISIE_PAR_FICHIER ) then
 
-         champ5 => item(getElementsByTagname(champ4, "fichier"), 0)
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => fichier"
-            call xerror(Erreur)
-            return
+         if(iloi.eq.1) then
+           pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/donnees/fichier'
+           FichierLoiHydrau%Nom = xcasReader(unitNum, pathNode)
+         else
+           pathNode = 'fichier'
+           FichierLoiHydrau%Nom = xcasReader(unitNum, pathNode, 0)
          endif
-         FichierLoiHydrau%Nom = getTextContent(champ5)
+
          if( impression_hydrau ) then
             write(UniteListing,10030) 'PAR FICHIER' , FichierLoiHydrau%Nom
          endif
@@ -295,13 +279,6 @@ subroutine LEC_LOI    ( &
   10010 format ('Nombre de lois = ',i3)
   10020 format (/,'Loi ',i3,' : Nom = ',A,' Type =',i2)
   10030 format ('Mode d''entree      = ',A,' Nom du fichier = ',A)
-  10040 format ('Mode d''entree      = ',A)
-  10045 format ('Unite de temps     = ',A)
-  10050 format ('Nombre de points   = ',i3)
-  10060 format (A)
-  10070 format (i5,2f12.3)
-  10080 format (i5,3f12.3)
-  10090 format (f12.3)
 
    contains
 

@@ -96,7 +96,7 @@ SUBROUTINE CALCS_O2( RNU , S , &
 !-----------------------------------------------------------------------
 !***********************************************************************
 
-   USE M_PRECISION 
+   USE M_PRECISION
    USE M_CONSTANTES_TRACER_T
    USE M_PARAMETRES_QUALITE_EAU_T
    USE M_SINGULARITE_T
@@ -125,7 +125,7 @@ SUBROUTINE CALCS_O2( RNU , S , &
    REAL(DOUBLE)                              :: CORR1    , CORR2 , CORR1T, CORR2T
    INTEGER     , DIMENSION (Nbsing)          :: NUMSEUI
    INTEGER FORMK2 , FORMCS , FORMRS , NBSEUI
-   INTEGER I , J , K , KP1
+   INTEGER I , K , KP1
    INTEGER :: IF1 = 0
    !
    SAVE TEMP
@@ -407,7 +407,7 @@ end function GET_TYPE_VAR_CALCS_O2
 
 function GET_TAILLE_VAR_CALCS_O2(ParQual_Eau, NomVar, taille1, MessageErreur)
 
-   use M_PRECISION 
+   use M_PRECISION
 
    implicit none
 
@@ -448,11 +448,11 @@ function GET_TAILLE_VAR_CALCS_O2(ParQual_Eau, NomVar, taille1, MessageErreur)
    else if ( NomVar == 'Model.Tracer.ParPhy.O2.NBSEUI') then
       taille1 = 0
    elseif ( NomVar == 'Model.Tracer.ParPhy.O2.ARS') then
-      taille1 = ParQual_Eau(13)
+      taille1 = int(ParQual_Eau(13))
    elseif ( NomVar == 'Model.Tracer.ParPhy.O2.BRS') then
-      taille1 = ParQual_Eau(13)
+      taille1 = int(ParQual_Eau(13))
    elseif ( NomVar == 'Model.Tracer.ParPhy.O2.NUMSEUI') then
-      taille1 = ParQual_Eau(13)
+      taille1 =int(ParQual_Eau(13))
    else
       GET_TAILLE_VAR_CALCS_O2 = 1
       taille1                 = 0
@@ -464,7 +464,7 @@ end function GET_TAILLE_VAR_CALCS_O2
 function GET_DOUBLE_CALCS_O2(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_DOUBLE_CALCS_O2    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -509,7 +509,7 @@ end function GET_DOUBLE_CALCS_O2
 function GET_INT_CALCS_O2(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_INT_CALCS_O2    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -542,7 +542,7 @@ end function GET_INT_CALCS_O2
 function SET_DOUBLE_CALCS_O2(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_DOUBLE_CALCS_O2    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -585,7 +585,7 @@ end function SET_DOUBLE_CALCS_O2
 function SET_INT_CALCS_O2(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_INT_CALCS_O2    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur

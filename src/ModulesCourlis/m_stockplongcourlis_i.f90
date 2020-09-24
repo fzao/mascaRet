@@ -2,66 +2,66 @@ Module M_StockPLongCourlis_I
 
 Interface
 
-Subroutine  StockPLongCourlis	( &
+Subroutine  StockPLongCourlis  ( &
 
-	FicStockPLongCourlis		, & ! Unite logique fichier listing
-    PhaseStockPLongCourlis		, & ! Phase de la simulation (init, calcul, ??)
-	Temps						, & ! Temps courant
-	num_pas						, & ! Numéro du pas de temps
-    NbProfil					, & ! Nombre de profils
-	NbCouche					, & ! Nombre de couches
-    ProfilCourlis				, & ! Profils sedimentaires
-	Zsurf						, & ! Cote de la surface libre
-	Vitesse						, & ! Vitesse moyenne par section
-    SurfMouil					, & ! Surface mouillee
-	CVase						, & ! Concentration des vases  en suspension
-	CSable						, & ! Concentration des sables en suspension
-	DepotCumulCouche			, & ! Depot cumule /profil et /couche (> 0 dépôt, < 0 érosion)
-	DeltaSurfaceSed				, & ! Variation de la surface sédimentaire
-	QVase						, & ! Flux de depot des vases (> 0 depot, < 0 erosion)
-	QSable						, & ! Flux de depot des sables (> 0 depot, < 0 erosion)
-	TauHMax						, & ! Contrainte hydr. loc. max. ds section (depend du tirant d'eau local)
-	TauHMoy						, & ! Contrainte hydr. loc. moy. ds section (depend du tirant d'eau local)
-	TauEMax						, & ! Contrainte hydr. eff. max. ds section (depend du rayon hydr.)
-	TauEMoy						, & ! Contrainte hydr. eff. moy. ds section (depend du rayon hydr.)
-	CeqMoy						, & ! Conc. d'equilibre des sables moy. ds section
-	Erreur						)
+  FicStockPLongCourlis    , & ! Unite logique fichier listing
+    PhaseStockPLongCourlis    , & ! Phase de la simulation (init, calcul, ??)
+  Temps            , & ! Temps courant
+  num_pas            , & ! Numéro du pas de temps
+    NbProfil          , & ! Nombre de profils
+  NbCouche          , & ! Nombre de couches
+    ProfilCourlis        , & ! Profils sedimentaires
+  Zsurf            , & ! Cote de la surface libre
+  Vitesse            , & ! Vitesse moyenne par section
+    SurfMouil          , & ! Surface mouillee
+  CVase            , & ! Concentration des vases  en suspension
+  CSable            , & ! Concentration des sables en suspension
+  DepotCumulCouche      , & ! Depot cumule /profil et /couche (> 0 dépôt, < 0 érosion)
+  DeltaSurfaceSed        , & ! Variation de la surface sédimentaire
+  QVase            , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
+  QSable            , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
+  TauHMax            , & ! Contrainte hydr. loc. max. ds section (depend du tirant d'eau local)
+  TauHMoy            , & ! Contrainte hydr. loc. moy. ds section (depend du tirant d'eau local)
+  TauEMax            , & ! Contrainte hydr. eff. max. ds section (depend du rayon hydr.)
+  TauEMoy            , & ! Contrainte hydr. eff. moy. ds section (depend du rayon hydr.)
+  CeqMoy            , & ! Conc. d'equilibre des sables moy. ds section
+  Erreur            )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       05/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       05/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !
-!  Fonction :	Ecriture du fichier resultat de Courlis au format RUBENS
-!  --------		(format LIDONP) - trace des profils en long
+!  Fonction :  Ecriture du fichier resultat de Courlis au format RUBENS
+!  --------    (format LIDONP) - trace des profils en long
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
 !
-!  Sous-programme appele :	
-!  ---------------------	
-!		
+!  Sous-programme appele :
+!  ---------------------
+!
 !=========================================================================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_CONSTANTES_CALCUL_C	! Constantes num, phys et info
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
 
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T		! Definition du type PROFIL_COURLIS
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 
 !=========================================================================
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 
@@ -118,7 +118,7 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !  character(4) :: C_TauHMoy         = 'THMO'
 !  character(4) :: C_TauEMax         = 'TEMA'
 !  character(4) :: C_TauEMoy         = 'TEMO'
-!  character(4) :: C_CeqMoy          = 'CEQM'   
+!  character(4) :: C_CeqMoy          = 'CEQM'
 !  character(4) :: C_Fin             = 'FIN '
 
 !  character(4), dimension(7) :: C_Zref
@@ -127,7 +127,7 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 ! Traitement des erreurs
 !-----------------------
 ! PU2017 : Mise en commentaire des var loc pour traitement erreur
-!  integer		 :: retour
+!  integer     :: retour
 !  character(132) :: arbredappel_old
   type(ERREUR_T), intent(inout) :: Erreur
 

@@ -103,11 +103,8 @@ SUBROUTINE BILMAS( MASSE , FLUMAS , FLUENT , FLUSOR , FLUSRC  , &
    integer Nb_sect
    LOGICAL CONV
    real(DOUBLE) , dimension(Nb_sect) :: Bord , dXi
-   integer J , I , IM , NSCMP2 , scheco
+   integer I , IM , NSCMP2 , scheco
    real(DOUBLE) RMANN
-   logical deja
-   real(DOUBLE) Masse0 , Masse_ant
-   save deja , Masse0
 
    CONV   = ConsTrac(itrac)%Conv
    SCHECO = ConsTrac(itrac)%Scheconv
@@ -175,7 +172,7 @@ SUBROUTINE BILMAS( MASSE , FLUMAS , FLUENT , FLUSOR , FLUSRC  , &
    ! * -------------------------- *
    !
    NSCMP = Nb_sect / 2
-   if( NSCMP /= Nb_sect ) then 
+   if( NSCMP /= Nb_sect ) then
       NSCMP2 = NSCMP
    else
       NSCMP2 = NSCMP - 1

@@ -101,7 +101,7 @@ subroutine MINMAJ ( &
    !-----------------------
    real(DOUBLE)   :: SURF,Q,SURFG,SURFD,SMING,SMIND
    real(DOUBLE)   :: DEB1GG,DEB1GD,DEB1G,DEB2GG,DEB2GD,DEB2G
-   real(DOUBLE)   :: ETA,DSG,DSD
+   real(DOUBLE)   :: ETA
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
    !============================= Instructions ===========================

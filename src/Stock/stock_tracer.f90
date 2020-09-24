@@ -86,11 +86,11 @@ subroutine STOCK_TRACER( X , &
    use M_TRAITER_ERREUR_I    ! Traitement des erreurs
    use M_MESSAGE_C           ! Liste des messages d'erreur
 
-   !.. Declarations explicites .. 
+   !.. Declarations explicites ..
    !-----------------------------
    implicit none
 
-   !.. Arguments .. 
+   !.. Arguments ..
    !---------------
    real(DOUBLE)   , dimension(:)  , pointer :: X
    real(DOUBLE)   , dimension(:)  , pointer :: ZREF
@@ -115,7 +115,6 @@ subroutine STOCK_TRACER( X , &
    integer                        :: retour
    integer                        :: NbSectEff
    integer                        :: isec
-   character(132)                 :: arbredappel_old
    ! Declaration des 2 structures qui permettront de realiser des boucles
    ! sur les variables a stocker :
    ! 1. Declaration de la structure contenant toutes les informations constantes
@@ -125,7 +124,7 @@ subroutine STOCK_TRACER( X , &
    ! de la simulation sur les variables a stocker.
    type(GDR_STO_T), dimension(NB_TOT_VARTR) :: gdr
 
-   !============================== Instructions ============================== 
+   !============================== Instructions ==============================
    ! INITIALISATION
    ! --------------
    Erreur%Numero = 0
@@ -145,7 +144,7 @@ subroutine STOCK_TRACER( X , &
                     PHASE_INITIALISATION &
                                )
 
-   ! Traitement du probleme spatial 
+   ! Traitement du probleme spatial
    ! ------------------------------
    if( OptionSto == STOCKAGE_LISTE_SECTION ) then
       ! les sections a considerer sont celles du tableau donne en entree
@@ -286,16 +285,15 @@ contains
    !.. Constantes ..
    integer     , parameter :: LEN_PRECISION= 20 ! Precision sur 7 chiffres maxi
    !.. Variables locales ..
-   character(LEN_PRECISION) :: fmt_precision    ! Variable contenant le format 
+   character(LEN_PRECISION) :: fmt_precision    ! Variable contenant le format
    integer :: ul                             ! Unite logique du fichier de stockage
    integer :: retour                         ! Variable contenant le code de retour
                                              ! des fonctions d'E/S
    integer :: ivar                           ! Compteur sur les variables a sortir
    integer :: isec                           ! Compteur sur les sections
    integer :: num_sect                       ! Indice sur la liste des sections a stocker
-   character(132) :: arbredappel_old         ! Arbre d'appel d'avant l'entree dans la procedure
 
-   !============================ Instructions ============================== 
+   !============================ Instructions ==============================
    ! INITIALISATION
    ! --------------
    Erreur%Numero = 0
@@ -418,7 +416,7 @@ end subroutine STO_OPTHYCA
    !.. Declarations explicites ..
    implicit none
 
-   !.. Arguments .. 
+   !.. Arguments ..
    type(CONNECT_T),                       intent(in) :: Connect
    integer                              , intent(in) :: NbSectEff
    type(VAR_NOM_T), dimension(:)        , intent(in) :: var_nom
@@ -442,9 +440,8 @@ end subroutine STO_OPTHYCA
    integer :: ivar                         ! Compteur sur les variables a sortir
    integer :: isec                         ! Compteur sur les valeurs des var a sortir
    integer :: ibief                        ! Compteur sur les biefs
-   character(132) :: arbredappel_old       ! Arbre d'appel d'avant l'entree dans la procedure
 
-   !============================ Instructions ============================== 
+   !============================ Instructions ==============================
    ! INITIALISATIONS
    ! ---------------
    Erreur%Numero = 0

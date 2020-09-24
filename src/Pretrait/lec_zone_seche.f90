@@ -26,13 +26,13 @@ subroutine LEC_ZONE_SECHE ( &
      AbscRelExtDebBief    , &
      AbscRelExtFinBief    , &
      UniteListing         , & ! Unite logique fichier listing
-     document             , & ! Pointeur vers document XML
+     unitNum              , & ! Unite logique .xcas
      Erreur                 & ! Erreur
                           )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                          
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -48,7 +48,7 @@ subroutine LEC_ZONE_SECHE ( &
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calcul de l'indice de section de calcul
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -62,7 +62,7 @@ subroutine LEC_ZONE_SECHE ( &
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document  
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer      :: nb_zone_seche    ! nombre de zones seches
@@ -75,9 +75,10 @@ subroutine LEC_ZONE_SECHE ( &
    real(DOUBLE) :: abs_rel_fin_prec ! abscisse fin de zone
    integer      :: izone         ! compteur sur les zones
    integer      :: retour        ! code de retour des fonctions intrinseques
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -85,29 +86,22 @@ subroutine LEC_ZONE_SECHE ( &
    ! --------------
    Erreur%Numero = 0
    retour        = 0
+   num_branche_prec = -1
    !arbredappel_old = trim(!Erreur%arbredappel)
    !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>LEC_ZONE_SECHE'
 
    if (UniteListing >0) write(UniteListing,10000)
 
    ! Nombre de zones seches
-   champ1 => item(getElementsByTagname(document, "parametresConditionsInitiales"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresConditionsInitiales"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "zonesSeches"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresConditionsInitiales/zonesSeches'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
        nb_zone_seche = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nb"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => nb"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,nb_zone_seche)
+       pathNode = 'parametresConditionsInitiales/zonesSeches/nb'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nb_zone_seche
+
        if( nb_zone_seche < 0 ) then
           Erreur%Numero = 306
           Erreur%ft     = err_306
@@ -154,29 +148,19 @@ subroutine LEC_ZONE_SECHE ( &
            call TRAITER_ERREUR( Erreur , 'rtab2' )
            return
        end if
-      
-      champ3 => item(getElementsByTagname(champ2, "branche"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => branche"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab)
-      champ3 => item(getElementsByTagname(champ2, "absDebut"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => absDebut"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab1)
-      champ3 => item(getElementsByTagname(champ2, "absFin"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => absFin"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab2)
-       
+
+      pathNode = 'parametresConditionsInitiales/zonesSeches/branche'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab
+
+      pathNode = 'parametresConditionsInitiales/zonesSeches/absDebut'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab1
+
+      pathNode = 'parametresConditionsInitiales/zonesSeches/absFin'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab2
+
       ! Description des zones seches
       do izone = 1 , nb_zone_seche
          num_branche = itab(izone)
@@ -272,10 +256,10 @@ subroutine LEC_ZONE_SECHE ( &
          abs_rel_fin_prec = abs_rel_fin
 
       end do
-      
+
       deallocate(itab)
       deallocate(rtab1)
-      deallocate(rtab2)    
+      deallocate(rtab2)
 
    else
 
@@ -300,21 +284,21 @@ subroutine LEC_ZONE_SECHE ( &
    10020 format ('Zone n0',i3,' Branche n0 ',i3,' Abscisse debut : ',f12.3,' Abscisse fin : ',f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-   
+
+   end subroutine xerror
+
 end subroutine LEC_ZONE_SECHE

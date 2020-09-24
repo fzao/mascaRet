@@ -37,7 +37,7 @@ module M_DEBITANCE_S
    !============================= Declarations ===========================
    use M_PRECISION
    use M_CONSTANTES_CALCUL_C ! LOI_FROTTEMENT_STRICKLER
-   use M_PARAMETRE_C         ! GPES, W23, 
+   use M_PARAMETRE_C         ! GPES, W23,
    use M_ERREUR_T            ! Definition du type Erreur
 
    implicit none
@@ -59,7 +59,6 @@ module M_DEBITANCE_S
 
    ! Constantes
    !-----------
-   real(DOUBLE) :: W58 = 0.625
 
    !============================= Instructions ===========================
 
@@ -100,8 +99,8 @@ module M_DEBITANCE_S
                  dsqrt( 8._DOUBLE * GPES ) *            &
                  DLOG10( 12._DOUBLE * RH1 / CF1 )
 
-      !----------------------------------------------------	
-      ! BAZIN   Chezy(i) en fonction de RH et mb (fixe)  
+      !----------------------------------------------------
+      ! BAZIN   Chezy(i) en fonction de RH et mb (fixe)
       !----------------------------------------------------
       case(LOI_FROTTEMENT_BAZIN)
 

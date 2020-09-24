@@ -11,7 +11,7 @@ Subroutine  LecFichierSedim    ( &
     Erreur                    )
 
 
-!************************************************************************* 
+!*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL - M. Jodeau
 !
 !  VERSION : 5.1       08-2009        Copyright EDF-CETMEF
@@ -24,9 +24,9 @@ Subroutine  LecFichierSedim    ( &
 !  Sous-programme appelant : LecParamSedim
 !  -----------------------
 !
-!  Sous-programme appele : 
+!  Sous-programme appele :
 !  ---------------------
-!        
+!
 !=========================================================================
 
 
@@ -44,27 +44,27 @@ use M_ERREUR_T                ! Definition du type ERREUR_T
 use M_MESSAGE_C                ! Messages d'erreur
 use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Variables d'entrée
-  type(FICHIER_T)        , intent(in   ) :: FichierSedim    
+  type(FICHIER_T)        , intent(in   ) :: FichierSedim
 
 ! Variables de sortie
-  integer                , intent(  out)    :: NbCouche    
-  type(TALUS_T)            , intent(  out)    :: Talus        
-  real(DOUBLE)            , intent(  out)    :: LimiteSable 
-  real(DOUBLE)            , intent(  out)    :: CnuxV    
+  integer                , intent(  out)    :: NbCouche
+  type(TALUS_T)            , intent(  out)    :: Talus
+  real(DOUBLE)            , intent(  out)    :: LimiteSable
+  real(DOUBLE)            , intent(  out)    :: CnuxV
   real(DOUBLE)            , intent(  out)    :: CnuxS
-!  type(CONSTANTES_TRACER_T), intent(out) :: ConsConv    
+!  type(CONSTANTES_TRACER_T), intent(out) :: ConsConv
 
-  type(COUCHE_T), dimension(:), pointer :: CoucheSed    
+  type(COUCHE_T), dimension(:), pointer :: CoucheSed
 
 ! Constantes
   integer, parameter :: LEN_CHAINE = 80
 
 ! Variables locales
-  integer        :: UniteSedim        ! Unite du fichier de sedimentation a lire 
+  integer        :: UniteSedim        ! Unite du fichier de sedimentation a lire
   character(72)    :: txt, DesignVar
   integer        :: iCouche            ! indice de couche
   integer       :: NumCouche        ! Numero de couche
@@ -100,7 +100,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
   Erreur%arbredappel = trim(Erreur%arbredappel)//'=>LecFichierSedim'
 
 
-! Ouverture du fichier 
+! Ouverture du fichier
 ! --------------------
   open(unit=UniteSedim, file=FichierSedim%Nom, access='SEQUENTIAL', &
        action='READ'    , form='FORMATTED' , iostat=retour0,        &
@@ -125,9 +125,9 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 ! Ligne 1 : Nombre de couches de sediments (texte + valeur)
 !
 ! Ligne 2 : Numero de la couche de sediments dont les parametres sont a lire
-! Ligne 3 a 11 : Parametres de la couche de sediment 
-! 
-! les lignes 2 a 11 sont repetees autant de fois qu'il y a de couches 
+! Ligne 3 a 11 : Parametres de la couche de sediment
+!
+! les lignes 2 a 11 sont repetees autant de fois qu'il y a de couches
 
 
 
@@ -162,7 +162,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft   = err_408
     Erreur%ft_c = err_408c
     call TRAITER_ERREUR (Erreur, 'Le nombre de couches', 'au maximum de 7.')
-    return        
+    return
   End if
 
 
@@ -176,7 +176,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     call TRAITER_ERREUR (Erreur, 'CoucheSed')
     return
   End if
-  
+
 
 ! Boucle de lecture sur les couches de sediments
 !-----------------------------------------------
@@ -249,7 +249,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
       return
     End if
 
-    ! Lecture de la vitesse de chute et de la Contrainte critique de depot des vases, 
+    ! Lecture de la vitesse de chute et de la Contrainte critique de depot des vases,
     ! pour la 1ere couche seulement
     If (NumCouche == 1) Then
       call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour0)
@@ -322,7 +322,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     return
   End if
 
-! Allocation de memoire du tableau des talus 
+! Allocation de memoire du tableau des talus
 !-------------------------------------------
   allocate (Talus%Gamma(NbCouche),STAT = retour0)
   If (retour0 /= 0) Then
@@ -379,7 +379,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Talus%GammaW = 0.
     Do iCouche = 1, NbCouche
       Talus%Gamma(iCouche) = 0.
-    End do            
+    End do
 
   End if
 
@@ -462,7 +462,6 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 
 ! FORMAT DE LECTURE
 ! -----------------
-  1000 format(a59)
 
   return
 

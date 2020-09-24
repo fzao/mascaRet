@@ -26,14 +26,14 @@ subroutine LEC_BARRAGE( &
      AbscRelExtDebBief, & ! Abscisse de l'extremite debut du bief
      AbscRelExtFinBief, & ! Abscisse de l'extremite debut du bief
      UniteListing     , & ! Unite logique fichier listing
-     document         , & ! Pointeur vers document XML
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET         A. LEBOSSE
 !                              S. MANDELKERN
-!                              F. ZAOUI                      
+!                              F. ZAOUI
 !
 ! VERSION : V8P2R0                EDF-CEREMA
 ! *********************************************************************
@@ -49,7 +49,7 @@ subroutine LEC_BARRAGE( &
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -63,14 +63,15 @@ subroutine LEC_BARRAGE( &
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    ! Variables locales
    real(DOUBLE) :: abs_abs     ! abscisse absolue du barrage
    integer      :: num_branche ! numero de la branche
    !character(132) :: !arbredappel_old
-   type(Node), pointer :: champ1,champ2,champ3
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
 
    !========================= Instructions ===========================
    ! INITIALISATION
@@ -81,24 +82,14 @@ subroutine LEC_BARRAGE( &
 
    ! Barrage
    !--------
-   if (UniteListing >0) write(UniteListing,10000)
-   champ1 => item(getElementsByTagname(document, "parametresSingularite"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresSingularite"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "barragePrincipal"), 0)
-   if(associated(champ2).eqv..false.) then
-       Barrage%TypeRupture = TYPE_RUPTURE_PROGRESSIVE
+   pathNode = 'parametresSingularite/barragePrincipal'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
+      Barrage%TypeRupture = TYPE_RUPTURE_PROGRESSIVE
    else
-      champ3 => item(getElementsByTagname(champ2, "typeRupture"), 0)
-      if(associated(champ3).eqv..false.) then
-          print*,"Parse error => typeRupture"
-          call xerror(Erreur)
-          return
-      endif
-      call extractDataContent(champ3,Barrage%TypeRupture)
+      pathNode = 'parametresSingularite/barragePrincipal/typeRupture'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Barrage%TypeRupture
    endif
    if( Barrage%TypeRupture /= TYPE_RUPTURE_PROGRESSIVE .and. &
        Barrage%TypeRupture /= TYPE_RUPTURE_INSTANTANEE) then
@@ -120,27 +111,17 @@ subroutine LEC_BARRAGE( &
       Barrage%CoteCrete   = -1
       Barrage%NumBranche  =  1
    else
-      champ3 => item(getElementsByTagname(champ2, "numBranche"), 0)
-      if(associated(champ3).eqv..false.) then
-          print*,"Parse error => numBranche"
-          call xerror(Erreur)
-          return
-      endif
-      call extractDataContent(champ3,Barrage%NumBranche)
-      champ3 => item(getElementsByTagname(champ2, "coteCrete"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => coteCrete"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Barrage%CoteCrete)
-      champ3 => item(getElementsByTagname(champ2, "abscisse"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => abscisse"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Barrage%AbscisseRel)
+      pathNode = 'parametresSingularite/barragePrincipal/numBranche'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Barrage%NumBranche
+
+      pathNode = 'parametresSingularite/barragePrincipal/coteCrete'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Barrage%CoteCrete
+
+      pathNode = 'parametresSingularite/barragePrincipal/abscisse'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Barrage%AbscisseRel
    endif
 
    num_branche = Barrage%NumBranche
@@ -208,21 +189,21 @@ subroutine LEC_BARRAGE( &
    10030 format ('Cote de rupture   : ',f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror      
-   
+
+   end subroutine xerror
+
   end subroutine LEC_BARRAGE

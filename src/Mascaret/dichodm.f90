@@ -89,7 +89,7 @@ subroutine DICHODM ( &
 
    !.. Variables locales ..
    !-----------------------
-   integer      :: JM,JMIL,NMAX,NT,JGP1,NMLARG1
+   integer      :: JMIL,NMAX,NT,JGP1,NMLARG1
    real(DOUBLE) :: SG
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 

@@ -19,7 +19,7 @@
 subroutine CALVAR( &
                 QMIN , &
                 QMAJ , &
-                SMIN , & 
+                SMIN , &
                 SMAJ , &
                 BETA , &
                XFRON , &
@@ -160,10 +160,9 @@ subroutine CALVAR( &
 
    !.. Variables locales ..
    !-----------------------
-   real(DOUBLE)   :: DELTAZ,NRJ,ZSEUIL,Surf_basse,surf_haute,SD,SG,ALD,ALG,ALARG
-   real(DOUBLE)   :: hauteur_basse,hauteur_haute,Y,SurfaceMouilleeBasse
-   real(DOUBLE)   :: Toto,DIFF
-   integer        :: NOEUD,IBIEF,PasHaut,PasBas,Pas_Milieu,nombre_Pas,NT,NMAX,JGP1
+   real(DOUBLE)   :: DELTAZ,ZSEUIL,Surf_basse,surf_haute,SD,SG,ALD,ALG,ALARG
+   real(DOUBLE)   :: hauteur_basse,hauteur_haute
+   integer        :: NOEUD,IBIEF,PasHaut
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
    !============================= Instructions ===========================

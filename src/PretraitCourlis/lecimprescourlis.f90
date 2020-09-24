@@ -1,43 +1,43 @@
 Subroutine  LecImpResCourlis( &
 
-	FichierMotCle			, &	! Fichier des mots-cle
-	FicListingCourlis		, & ! Fichier de sortie listing des resultats
-	FicStockPLongCourlis	, & ! Fichier graphique des res. selon profil en long du bief
-	FicStockPTransCourlis	, & ! Fichier graphique des res. selon profil en travers du b.
-	FicControleCourlis		, & ! Ficher de controle
-	FicErreurCourlis		, & ! Fichier d'erreur
-	FicResuGeom				, & ! Fichier de la geometrie finale des couches
-	FicResuMES				, & ! Fichier des concentrations en MES a fin calcul a ch. x
-	ImpressionSedim			, & ! Choix Impression des parametres sedimentaires
-	ImpressionGeom			, & ! Choix Impression de la geometrie des interfaces sedim.
-	ImpressionCouplage		, & ! Choix Impression des parametres de couplage
-	ImpressionConcIni		, & ! Choix Impression des Concentrations initiales
-	ImpressionLoiConc		, & ! Choix Impression des Lois de concentration
-	ImpressionApport		, & ! Choix Impression des apports Courlis
-	PasImpressionCourlis	, & ! Periodicite des enregistrements listing
-	PasStockLongCourlis		, & ! Periodicite des enregistremts graph. profil en long
-	PasStockTransCourlis	, & ! Periodicite des enregistremts graph. profil en travers
-	MOTINT					, &
-    MOTCAR					, &
-	MOTLOG					, &
-    ADRESS					, &
-    Erreur					)   ! Erreur
-							
+  FichierMotCle      , &  ! Fichier des mots-cle
+  FicListingCourlis    , & ! Fichier de sortie listing des resultats
+  FicStockPLongCourlis  , & ! Fichier graphique des res. selon profil en long du bief
+  FicStockPTransCourlis  , & ! Fichier graphique des res. selon profil en travers du b.
+  FicControleCourlis    , & ! Ficher de controle
+  FicErreurCourlis    , & ! Fichier d'erreur
+  FicResuGeom        , & ! Fichier de la geometrie finale des couches
+  FicResuMES        , & ! Fichier des concentrations en MES a fin calcul a ch. x
+  ImpressionSedim      , & ! Choix Impression des parametres sedimentaires
+  ImpressionGeom      , & ! Choix Impression de la geometrie des interfaces sedim.
+  ImpressionCouplage    , & ! Choix Impression des parametres de couplage
+  ImpressionConcIni    , & ! Choix Impression des Concentrations initiales
+  ImpressionLoiConc    , & ! Choix Impression des Lois de concentration
+  ImpressionApport    , & ! Choix Impression des apports Courlis
+  PasImpressionCourlis  , & ! Periodicite des enregistrements listing
+  PasStockLongCourlis    , & ! Periodicite des enregistremts graph. profil en long
+  PasStockTransCourlis  , & ! Periodicite des enregistremts graph. profil en travers
+  MOTINT          , &
+    MOTCAR          , &
+  MOTLOG          , &
+    ADRESS          , &
+    Erreur          )   ! Erreur
 
-!************************************************************************* 
+
+!*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       02/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       02/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !  Fonction : Lecture du des paramatres d'impression - resultat
-!  --------	  
+!  --------
 !
 !  Sous-programme appelant : Pretrait_Courlis
 !  -----------------------
 !
-!  Sous-programme appele : 
+!  Sous-programme appele :
 !  ---------------------
 !
 !=========================================================================
@@ -47,14 +47,14 @@ Subroutine  LecImpResCourlis( &
 ! DECLARATIONS
 !=========================================================================
 use M_PRECISION
-use M_CONSTANTES_CALCUL_C	! Constantes num, phys et info
-use M_FICHIER_T				! Definition du type FICHIER_T
+use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
+use M_FICHIER_T        ! Definition du type FICHIER_T
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Variables d'entree et sortie
@@ -67,29 +67,29 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   type(FICHIER_T), intent(inout) :: FicResuGeom
   type(FICHIER_T), intent(inout) :: FicResuMES
 
-  integer			, dimension(:)	, intent(in   ) :: MOTINT
-  character(LEN=144), dimension(:)	, intent(in   ) :: MOTCAR
-  integer			, dimension(:,:), intent(in   ) :: ADRESS
-  logical			, dimension(:)  , intent(in   ) :: MOTLOG
+  integer      , dimension(:)  , intent(in   ) :: MOTINT
+  character(LEN=144), dimension(:)  , intent(in   ) :: MOTCAR
+  integer      , dimension(:,:), intent(in   ) :: ADRESS
+  logical      , dimension(:)  , intent(in   ) :: MOTLOG
 
 ! Variables de sortie
-  logical		, intent(  out) :: ImpressionSedim
-  logical		, intent(  out) :: ImpressionGeom
-  logical		, intent(  out) :: ImpressionCouplage
-  logical		, intent(  out) :: ImpressionConcIni
-  logical		, intent(  out) :: ImpressionLoiConc
-  logical		, intent(  out) :: ImpressionApport
-  integer		, intent(  out) :: PasImpressionCourlis
-  integer		, intent(  out) :: PasStockLongCourlis 
-  integer		, intent(  out) :: PasStockTransCourlis
+  logical    , intent(  out) :: ImpressionSedim
+  logical    , intent(  out) :: ImpressionGeom
+  logical    , intent(  out) :: ImpressionCouplage
+  logical    , intent(  out) :: ImpressionConcIni
+  logical    , intent(  out) :: ImpressionLoiConc
+  logical    , intent(  out) :: ImpressionApport
+  integer    , intent(  out) :: PasImpressionCourlis
+  integer    , intent(  out) :: PasStockLongCourlis
+  integer    , intent(  out) :: PasStockTransCourlis
 
 ! Variables locales
-  integer		 :: IdxPoint			! Index du caractere '.'
-  integer     	 :: UniteListing		! Unite du fichier de Listing
+  integer     :: IdxPoint      ! Index du caractere '.'
+  integer        :: UniteListing    ! Unite du fichier de Listing
 
 ! Traitement des erreurs
-  integer		 :: retour			! Code de retour de la fonction read
-!  character(132) :: arbredappel_old	! Arbre d'appel initial  ! PU2017 : Mis en commentaire
+  integer     :: retour      ! Code de retour de la fonction read
+!  character(132) :: arbredappel_old  ! Arbre d'appel initial  ! PU2017 : Mis en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
 
 
@@ -108,36 +108,36 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !=========================================================================
 
 ! Fichier Listing des resultats
-  FicListingCourlis%Nom		= MOTCAR(ADRESS(4,604))
+  FicListingCourlis%Nom    = MOTCAR(ADRESS(4,604))
 
 ! Fichiers de sortie graphique des resultats
-  FicStockPLongCourlis%Nom	= MOTCAR(ADRESS(4,605))
-  FicStockPTransCourlis%Nom	= MOTCAR(ADRESS(4,606))
+  FicStockPLongCourlis%Nom  = MOTCAR(ADRESS(4,605))
+  FicStockPTransCourlis%Nom  = MOTCAR(ADRESS(4,606))
 
 ! Recherche de l'index du caractere 'x'
   IdxPoint = 0
   IdxPoint = index(FichierMotCle%Nom,'.',.true.)
 
 ! Fichier de controle et fichier d'erreur
-  If (IdxPoint == 0) Then	
-	! Si le nom du fichier n'a pas de suffixe, ajouter 1 suffixe a la suite
-	write(FicControleCourlis%Nom,'(2a)') FichierMotCle%Nom,'_Courlis.controle'
-	write(FicErreurCourlis%Nom,'(2a)')   FichierMotCle%Nom,'_Courlis.erreur'
-  Else	
-	! Sinon, enlevez le suffixe et le remplacer 
-	write(FicControleCourlis%Nom,'(2a)') FichierMotCle%Nom(1:IdxPoint-1),'_Courlis.controle'
-	write(FicErreurCourlis%Nom,'(2a)')   FichierMotCle%Nom(1:IdxPoint-1),'_Courlis.erreur'
+  If (IdxPoint == 0) Then
+  ! Si le nom du fichier n'a pas de suffixe, ajouter 1 suffixe a la suite
+  write(FicControleCourlis%Nom,'(2a)') FichierMotCle%Nom,'_Courlis.controle'
+  write(FicErreurCourlis%Nom,'(2a)')   FichierMotCle%Nom,'_Courlis.erreur'
+  Else
+  ! Sinon, enlevez le suffixe et le remplacer
+  write(FicControleCourlis%Nom,'(2a)') FichierMotCle%Nom(1:IdxPoint-1),'_Courlis.controle'
+  write(FicErreurCourlis%Nom,'(2a)')   FichierMotCle%Nom(1:IdxPoint-1),'_Courlis.erreur'
   End if
 
 ! Fic de geometrie finale des couches et fichier des concentration en CMES
-  If (IdxPoint == 0) Then	
-	! Si le nom du fichier n'a pas de suffixe, ajouter 1 suffixe a la suite
-	write(FicResuGeom%Nom,'(2a)') FichierMotCle%Nom,'_Geom.resu'
-	write(FicResuMES%Nom,'(2a)')  FichierMotCle%Nom,'_CMES.resu'
-  Else	
-	! Sinon, enlevez le suffixe et le remplacer 
-	write(FicResuGeom%Nom,'(2a)') FichierMotCle%Nom(1:IdxPoint-1),'_Geom.resu'
-	write(FicResuMES%Nom,'(2a)')  FichierMotCle%Nom(1:IdxPoint-1),'_CMES.resu'
+  If (IdxPoint == 0) Then
+  ! Si le nom du fichier n'a pas de suffixe, ajouter 1 suffixe a la suite
+  write(FicResuGeom%Nom,'(2a)') FichierMotCle%Nom,'_Geom.resu'
+  write(FicResuMES%Nom,'(2a)')  FichierMotCle%Nom,'_CMES.resu'
+  Else
+  ! Sinon, enlevez le suffixe et le remplacer
+  write(FicResuGeom%Nom,'(2a)') FichierMotCle%Nom(1:IdxPoint-1),'_Geom.resu'
+  write(FicResuMES%Nom,'(2a)')  FichierMotCle%Nom(1:IdxPoint-1),'_CMES.resu'
   End if
 
 
@@ -146,70 +146,70 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !=========================================================================
   UniteListing = FicListingCourlis%Unite
 
-  open(unit=UniteListing, file=FicListingCourlis%Nom, access='SEQUENTIAL',	&
-	   action='WRITE'   , form='UNFORMATTED'			, iostat=retour,		&
-	   position='rewind', status='REPLACE'			)
+  open(unit=UniteListing, file=FicListingCourlis%Nom, access='SEQUENTIAL',  &
+     action='WRITE'   , form='UNFORMATTED'      , iostat=retour,    &
+     position='rewind', status='REPLACE'      )
 
   If (retour /= 0) Then
-	Erreur%Numero = 4
-	Erreur%ft   = err_4
-	Erreur%ft_c = err_4c
-	call TRAITER_ERREUR (Erreur, trim(FicListingCourlis%Nom))
-	return
+  Erreur%Numero = 4
+  Erreur%ft   = err_4
+  Erreur%ft_c = err_4c
+  call TRAITER_ERREUR (Erreur, trim(FicListingCourlis%Nom))
+  return
   End if
 
 ! Impression du titre du fichier
   !write(UniteListing,1000)
 
   open(unit=FicStockPLongCourlis%Unite, file=FicStockPLongCourlis%Nom, &
-	   access='SEQUENTIAL', action='WRITE', form='FORMATTED',		   &
-	   iostat=RETOUR, position='rewind', status='REPLACE')
+     access='SEQUENTIAL', action='WRITE', form='FORMATTED',       &
+     iostat=RETOUR, position='rewind', status='REPLACE')
 
   If (retour /= 0) Then
-	Erreur%Numero = 4
-	Erreur%ft   = err_4
-	Erreur%ft_c = err_4c
-	call TRAITER_ERREUR (Erreur, trim(FicStockPLongCourlis%Nom))
-	return
+  Erreur%Numero = 4
+  Erreur%ft   = err_4
+  Erreur%ft_c = err_4c
+  call TRAITER_ERREUR (Erreur, trim(FicStockPLongCourlis%Nom))
+  return
   End if
 
 
   open(unit=FicStockPTransCourlis%Unite, file=FicStockPTransCourlis%Nom, &
-	   access='SEQUENTIAL', action='WRITE', form='FORMATTED',			 &
-	   iostat=RETOUR, position='rewind', status='REPLACE')
+     access='SEQUENTIAL', action='WRITE', form='FORMATTED',       &
+     iostat=RETOUR, position='rewind', status='REPLACE')
 
   If (retour /= 0) Then
-	Erreur%Numero = 4
-	Erreur%ft   = err_4
-	Erreur%ft_c = err_4c
-	call TRAITER_ERREUR (Erreur, trim(FicStockPTransCourlis%Nom))
-	return
+  Erreur%Numero = 4
+  Erreur%ft   = err_4
+  Erreur%ft_c = err_4c
+  call TRAITER_ERREUR (Erreur, trim(FicStockPTransCourlis%Nom))
+  return
   End if
 
 
-  open(unit=FicResuGeom%Unite, file=FicResuGeom%Nom,		   &
-		access='SEQUENTIAL', action='WRITE', form='FORMATTED', &
-		iostat=RETOUR, position='rewind', status='REPLACE')
+  open(unit=FicResuGeom%Unite, file=FicResuGeom%Nom,       &
+    access='SEQUENTIAL', action='WRITE', form='FORMATTED', &
+    iostat=RETOUR, position='rewind', status='REPLACE')
 
   If (retour /= 0) Then
-	Erreur%Numero = 4
-	Erreur%ft   = err_4
-	Erreur%ft_c = err_4c
-	call TRAITER_ERREUR  (Erreur, trim(FicResuGeom%Nom))
-	return
+  Erreur%Numero = 4
+  Erreur%ft   = err_4
+  Erreur%ft_c = err_4c
+  call TRAITER_ERREUR  (Erreur, trim(FicResuGeom%Nom))
+  return
   End if
 
 
-  open(unit=FicResuMES%Unite, file=FicResuMES%Nom,			   &
-		access='SEQUENTIAL', action='WRITE', form='FORMATTED', &
-		iostat=RETOUR, position='rewind', status='REPLACE')
+  open(unit=FicResuMES%Unite, file=FicResuMES%Nom,         &
+    access='SEQUENTIAL', action='WRITE', form='FORMATTED', &
+    iostat=RETOUR, position='rewind', status='REPLACE')
 
   If (retour /= 0) Then
-	Erreur%Numero = 4
-	Erreur%ft   = err_4
-	Erreur%ft_c = err_4c
-	call TRAITER_ERREUR  (Erreur, trim(FicResuMES%Nom))
-	return
+  Erreur%Numero = 4
+  Erreur%ft   = err_4
+  Erreur%ft_c = err_4c
+  call TRAITER_ERREUR  (Erreur, trim(FicResuMES%Nom))
+  return
   End if
 
 !=========================================================================
@@ -223,9 +223,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionSedim = MOTLOG(ADRESS(3,601))
 
  ! If (ImpressionSedim) Then
-!	write(UniteListing,1020) 'OUI'
+!  write(UniteListing,1020) 'OUI'
  ! Else
-!	write(UniteListing,1020) 'NON'
+!  write(UniteListing,1020) 'NON'
 !  Endif
 
 ! Impression de la geometrie des interfaces de sediments
@@ -233,9 +233,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionGeom = MOTLOG(ADRESS(3,602))
 
  ! If (ImpressionGeom) Then
-!	write(UniteListing,1030) 'OUI'
+!  write(UniteListing,1030) 'OUI'
  ! Else
-!	write(UniteListing,1030) 'NON'
+!  write(UniteListing,1030) 'NON'
 !  Endif
 
 ! Impression des parametres de couplage
@@ -243,9 +243,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionCouplage = MOTLOG(ADRESS(3,603))
 
 !  If (ImpressionCouplage) Then
-!	write(UniteListing,1040) 'OUI'
+!  write(UniteListing,1040) 'OUI'
 !  Else
-!	write(UniteListing,1040) 'NON'
+!  write(UniteListing,1040) 'NON'
  ! Endif
 
 ! Impression des concentrations initiales
@@ -253,9 +253,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionConcIni = MOTLOG(ADRESS(3,604))
 
 !  If (ImpressionConcIni) Then
-!	write(UniteListing,1050) 'OUI'
+!  write(UniteListing,1050) 'OUI'
 !  Else
-!	write(UniteListing,1050) 'NON'
+!  write(UniteListing,1050) 'NON'
 !  Endif
 
 ! Impression des lois de concentration
@@ -263,9 +263,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionLoiConc = MOTLOG(ADRESS(3,605))
 
 !  If (ImpressionLoiConc) Then
-!	write(UniteListing,1060) 'OUI'
+!  write(UniteListing,1060) 'OUI'
 !  Else
-!	write(UniteListing,1060) 'NON'
+!  write(UniteListing,1060) 'NON'
 !  Endif
 
 ! Impression des parametres d'apport
@@ -273,9 +273,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   ImpressionApport = MOTLOG(ADRESS(3,606))
 
  ! If (ImpressionApport) Then
-!	write(UniteListing,1070) 'OUI'
+!  write(UniteListing,1070) 'OUI'
 !  Else
-!	write(UniteListing,1070) 'NON'
+!  write(UniteListing,1070) 'NON'
 !  Endif
 
 !=========================================================================
@@ -294,19 +294,6 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 ! FORMATS
 !=========================================================================
 
-  1000 format (/18X,'*************************************'  &
-                /18X,'*        SYSTEME COURLIS            *'  &
-                /18X,'*************************************'///)
-
-
-  1010 format (/,'IMPRESSION-RESULTATS',/, &
-               &  '--------------------',/)
-  1020 format ('Impression des parametres de sediments    : ',A3)
-  1030 format ('Impression de la geometrie des interfaces : ',A3)
-  1040 format ('Impression des parametres de couplage     : ',A3)
-  1050 format ('Impression des concentrations initiales   : ',A3)
-  1060 format ('Impression des lois de concentration      : ',A3)
-  1070 format ('Impression des apports Courlis            : ',A3)
 
 
 

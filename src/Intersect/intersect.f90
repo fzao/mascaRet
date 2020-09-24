@@ -104,7 +104,6 @@ subroutine Intersect( &
    real(DOUBLE) :: delta_zref
    logical      :: debut_bief          ! indicateur de debut de bief
    integer      :: borne_prof          ! point de depart de la boucle
-   integer      :: nb_prof_m1, iprof1
    logical      :: v2p0_pas_assoc      ! flag
    integer      :: retour              ! code de retour d'erreur
    !character(132) :: !arbredappel_old ! arbre d'appel precedent

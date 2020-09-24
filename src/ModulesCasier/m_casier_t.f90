@@ -48,7 +48,7 @@ module M_CASIER_T
       integer, dimension(:,:), pointer :: LiaisonCC => null()   ! LiaisonCc(:,1) ---> numero de la liaison
                                                        ! LiaisonCc(:,2) ---> numero du casier associe
       integer, dimension(:,:), pointer :: LiaisonRC => null()  ! LiaisonRc(:,1) ---> numero de la liaison
-                                                       ! LiaisonRc(:,2) ---> numero de la section associee  
+                                                       ! LiaisonRc(:,2) ---> numero de la section associee
       real(DOUBLE), dimension(:,:), pointer :: Loi_Z_S => null()! Surface du casier a une cote donnee
                                                        ! resultats du planimetrage ou donnee utilis.
       real(DOUBLE), dimension(:,:), pointer :: Loi_Z_V => null()! Volume du casier a une cote donnee
@@ -214,7 +214,7 @@ module M_CASIER_T
     end function GET_TYPE_VAR_CASIER
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -346,7 +346,7 @@ module M_CASIER_T
    end function GET_TAILLE_VAR_CASIER
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -413,7 +413,7 @@ module M_CASIER_T
               MessageErreur = 'SET_TAILLE_VAR_CASIER : Unable to allocate CASIER_T.LiaisonRC'
               return
            endif
-        endif  
+        endif
       else if ( index(NomVar, 'Model.StorageArea.Graph_Z_S') > 0) then
         if (ASSOCIATED(Instance%Loi_Z_S)) then
            t1 = size(Instance%Loi_Z_S, 1)
@@ -509,7 +509,7 @@ module M_CASIER_T
    end function SET_TAILLE_VAR_CASIER
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -693,8 +693,6 @@ module M_CASIER_T
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_CASIER = 0
       MessageErreur    = ""
       err              = 0
@@ -791,10 +789,6 @@ module M_CASIER_T
       type(CASIER_T),         intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_CASIER = 0
       MessageErreur          = ""
 

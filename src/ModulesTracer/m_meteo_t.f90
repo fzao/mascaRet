@@ -36,17 +36,17 @@ module M_METEO_T
    type METEO_T
       sequence
       character(30)                         :: Nom
-      real(DOUBLE), dimension(:)  , pointer :: Temps => null() 
+      real(DOUBLE), dimension(:)  , pointer :: Temps => null()
       ! parametres meteo pour Eutro et Biomass
-      real(DOUBLE), dimension(:)  , pointer :: Temp => null() 
-      real(DOUBLE), dimension(:)  , pointer :: I0 => null() 
+      real(DOUBLE), dimension(:)  , pointer :: Temp => null()
+      real(DOUBLE), dimension(:)  , pointer :: I0 => null()
       ! parametres meteo pour Thermic
-      real(DOUBLE), dimension(:)  , pointer :: T_Air => null() 
-      real(DOUBLE), dimension(:)  , pointer :: P_Vap => null() 
-      real(DOUBLE), dimension(:)  , pointer :: Vit_Vent => null() 
-      real(DOUBLE), dimension(:)  , pointer :: Nebulo => null() 
-      real(DOUBLE), dimension(:)  , pointer :: Ray3 => null() 
-      real(DOUBLE), dimension(:)  , pointer :: P_atm => null() 
+      real(DOUBLE), dimension(:)  , pointer :: T_Air => null()
+      real(DOUBLE), dimension(:)  , pointer :: P_Vap => null()
+      real(DOUBLE), dimension(:)  , pointer :: Vit_Vent => null()
+      real(DOUBLE), dimension(:)  , pointer :: Nebulo => null()
+      real(DOUBLE), dimension(:)  , pointer :: Ray3 => null()
+      real(DOUBLE), dimension(:)  , pointer :: P_atm => null()
    end type METEO_T
 
 contains
@@ -153,7 +153,7 @@ contains
     end function GET_TYPE_VAR_METEO
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -222,7 +222,7 @@ contains
    end function GET_TAILLE_VAR_METEO
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
    function SET_TAILLE_VAR_METEO(Instance, NomVar, NewT1, NewT2, NewT3, MessageErreur)
@@ -235,7 +235,7 @@ contains
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer t1, t2, t3, err
+      integer t1, err
 
       SET_TAILLE_VAR_METEO = 0
       MessageErreur          = ""
@@ -433,7 +433,7 @@ contains
     end function SET_TAILLE_VAR_METEO
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -500,7 +500,7 @@ contains
          MessageErreur         = "GET_STRING_METEO - Unknown variable name"
       end if
    end function GET_STRING_METEO
-   
+
 ! .................................................................................................................................
 ! Mutateurs permettant de modifier les differents champs du type
 !                     -- Generer automatiquement --
@@ -565,7 +565,7 @@ contains
          MessageErreur         = "SET_STRING_METEO - Unknown variable name"
       end if
    end function SET_STRING_METEO
-   
+
 ! .................................................................................................................................
 ! Desalloue tous les pointeurs et fait appel aux desalloues des membres
 !                     -- Generer automatiquement --
@@ -579,8 +579,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_METEO = 0
       MessageErreur          = ""
 
@@ -712,10 +710,6 @@ contains
       type(METEO_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_METEO = 0
       MessageErreur          = ""
 

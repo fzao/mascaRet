@@ -298,7 +298,7 @@
    // Argument en sortie :
    //      valeur       : valeur de l'entier de la variable pour les indexes specifies
 
-   EXTC int C_GET_BOOL_MASCARET(int *, char **, int *, int *, int *, int *, int *);
+   EXTC int C_GET_BOOL_MASCARET(int *, char **, int *, int *, int *, int *);
    // Arguments en entree :
    //      Identifiant : Identifiant de l'instance Mascaret retourne par "CREATE_MASCARET"
    //      NomVar      : Nom de la variable (notation pointe), la liste des variables est retournee par C_GET_DESC_VAR_MASCARET

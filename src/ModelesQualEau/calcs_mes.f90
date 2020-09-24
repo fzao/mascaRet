@@ -105,11 +105,11 @@ SUBROUTINE CALCS_MES( RNU , S , &
    !
    !  VARIABLES LOCALES
    !
-   REAL(DOUBLE), DIMENSION (Nbsect)        :: U , PJ , TAUB
+   REAL(DOUBLE), DIMENSION (Nbsect)        :: PJ , TAUB
    REAL(DOUBLE), DIMENSION (Nbsect)        :: SEDP , RS
    REAL(DOUBLE), DIMENSION (Nbsect,nbtra)  :: SS , SV
    REAL(DOUBLE) ERO , TAUR , TAUS , VITCHU , RO , GRAV
-   INTEGER I , J , K
+   INTEGER I , K
    INTEGER :: IF1 = 0
    !
    SAVE RO , GRAV , ERO , TAUR , TAUS , VITCHU , IF1

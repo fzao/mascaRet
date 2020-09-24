@@ -75,7 +75,7 @@ subroutine DICHO              ( &
    integer        :: nombre_pas
    integer        :: pas_milieu      ! MILIEU DE L'INTERVALLE [PasBas,PasHaut]
    integer        :: NMAX            ! NOMBRE MAXIMAL D'ITERATION POUR LA DICHOTOMIE
-   integer        :: NT,JGP1,i
+   integer        :: NT,JGP1
    real(DOUBLE)   :: SurfaceMouilleeBasse ! surface mouillee pas bas
    !character(132) :: !arbredappel_old ! arbre dappel en entree
 

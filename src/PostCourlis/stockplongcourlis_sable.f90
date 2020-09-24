@@ -1,64 +1,64 @@
-Subroutine  StockPLongCourlis	( &
+Subroutine  StockPLongCourlis  ( &
 
-	FicStockPLongCourlis		, & ! Unite logique fichier listing
-    PhaseStockPLongCourlis		, & ! Phase de la simulation (init, calcul, ??)
-	Temps						, & ! Temps courant
-	num_pas						, & ! Numéro du pas de temps
-    NbProfil					, & ! Nombre de profils
-	NbCouche					, & ! Nombre de couches
-    ProfilCourlis				, & ! Profils sedimentaires
-	Zsurf						, & ! Cote de la surface libre
-	Vitesse						, & ! Vitesse moyenne par section
-    SurfMouil					, & ! Surface mouillee
-	CVase						, & ! Concentration des vases  en suspension
-	CSable						, & ! Concentration des sables en suspension
-	DepotCumulCouche			, & ! Depot cumule /profil et /couche (> 0 dépôt, < 0 érosion)
-	DeltaSurfaceSed				, & ! Variation de la surface sédimentaire
-	QVase						, & ! Flux de depot des vases (> 0 depot, < 0 erosion)
-	QSable						, & ! Flux de depot des sables (> 0 depot, < 0 erosion)
-	TauHMax						, & ! Contrainte hydr. loc. max. ds section (depend du tirant d'eau local)
-	TauHMoy						, & ! Contrainte hydr. loc. moy. ds section (depend du tirant d'eau local)
-	TauEMax						, & ! Contrainte hydr. eff. max. ds section (depend du rayon hydr.)
-	TauEMoy						, & ! Contrainte hydr. eff. moy. ds section (depend du rayon hydr.)
-	CeqMoy						, & ! Conc. d'equilibre des sables moy. ds section
-	Erreur						)
+  FicStockPLongCourlis    , & ! Unite logique fichier listing
+    PhaseStockPLongCourlis    , & ! Phase de la simulation (init, calcul, ??)
+  Temps            , & ! Temps courant
+  num_pas            , & ! Numéro du pas de temps
+    NbProfil          , & ! Nombre de profils
+  NbCouche          , & ! Nombre de couches
+    ProfilCourlis        , & ! Profils sedimentaires
+  Zsurf            , & ! Cote de la surface libre
+  Vitesse            , & ! Vitesse moyenne par section
+    SurfMouil          , & ! Surface mouillee
+  CVase            , & ! Concentration des vases  en suspension
+  CSable            , & ! Concentration des sables en suspension
+  DepotCumulCouche      , & ! Depot cumule /profil et /couche (> 0 dépôt, < 0 érosion)
+  DeltaSurfaceSed        , & ! Variation de la surface sédimentaire
+  QVase            , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
+  QSable            , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
+  TauHMax            , & ! Contrainte hydr. loc. max. ds section (depend du tirant d'eau local)
+  TauHMoy            , & ! Contrainte hydr. loc. moy. ds section (depend du tirant d'eau local)
+  TauEMax            , & ! Contrainte hydr. eff. max. ds section (depend du rayon hydr.)
+  TauEMoy            , & ! Contrainte hydr. eff. moy. ds section (depend du rayon hydr.)
+  CeqMoy            , & ! Conc. d'equilibre des sables moy. ds section
+  Erreur            )
 
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           jodeau
 !
-!  VERSION : 5.1       10/2010		Copyright EDF-CETMEF
+!  VERSION : 5.1       10/2010    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !
-!  Fonction :	Ecriture du fichier resultat de Courlis au format texte 
+!  Fonction :  Ecriture du fichier resultat de Courlis au format texte
 !               - trace des profils en long
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
 !
-!  Sous-programme appele :	
-!  ---------------------	
-!		
+!  Sous-programme appele :
+!  ---------------------
+!
 !=========================================================================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_CONSTANTES_CALCUL_C	! Constantes num, phys et info
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
 
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T		! Definition du type PROFIL_COURLIS
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 
 !=========================================================================
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 
@@ -115,7 +115,7 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
  ! character(4) :: C_TauHMoy         = 'THMO'
  ! character(4) :: C_TauEMax         = 'TEMA'
  ! character(4) :: C_TauEMoy         = 'TEMO'
- ! character(4) :: C_CeqMoy          = 'CEQM'   
+ ! character(4) :: C_CeqMoy          = 'CEQM'
  ! character(4) :: C_Fin             = 'FIN '
 
   !character(4), dimension(7) :: C_Zref
@@ -166,11 +166,11 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !=========================================================================
 
   If (PhaseStockPLongCourlis == PHASE_INITIALISATION) Then
-  
+
   ! ouverture du fichier
-    open(unit=Unite		  , file=FicStockPLongCourlis%Nom, access='SEQUENTIAL', &
-		 action='WRITE'	  , form='FORMATTED'			 , iostat=RETOUR      , &
-		 position='rewind', status='OLD'				 )
+    open(unit=Unite      , file=FicStockPLongCourlis%Nom, access='SEQUENTIAL', &
+     action='WRITE'    , form='FORMATTED'       , iostat=RETOUR      , &
+     position='rewind', status='OLD'         )
 
     If (RETOUR /= 0) Then
       Erreur%Numero = 4
@@ -185,19 +185,19 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
   !===============================
     ! Titre
     !------
-    !write(Unite,1000) 
+    !write(Unite,1000)
     write(Unite,1020) I2
 
 
-	write(Unite,1050) Temps
+  write(Unite,1050) Temps
 
-	do i=1, NbProfil
-	write(Unite,1070,advance='no') i, ProfilCourlis(i)%Abs, Zsurf(i)
-		do k=1,NbCouche
-        write(Unite,'(F10.2)',advance='no') ProfilCourlis(i)%Zref(k) 
-		enddo
-		write(Unite,'(F10.2)') ProfilCourlis(i)%Zref(NbInterface)
-	enddo
+  do i=1, NbProfil
+  write(Unite,1070,advance='no') i, ProfilCourlis(i)%Abs, Zsurf(i)
+    do k=1,NbCouche
+        write(Unite,'(F10.2)',advance='no') ProfilCourlis(i)%Zref(k)
+    enddo
+    write(Unite,'(F10.2)') ProfilCourlis(i)%Zref(NbInterface)
+  enddo
 
   Else
     !
@@ -206,13 +206,13 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 
     write(Unite,1050) Temps
 
-	do i=1, NbProfil
-	write(Unite,1070,advance='no') i, ProfilCourlis(i)%Abs, Zsurf(i)
-		do k=1,NbCouche
-        write(Unite,'(F10.2)',advance='no') ProfilCourlis(i)%Zref(k) 
-		enddo
-		write(Unite,'(F10.2)') ProfilCourlis(i)%Zref(NbInterface)
-	enddo
+  do i=1, NbProfil
+  write(Unite,1070,advance='no') i, ProfilCourlis(i)%Abs, Zsurf(i)
+    do k=1,NbCouche
+        write(Unite,'(F10.2)',advance='no') ProfilCourlis(i)%Zref(k)
+    enddo
+    write(Unite,'(F10.2)') ProfilCourlis(i)%Zref(NbInterface)
+  enddo
 
   End If
 
@@ -226,11 +226,9 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 !=========================================================================
 ! FORMATS
 !=========================================================================
-  1000 format('resultats Courlis Plong',/,'-------')
   !1010 format('''Nb bief =''', I5)
   1020 format(I5)
   !1030 format('fond dur')
-  1040 format(I5, F10.2, 7F10.4)
   1050 format(F12.2)
   !1060 format('             ',I5, F10.2, 6F10.2)
   1070 format('             ',I5, 2F10.2)

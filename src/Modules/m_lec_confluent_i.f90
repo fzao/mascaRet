@@ -29,7 +29,7 @@ module M_LEC_CONFLUENT_I
                         Connect , & ! Table de connectivite du reseau
                    UniteListing , & ! Unite logique fichier listing
                           Noyau , & ! Noyau de calcul
-                       document , & ! Pointeur vers document XML
+                       unitNum  , & ! Unite logique .xcas
                          Erreur & ! Erreur
                                 )
 
@@ -40,19 +40,19 @@ module M_LEC_CONFLUENT_I
    use M_ERREUR_T            ! Type ERREUR_T
    use M_MESSAGE_C           ! Messages d'erreur
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
-   use M_PARAMETRE_C        ! Parametres 
+   use M_PARAMETRE_C        ! Parametres
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
    ! Arguments
-   type(CONFLUENT_T) , dimension(:)  , pointer       :: Confluent 
-   type(CONNECT_T  )                 , intent(in   ) :: Connect 
+   type(CONFLUENT_T) , dimension(:)  , pointer       :: Confluent
+   type(CONNECT_T  )                 , intent(in   ) :: Connect
    integer                           , intent(in   ) :: UniteListing
    integer                           , intent(in   ) :: Noyau
-   type(Node), pointer, intent(in)                   :: document 
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
 
    end subroutine LEC_CONFLUENT

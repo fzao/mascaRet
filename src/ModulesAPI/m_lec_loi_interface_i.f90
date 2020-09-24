@@ -33,7 +33,7 @@ subroutine LEC_LOI_INTERFACE    ( &
      UniteListing     , & ! Unite logique fichier listing
      CritereArret     , & ! Criter d'arret du calcul
      TempsMaximum     , & ! Temps maximum du calcul
-     document         , &  ! Pointeur vers document XML     
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 
@@ -47,10 +47,10 @@ subroutine LEC_LOI_INTERFACE    ( &
   use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
   use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   use M_LEC_HYDRAU_I        ! Interface de sous-programme
-  use Fox_dom               ! parser XML Fortran
+  use M_XCAS_S
 
   implicit none
-  
+
 ! Arguments
 
   type(LOI_T)    , dimension(:), pointer       :: LoiHydrau
@@ -59,7 +59,7 @@ subroutine LEC_LOI_INTERFACE    ( &
   integer                      , intent(in   ) :: UniteListing
   integer                      , intent(in   ) :: CritereArret
   real(DOUBLE)                 , intent(in   ) :: TempsMaximum
-  type(Node), pointer, intent(in) :: document
+  integer, intent(in)                          :: unitNum
 
 ! Traitement des erreurs
 

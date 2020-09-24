@@ -28,7 +28,7 @@ module M_LEC_APPORT_PLUIE_I
                   ApportPluie , &
                      NbCasier , &
                           Loi , &
-                     document , & ! Pointeur vers document XML 
+                     unitNum  , & ! unite logique du fichier .xcas
                  UniteListing , &
                        Erreur)
 
@@ -52,8 +52,8 @@ module M_LEC_APPORT_PLUIE_I
    use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
    use M_MESSAGE_CASIER_C
    use M_PRECISION
-   use Fox_dom                    ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    !.. Arguments ..
@@ -61,12 +61,14 @@ module M_LEC_APPORT_PLUIE_I
    type(ERREUR_T)                    , intent(inout) :: Erreur
    type(LOI_T)         , dimension(:), intent(in   ) :: Loi
    integer                           , intent(in   ) :: NbCasier, UniteListing
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
 
    !.. Variables locales ..
    character(132) :: arbredappel_old
    integer :: nombre_apport, iapport, nbloi
    integer :: retour          ! code de retour des fonctions intrinseques
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
 
    end subroutine LEC_APPORT_PLUIE
 

@@ -23,7 +23,7 @@ subroutine LEC_LIAISON( &
                         Profil      , &  ! Profils geometriques
                         ProfDebBief , &  ! Premiers profils des biefs
                         ProfFinBief , &  ! Derniers profils des biefs
-                        document    , &  ! Pointeur vers document XML    
+                        unitNum     , & ! unite logique du fichier .xcas
                         Erreur )         ! erreur
 
 ! ******************************************************************
@@ -53,7 +53,7 @@ subroutine LEC_LIAISON( &
    use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
    use M_ABS_ABS_S
    use M_XINDIC_S
-   use Fox_dom                    ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -61,7 +61,7 @@ subroutine LEC_LIAISON( &
    type(LIAISON_T) , dimension(:) , pointer       :: Liaison
    integer , dimension(:,:)       , intent(inout) :: Connect
    type(ERREUR_T)                 , intent(inout) :: Erreur
-   type(Node), pointer, intent(in)                   :: document 
+   integer, intent(in)                            :: unitNum
    real(DOUBLE) , dimension(:) ,    intent(in   ) :: X
    type(PROFIL_T) , dimension(:) , pointer        :: Profil
    integer        , dimension(:) , pointer        :: ProfDebBief
@@ -71,10 +71,11 @@ subroutine LEC_LIAISON( &
    integer :: iliaison, nombre_liaison, num_casier_origine, num_casier_fin, nb_casier
    integer :: retour          ! code de retour des fonctions intrinseques
    real(DOUBLE) :: abs_abs
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab1(:),itab2(:),itab3(:),itab4(:),itab5(:),itab6(:)
    real(double), allocatable :: rtab1(:),rtab2(:),rtab3(:),rtab4(:),rtab5(:),rtab6(:)
    real(double), allocatable :: rtab7(:),rtab8(:),rtab9(:),rtab10(:),rtab11(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
 !========================== Instructions ==============================
@@ -89,25 +90,9 @@ subroutine LEC_LIAISON( &
 
    ! Nombre de liaisons
    !-------------------
-   champ1 => item(getElementsByTagname(document, "parametresCasier"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresCasier"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "liaisons"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => liaisons"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nbLiaisons"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbLiaisons"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nombre_liaison)
+   pathNode = 'parametresCasier/liaisons/nbLiaisons'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nombre_liaison
    if( nombre_liaison == 0 ) then
       Erreur%Numero = 900
       Erreur%ft     = err_900
@@ -263,130 +248,78 @@ subroutine LEC_LIAISON( &
        call TRAITER_ERREUR( Erreur , 'rtab11' )
        return
    end if
-   
-   champ3 => item(getElementsByTagname(champ2, "types"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => types"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab1)
-   champ3 => item(getElementsByTagname(champ2, "nature"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nature"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab2)
-   champ3 => item(getElementsByTagname(champ2, "numCasierOrigine"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numCasierOrigine"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab3)
-   champ3 => item(getElementsByTagname(champ2, "numBiefAssocie"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numBiefAssocie"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab4)
-   champ3 => item(getElementsByTagname(champ2, "numCasierOrigine"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numCasierOrigine"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab5)
-   champ3 => item(getElementsByTagname(champ2, "numCasierFin"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numCasierFin"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itab6)
-   champ3 => item(getElementsByTagname(champ2, "abscBief"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => abscBief"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab1)
-   champ3 => item(getElementsByTagname(champ2, "largeur"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => largeur"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab2)
-   champ3 => item(getElementsByTagname(champ2, "cote"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => cote"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab3)
-   champ3 => item(getElementsByTagname(champ2, "coefDebitSeuil"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => coefDebitSeuil"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab4)
-   champ3 => item(getElementsByTagname(champ2, "coefActivation"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => coefActivation"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab5)
-   champ3 => item(getElementsByTagname(champ2, "longueur"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => longueur"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab6)
-   champ3 => item(getElementsByTagname(champ2, "rugosite"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => rugosite"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab7)
-   champ3 => item(getElementsByTagname(champ2, "section"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => section"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab8)
-   champ3 => item(getElementsByTagname(champ2, "coefPerteCharge"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => coefPerteCharge"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab9)
-   champ3 => item(getElementsByTagname(champ2, "coefDebitOrifice"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => coefDebitOrifice"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab10)
-   champ3 => item(getElementsByTagname(champ2, "typeOrifice"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => typeOrifice"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab11)
-   
+
+   pathNode = 'parametresCasier/liaisons/types'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab1
+
+   pathNode = 'parametresCasier/liaisons/nature'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab2
+
+   pathNode = 'parametresCasier/liaisons/numCasierOrigine'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab3
+
+   pathNode = 'parametresCasier/liaisons/numBiefAssocie'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab4
+
+   pathNode = 'parametresCasier/liaisons/numCasierOrigine'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab5
+
+   pathNode = 'parametresCasier/liaisons/numCasierFin'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab6
+
+   pathNode = 'parametresCasier/liaisons/abscBief'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab1
+
+   pathNode = 'parametresCasier/liaisons/largeur'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab2
+
+   pathNode = 'parametresCasier/liaisons/cote'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab3
+
+   pathNode = 'parametresCasier/liaisons/coefDebitSeuil'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab4
+
+   pathNode = 'parametresCasier/liaisons/coefActivation'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab5
+
+   pathNode = 'parametresCasier/liaisons/longueur'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab6
+
+   pathNode = 'parametresCasier/liaisons/rugosite'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab7
+
+   pathNode = 'parametresCasier/liaisons/section'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab8
+
+   pathNode = 'parametresCasier/liaisons/coefPerteCharge'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab9
+
+   pathNode = 'parametresCasier/liaisons/coefDebitOrifice'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab10
+
+   pathNode = 'parametresCasier/liaisons/typeOrifice'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab11
+
    do iliaison = 1 , nombre_liaison
 
-      Liaison(iliaison)%TypeLiaison = itab1(iliaison) 
+      Liaison(iliaison)%TypeLiaison = itab1(iliaison)
       if( ( Liaison(iliaison)%TypeLiaison <= 0 ) .or. &
           ( Liaison(iliaison)%TypeLiaison > LIAISON_TYPE_NB_MAX ) ) then
          Erreur%Numero = 907
@@ -462,7 +395,7 @@ subroutine LEC_LIAISON( &
 
          case( LIAISON_TYPE_CASIER_CASIER )
 
-            num_casier_origine = itab5(iliaison) 
+            num_casier_origine = itab5(iliaison)
             num_casier_fin     = itab6(iliaison)
             if( ( num_casier_origine <= 0 ) .or. ( num_casier_origine > nb_casier ) ) then
                Erreur%Numero = 909
@@ -492,7 +425,7 @@ subroutine LEC_LIAISON( &
 
          case( LIAISON_TYPE_SEUIL )
 
-            Liaison(iliaison)%Largeur = rtab2(iliaison) 
+            Liaison(iliaison)%Largeur = rtab2(iliaison)
             if( Liaison(iliaison)%Largeur <= 0) then
                Erreur%Numero = 911
                Erreur%ft   = err_911
@@ -501,7 +434,7 @@ subroutine LEC_LIAISON( &
                return
             end if
 
-            Liaison(iliaison)%Cote = rtab3(iliaison) 
+            Liaison(iliaison)%Cote = rtab3(iliaison)
             if( Liaison(iliaison)%Cote <= 0 ) then
                Erreur%Numero = 911
                Erreur%ft     = err_911
@@ -583,7 +516,7 @@ subroutine LEC_LIAISON( &
 
          case( LIAISON_TYPE_CHENAL )
 
-            Liaison(iliaison)%Longueur = rtab6(iliaison) 
+            Liaison(iliaison)%Longueur = rtab6(iliaison)
             if( Liaison(iliaison)%Longueur <= 0 ) then
                Erreur%Numero = 911
                Erreur%ft   = err_911
@@ -666,7 +599,7 @@ subroutine LEC_LIAISON( &
 
          case( LIAISON_TYPE_ORIFICE )
 
-            Liaison(iliaison)%Largeur = rtab2(iliaison) 
+            Liaison(iliaison)%Largeur = rtab2(iliaison)
             if( Liaison(iliaison)%Largeur <= 0 ) then
                Erreur%Numero = 911
                Erreur%ft     = err_911
@@ -711,7 +644,7 @@ subroutine LEC_LIAISON( &
                return
             end if
 
-            Liaison(iliaison)%TypeOrifice = rtab11(iliaison)
+            Liaison(iliaison)%TypeOrifice = int(rtab11(iliaison))
             if( ( Liaison(iliaison)%TypeOrifice <= 0 ) .or. &
                 ( Liaison(iliaison)%TypeOrifice > 3 ) ) then
                 Erreur%Numero = 911
@@ -756,27 +689,27 @@ subroutine LEC_LIAISON( &
    deallocate(rtab9)
    deallocate(rtab10)
    deallocate(rtab11)
-   
+
    !Erreur%arbredappel = !arbredappel_old
 
    return
-   
+
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
+
    end subroutine xerror
 
 end subroutine LEC_LIAISON

@@ -36,11 +36,11 @@ function AINTDC( &
 !                     SUR LE MAILLAGE INITIAL
 !
 !***********************************************************************
-!     CODE MASCARET : CALCUL DE L'INVARIANT DE RIEMMAN 
+!     CODE MASCARET : CALCUL DE L'INVARIANT DE RIEMMAN
 !                EN FONCTION DE LA SURFACE MOUILLEE SUR MAILLAGE INITIAL
 !-----------------------------------------------------------------------
 !                             VARIABLES LOCALES
-! .___________.____.____.______________________________________________.  
+! .___________.____.____.______________________________________________.
 ! !  JG       !  I !  A ! BORNE GAUCHE DE L'INTERVALLE CONTENANT SURF  !
 ! !  JD       !  I !  A ! BORNE DROITE DE L'INTERVALLE CONTENANT SURF  !
 ! !  SG       !  R !  A ! SURFACE MOUILLE POUR LA BORNE GAUCHE         !
@@ -95,6 +95,7 @@ function AINTDC( &
    ! RECHERCHE DE L'INTERVALLE CONTENANT SURF PAR DICHOTOMIE
    call DICHO( JG , JD , SURF , SGEO(NOEUD,:) , ERREUR )
    if( Erreur%Numero /= 0 ) then
+      AINTDC = 0.
       return
    endif
 

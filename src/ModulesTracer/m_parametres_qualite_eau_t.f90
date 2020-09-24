@@ -34,8 +34,8 @@ module M_PARAMETRES_QUALITE_EAU_T
    type PARAMETRES_QUALITE_EAU_T
 
       sequence
-      
-      real(DOUBLE), dimension(:), pointer   :: ParQual_Eau => null() 
+
+      real(DOUBLE), dimension(:), pointer   :: ParQual_Eau => null()
    end TYPE PARAMETRES_QUALITE_EAU_T
 
 contains
@@ -112,7 +112,7 @@ contains
     end function GET_TYPE_VAR_PARAMETRES_QUALITE_EAU
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -125,7 +125,7 @@ contains
       integer,                intent(out):: taille2                        ! valeur max du 2e  indice
       integer,                intent(out):: taille3                        ! valeur max du 3e  indice
       character(LEN=256),     intent(out):: MessageErreur                  ! Message d'erreur
-      
+
       GET_TAILLE_VAR_PARAMETRES_QUALITE_EAU = 0
       taille1                = 0
       taille2                = 0
@@ -166,7 +166,7 @@ contains
    end function GET_TAILLE_VAR_PARAMETRES_QUALITE_EAU
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -180,7 +180,7 @@ contains
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer t1, t2, t3, err
+      integer t1, err
 
       SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU = 0
       MessageErreur          = ""
@@ -194,8 +194,8 @@ contains
               DEALLOCATE(Instance%ParQual_Eau, STAT=err)
               if (err /= 0) then
                  SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU = err
-                 MessageErreur = 'SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU : Unable to deallocate '
-                 MessageErreur = MessageErreur//'MODEL_PARAMETRES_QUALITE_EAU_T.ParQual_Eau'
+                 MessageErreur = 'SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU : Unable to deallocate ' &
+                                 //'MODEL_PARAMETRES_QUALITE_EAU_T.ParQual_Eau'
                  return
               endif
            endif
@@ -204,8 +204,8 @@ contains
            ALLOCATE(Instance%ParQual_Eau(NewT1), STAT=err)
            if (err /= 0) then
               SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU = err
-              MessageErreur = 'SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU : Unable to allocate '
-              MessageErreur = MessageErreur//'MODEL_PARAMETRES_QUALITE_EAU_T.ParQual_Eau'
+              MessageErreur = 'SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU : Unable to allocate ' &
+                              //'MODEL_PARAMETRES_QUALITE_EAU_T.ParQual_Eau'
               return
            endif
         endif
@@ -220,7 +220,7 @@ contains
     end function SET_TAILLE_VAR_PARAMETRES_QUALITE_EAU
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -358,8 +358,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_PARAMETRES_QUALITE_EAU = 0
       MessageErreur          = ""
 
@@ -395,10 +393,6 @@ contains
       type(PARAMETRES_QUALITE_EAU_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_PARAMETRES_QUALITE_EAU = 0
       MessageErreur          = ""
 

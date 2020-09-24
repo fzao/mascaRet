@@ -31,7 +31,7 @@ module M_LEC_LOI_I
             UniteListing , & ! Unite logique fichier listing
             CritereArret , & ! Criter d'arret du calcul
             TempsMaximum , & ! Temps maximum du calcul
-                document , & ! Pointeur vers document XML
+                unitNum  , & ! Unite logique du fichier .xcas
                   Erreur & ! Erreur
                       )
 
@@ -44,8 +44,8 @@ module M_LEC_LOI_I
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_LEC_HYDRAU_I        ! Interface de sous-programme
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    ! Arguments
@@ -55,7 +55,7 @@ module M_LEC_LOI_I
    integer                      , intent(in   ) :: UniteListing
    integer                      , intent(in   ) :: CritereArret
    real(DOUBLE)                 , intent(in   ) :: TempsMaximum
-   type(Node), pointer, intent(in) :: document
+   integer, intent(in)                          :: unitNum
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
 

@@ -41,6 +41,7 @@ subroutine  PRETRAIT_INTERFACE                             ( &
   PerteElargissementTrans, Boussinesq, NoConvection ,CQMV  , &
   ProfAbs, HEPS                                            , &
   DT, TempsInitial, CritereArret, NbPasTemps, TempsMaximum , &
+  Section_controle,Cote_max_controle                       , &
   PasTempsVariable, CourantObj                             , &
   FichierGeom, FormatGeom, Profil, PresenceZoneStockage    , &
   X, IDT, XDT                                              , &
@@ -135,7 +136,7 @@ use M_LEC_APPORT_PLUIE_I    ! interface du sous-programme Lec_Apport_Pluie
 
 use M_CONSTANTES_CASIER_C   ! constantes de calcul propres a CASIER
 !use M_MESSAGE_CASIER_C      ! messages d erreur propres a CASIER
-use Fox_dom                 ! parser XML Fortran
+use M_XCAS_S
 
 !.. Implicit Declarations ..
   implicit none
@@ -182,6 +183,8 @@ use Fox_dom                 ! parser XML Fortran
   integer     , intent(  out) :: CritereArret
   integer     , intent(  out) :: NbPasTemps
   real(DOUBLE), intent(  out) :: TempsMaximum
+  integer     , intent(  out) :: Section_controle
+  real(DOUBLE), intent(  out) :: Cote_max_controle
   logical     , intent(  out) :: PasTempsVariable
   real(DOUBLE), intent(  out) :: CourantObj
 

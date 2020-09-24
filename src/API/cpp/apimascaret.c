@@ -60,7 +60,7 @@
    void set_taille_var_mascaret_(int *, int *, char *, int *, int *, int *, int *);
    void get_double_mascaret_(int *, int *, char *, int *, int *, int *, double *);
    void get_int_mascaret_(int *, int *, char *, int *, int *, int *, int *);
-   void get_bool_mascaret_(int *, int *, char *, int *, int *, int *, int *, int *);
+   void get_bool_mascaret_(int *, int *, char *, int *, int *, int *, int *);
    void get_string_mascaret_(int *, int *, char *, int *, int *, int *, char *);
    void set_double_mascaret_(int *, int *, char *, int *, int *, int *, double *);
    void set_int_mascaret_(int *, int *, char *, int *, int *, int *, int *);
@@ -665,7 +665,7 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
    //        index2      : valeur du 2e indice
    //        index3      : valeur du 3e indice
    //        valeur      : valeur de la variable pour les indexes specifies
-  int C_GET_BOOL_MASCARET(int *Identifiant, char **NomVar, int *index1, int *index2, int *index3, int *valeur, int *trueref)
+  int C_GET_BOOL_MASCARET(int *Identifiant, char **NomVar, int *index1, int *index2, int *index3, int *valeur)
   {
      int erreurFortran, taille;
      char nomVarFortran[40];
@@ -674,7 +674,7 @@ int C_INIT_LIGNE_TRACER(int Identifiant, double C[], int Taille, int NbTrac, int
      strcpy(nomVarFortran, NomVar[0]);
      memset(nomVarFortran + taille, ' ', 40 - taille);
 
-     get_bool_mascaret_(&erreurFortran, Identifiant, nomVarFortran, index1, index2, index3, valeur, trueref);
+     get_bool_mascaret_(&erreurFortran, Identifiant, nomVarFortran, index1, index2, index3, valeur);
 
 
      return erreurFortran;

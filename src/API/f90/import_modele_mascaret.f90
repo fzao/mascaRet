@@ -97,12 +97,8 @@
       ! Impressions - resultats
       !------------------------
 
-      character(LEN=255)                      :: TitreCas
       logical                                 :: Impression
       logical                                 :: ImpressionPlani
-      integer                                 :: PasStockage
-      integer                                 :: PasImpression
-      integer                                 :: PremierPasStocke
 
       integer :: phase_intersect
       INTEGER :: i, compteurLoi, compteurLoiTrac, retour, unitnum
@@ -113,8 +109,6 @@
 
       Type(ERREUR_T)              :: Erreur
       character(LEN=256)          :: MessageErreurType
-
-      real(DOUBLE)    , dimension (:,:), pointer :: F1 ! Fonction impusion
 
       ! Courlis
       ! MS2019 : Ajout a verifier si les API sont ok avec ces modifs
@@ -236,7 +230,7 @@
       ! comptage de nombre de fichier de type loi/tracer_loi
       compteurLoi = 0
       compteurLoiTrac = 0
-      
+
       if(present(FichierMascaret)) then
           unitnum = 123
           open(unit=unitnum, file=FichierMascaret, status="old", action="read", iostat=RetourErreur)
@@ -269,7 +263,7 @@
             endif
           end do
       endif
-      
+
       ! allocation de FichiersLois
       if(.not.associated(FichiersLois)) then
           allocate(FichiersLois(compteurLoi), STAT = retour)
@@ -409,7 +403,7 @@
             end if
          end do
       endif
-      
+
       Erreur%Numero = 0
       Erreur%arbredappel = 'IMPORTATION_MODELE'
 
@@ -513,6 +507,7 @@
         Modele%ProfAbs, Modele%HEPS                              , &
         Modele%DT, Modele%TempsInitial, Modele%CritereArret      , &
         Modele%NbPasTemps, Modele%TempsMaximum                   , &
+        Modele%Section_controle,Modele%Cote_max_controle         , &
         Modele%PasTempsVariable, Modele%CourantObj               , &
         FichierGeom, Modele%FormatGeom, Modele%Profils           , &
         Modele%PresenceZoneStockage                              , &

@@ -52,7 +52,7 @@ module M_PRETRAIT_TRACER_INTERFACE_I
                 Fichier_Meteo , & ! Fichier meteo
                               ! Impression des parametres et resultats
             FichierResuTracer , & ! Fichier resultats
-             FormatResuTracer , & 
+             FormatResuTracer , &
          FichierListingTracer , & ! Fichier listing
         ImpressionConcListing , & ! Logique pour les impressions
             ImpressionConcIni , & ! Logique pour les impressions initiales
@@ -95,14 +95,14 @@ module M_PRETRAIT_TRACER_INTERFACE_I
    use M_ERREUR_T                    ! Traitement des erreurs
    use M_MESSAGE_C
    use M_MESSAGE_TRACER_C
-   use Fox_dom                 ! parser XML Fortran
+   use M_XCAS_S
 
    !.. Implicit Declarations ..
    implicit none
 
    !.. Gestion des mots-cles ..
    type(FICHIER_T), intent(inout) :: FichierMotCle
-   !.. Variables d'entree (maillage et hydraulique) .. 
+   !.. Variables d'entree (maillage et hydraulique) ..
    type(CONNECT_T) , intent(in   ) :: Connect
    type(APPORT_T) ,dimension(:), intent(in   ) :: Apport
    type(PROFIL_T) ,dimension(:), pointer       :: Profil       ! Profils geometriques
@@ -137,7 +137,7 @@ module M_PRETRAIT_TRACER_INTERFACE_I
    ! Arguments specifiques pour l'interface
    type(FICHIER_T),  dimension(:), pointer       :: FichiersLoisTracer
    logical                       , intent(in   ) :: Impression
-   
+
 end subroutine PRETRAIT_TRACER_INTERFACE
 
    end interface

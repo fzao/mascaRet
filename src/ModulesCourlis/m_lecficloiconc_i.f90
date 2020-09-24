@@ -1,30 +1,30 @@
 Module M_LecFicLoiConc_I
 
-Interface 
+Interface
 
-Subroutine  LecFicLoiConc	( &
+Subroutine  LecFicLoiConc  ( &
 
-	FicLoiConc				, &	! Fic. contenant une evolution temporelle de conc
-	LoiConc0				, & ! Concentration initiale des traceurs
-    UniteTemps		        , & ! unite de temps des chroniques temporelles
-	NumLoi					, & ! Numero de loi
-    Erreur					)
+  FicLoiConc        , &  ! Fic. contenant une evolution temporelle de conc
+  LoiConc0        , & ! Concentration initiale des traceurs
+    UniteTemps            , & ! unite de temps des chroniques temporelles
+  NumLoi          , & ! Numero de loi
+    Erreur          )
 
 
-!************************************************************************* 
+!*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       02/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       02/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !  Fonction : Lecture du fichier contenant une loi de type temps-concentration
-!  --------	  
+!  --------
 !
 !  Sous-programme appelant : LecLoiConc
 !  -----------------------
 !
-!  Sous-programme appele : 
+!  Sous-programme appele :
 !  ---------------------
 !=========================================================================
 !
@@ -58,30 +58,30 @@ Subroutine  LecFicLoiConc	( &
 !=========================================================================
 
 
-!============================ Declarations =============================== 
+!============================ Declarations ===============================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_LIRE_CHAINE_S			! Lecture de lignes de commentaire du fichier
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_LOI_CONC_T			! Definition du type LOI_CONC_T
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_LIRE_CHAINE_S      ! Lecture de lignes de commentaire du fichier
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_LOI_CONC_T      ! Definition du type LOI_CONC_T
 
-use M_ERREUR_T				! Definition du type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Definition du type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Constantes
 ! PU2017 : Mise en commentaire des constantes
-!  integer, parameter	  :: LEN_CHAINE			= 80
+!  integer, parameter    :: LEN_CHAINE      = 80
 !  character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui
-														! debute une ligne commentaire
+                            ! debute une ligne commentaire
 
 ! Variables d'entrée
   type(FICHIER_T) , intent(in   ) :: FicLoiConc
-  integer		  , intent(in   ) :: NumLoi
+  integer      , intent(in   ) :: NumLoi
 
 ! Variables de sortie
   type(LOI_CONC_T), intent(  out) :: LoiConc0
@@ -89,28 +89,28 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 
 ! Variables locales
 ! PU2017 : Mise en commentaire des var loc
-!  integer		:: iPts					! Compteur de points
-!  integer		:: NbPts				! Nombre de points decrivant la loi
-!  integer		:: UniteLoi				! Unite logique du fichier des lois
-!  integer		:: rang					! position du mot cle sur la ligne
-!  character(72)	:: txt					! chaine de caractere temporaire
+!  integer    :: iPts          ! Compteur de points
+!  integer    :: NbPts        ! Nombre de points decrivant la loi
+!  integer    :: UniteLoi        ! Unite logique du fichier des lois
+!  integer    :: rang          ! position du mot cle sur la ligne
+!  character(72)  :: txt          ! chaine de caractere temporaire
 
-!  character(LEN_CHAINE) :: chaine		! Chaine contenant une ligne du fichier
-!  character(LEN_CHAINE) :: chaine_opt	! chaine au format opthyca
-!  character(LEN_CHAINE) :: chaine_fort	! chaine convertie au format fortran
-!  character(1)			:: ChaineVar
+!  character(LEN_CHAINE) :: chaine    ! Chaine contenant une ligne du fichier
+!  character(LEN_CHAINE) :: chaine_opt  ! chaine au format opthyca
+!  character(LEN_CHAINE) :: chaine_fort  ! chaine convertie au format fortran
+!  character(1)      :: ChaineVar
 
 
 ! Traitement des erreurs
 ! PU2017 : Mise en commentaire des var loc pour traitement erreur
-!  integer        :: retour			 ! code de retour des fonctions d'e/s
-!  character(132) :: arbredappel_old	 ! ancien arbre
+!  integer        :: retour       ! code de retour des fonctions d'e/s
+!  character(132) :: arbredappel_old   ! ancien arbre
   type(ERREUR_T), intent(inout) :: Erreur
 
 !=========================================================================
 
 EndSubroutine LecFicLoiConc
-  
+
 End Interface
 
 End Module M_LecFicLoiConc_I

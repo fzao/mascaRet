@@ -142,7 +142,7 @@ module M_PRETRAIT_I
    use M_LEC_LIAISON_I         ! interface du sous-programme Lec_Liaison
    use M_LEC_APPORT_PLUIE_I    ! interface du sous-programme Lec_Apport_Pluie
    use M_CONSTANTES_CASIER_C   ! constantes de calcul propres a CASIER
-   use Fox_dom                 ! parser XML Fortran
+   use M_XCAS_S
 
 
    !.. Implicit Declarations ..

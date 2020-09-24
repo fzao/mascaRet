@@ -46,7 +46,6 @@ subroutine INIT_LIGNE_TRACER(Erreur, Identifiant, C, Taille, NbTrac, Impression)
    !-- Scalaires locaux
    type(MODELE_MASCARET_T)   :: Modele
    type(MASCARET_T), pointer :: Masc
-   type(ERREUR_T)            :: ErreurLecConc
    integer                   :: ult ! Unite listing
    integer                   :: ultrac ! Unite listing tracer
    integer :: nb_sect, nb_bief, nb_trac

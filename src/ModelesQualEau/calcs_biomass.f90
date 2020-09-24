@@ -122,14 +122,13 @@ SUBROUTINE CALCS_BIOMASS( RNU , S , &
    !
    !  VARIABLES LOCALES
    !
-   REAL(DOUBLE), DIMENSION (Nbsing)        :: TRS , ARS, BRS
-   REAL(DOUBLE), DIMENSION (Nbsect)        :: TK2 , RAY
+   REAL(DOUBLE), DIMENSION (Nbsect)        :: RAY
    REAL(DOUBLE), DIMENSION (Nbsect)        :: LNUT , IH , CP , DP , MP , KE
    REAL(DOUBLE), DIMENSION (Nbsect,nbtra)  :: SS , SV
    REAL(DOUBLE) :: WPOR , WNOR , CMAX , PS , KPE , BETA , RP
-   REAL(DOUBLE) :: IK , KP , KN , ALPHA1 , ALPHA2 , RESP , FP , DTP , K1
+   REAL(DOUBLE) :: IK , KP , KN , ALPHA1 , ALPHA2 , FP , DTP , K1
    REAL(DOUBLE) :: FN , DTN , K2 , M1 , M2 , CORRT , TEMP , I0
-   INTEGER I , J , K
+   INTEGER I ,  K
    INTEGER :: IF1 = 0
    !
    !  FONCTIONS
@@ -137,7 +136,7 @@ SUBROUTINE CALCS_BIOMASS( RNU , S , &
    INTRINSIC DEXP, DLOG
    !
    SAVE WPOR , WNOR , CMAX , PS , KPE , BETA , IK , KP , KN , ALPHA1 , ALPHA2
-   SAVE RESP , FP , DTP , K1 , FN , DTN , K2 , M1 , M2 , IF1
+   SAVE FP , DTP , K1 , FN , DTN , K2 , M1 , M2 , IF1
    !
    ! --------------------------------------------------------------------
    ! C1 : BIOMASSE PHYTOPLANCTONIQUE PHY  << ug/l >> (micro-gramme/litre)
@@ -151,7 +150,7 @@ SUBROUTINE CALCS_BIOMASS( RNU , S , &
    ! -I- INITIALISATIONS
    !
 
-   ! 1) AFFECTATIONS DES PARAMETRES PHYSIQUES 
+   ! 1) AFFECTATIONS DES PARAMETRES PHYSIQUES
    !
    IF(IF1.EQ.0) THEN
       WPOR   = TPARPH%ParQual_eau(1)
@@ -419,7 +418,7 @@ end function GET_TYPE_VAR_CALCS_BIOMASS
 
 function GET_TAILLE_VAR_CALCS_BIOMASS(ParQual_Eau, NomVar, taille1, MessageErreur)
 
-   use M_PRECISION 
+   use M_PRECISION
 
    implicit none
 
@@ -484,7 +483,7 @@ end function GET_TAILLE_VAR_CALCS_BIOMASS
 function GET_DOUBLE_CALCS_BIOMASS(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_DOUBLE_CALCS_BIOMASS    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -547,7 +546,7 @@ end function GET_DOUBLE_CALCS_BIOMASS
 function SET_DOUBLE_CALCS_BIOMASS(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_DOUBLE_CALCS_BIOMASS    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur

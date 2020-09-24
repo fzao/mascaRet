@@ -574,19 +574,6 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'erreur
 ! FORMATS
 ! ===============================================================
 
-  10000 format (/,'GEOMETRIE DES INTERFACES DE COUCHES DE SEDIMENTS',/, &
-               &  '------------------------------------------------',/)
-  10010 format ('Nom du fichier geometrie       = ',A )
-  10020 format ('Nombre de profils d''interface = ',i3)
-  10030 format (/,'Profil numero    = ',i3,/,22('-'))
-  10040 format ('Nom du profil    = ',A,/,'Abscisse abs. du profil = ',f12.3)
-  10050 format ('Nombre de points = ',i3)
-  10060 format (8x,'X',13x,'Z(i)    i = 1, Nb d''interface')
-  10070 format (8f12.3)
-  10080 format ('iProf','  Zref(i) i = 1, Nb d''interface')
-  10090 format (i3,7f12.3)
-  10100 format (/,'Zref ',/,22('-'))
-
 
 !=========================================================================
 ! FIN SOUS-PROGRAMME

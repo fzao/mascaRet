@@ -208,7 +208,6 @@ subroutine POST_IMP( &
    integer      :: nb_tab      ! Nombre de tableaux d'impression
    integer      :: nb_col      ! Nombre de colonnes par tableau
    integer      :: decal       ! Decalage d'indice pour le tableau de variable
-   character(6) :: fmt_var_lst ! Format des variables a sortir sur listing
    real(DOUBLE) :: vol_apporte        ! Volume apporte dans un bief pendant un pas de temps
    real(DOUBLE) :: vol_bief_precedent ! Volume du bief au temps precedent
    real(DOUBLE) :: vol_bief_total     ! Volume total du bief

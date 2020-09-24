@@ -40,7 +40,6 @@ subroutine  GET_LIGNE_TRACER(Erreur, Identifiant, C)
    !-- Scalaires locaux
    type(MODELE_MASCARET_T)  :: Model
    type(ETAT_MASCARET_T)    :: Etat
-   integer :: retour
    integer :: nb_sect, nb_trac
 
    Erreur = TEST_INIT_AND_ID(Identifiant, 'GET_LIGNE_TRACER')

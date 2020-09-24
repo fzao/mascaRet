@@ -44,10 +44,10 @@ function DYDXSC( &
 ! !  SGEO     ! TR !  D ! SURFACE MOUILLE PLANIMETREE                  !
 ! !  DYGEO    ! TR !  D ! DY/DX (S CONSTANT) PLANIMETREE               !
 ! !  NMLARG   !  I !  D !                                              !
-! !___________!____!____!______________________________________________!  
+! !___________!____!____!______________________________________________!
 !
 !                             VARIABLES LOCALES
-! .___________.____.____.______________________________________________.  
+! .___________.____.____.______________________________________________.
 ! !  JG       !  I !  R ! BORNE GAUCHE DE L'INTERVALLE CONTENANT SURF  !
 ! !  JD       !  I !  R ! BORNE DROITE DE L'INTERVALLE CONTENANT SURF  !
 ! !  SG       !  R !  A ! SURFACE MOUILLE POUR LA BORNE GAUCHE         !
@@ -102,6 +102,7 @@ function DYDXSC( &
    call DICHO( JG , JD , SURF , SGEO(NOEUD,:) , ERREUR )
 
    if( Erreur%Numero /= 0 ) then
+      DYDXSC = 0.
       return
    endif
 
@@ -111,7 +112,7 @@ function DYDXSC( &
    SG  = SGEO(NOEUD,JG)
    SD  = SGEO(NOEUD,JD)
 
-   ! INTERPOLATION DE LA FONCTION DY/DX (S CONSTANT) 
+   ! INTERPOLATION DE LA FONCTION DY/DX (S CONSTANT)
    ! -----------------------------------------------
    DYDXSC = ( DYD * ( SURF - SG ) + DYG * ( SD - SURF ) ) / ( SD - SG )
 

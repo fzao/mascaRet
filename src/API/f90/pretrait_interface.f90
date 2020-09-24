@@ -23,7 +23,6 @@
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
 subroutine  PRETRAIT_INTERFACE                             ( &
-
   VersionCode, Noyau                                       , &
   FichierModele, FichierMotCle                             , &
   OptionCasier                                             , &
@@ -38,6 +37,7 @@ subroutine  PRETRAIT_INTERFACE                             ( &
   PerteElargissementTrans, Boussinesq , NoConvection, CQMV , &
   ProfAbs, HEPS                                            , &
   DT, TempsInitial, CritereArret, NbPasTemps, TempsMaximum , &
+  Section_controle,Cote_max_controle                       , &
   PasTempsVariable, CourantObj                             , &
   FichierGeom, FormatGeom, Profil, PresenceZoneStockage    , &
   X, IDT, XDT                                              , &
@@ -144,8 +144,7 @@ use M_LEC_APPORT_PLUIE_I    ! interface du sous-programme Lec_Apport_Pluie
 
 use M_CONSTANTES_CASIER_C   ! constantes de calcul propres a CASIER
 !use M_MESSAGE_CASIER_C      ! messages d erreur propres a CASIER
-use Fox_dom                 ! parser XML Fortran
-
+use M_XCAS_S
 
 !.. Implicit Declarations ..
   implicit none
@@ -192,6 +191,8 @@ use Fox_dom                 ! parser XML Fortran
   integer     , intent(  out) :: CritereArret
   integer     , intent(  out) :: NbPasTemps
   real(DOUBLE), intent(  out) :: TempsMaximum
+  integer     , intent(  out) :: Section_controle
+  real(DOUBLE), intent(  out) :: Cote_max_controle
   logical     , intent(  out) :: PasTempsVariable
   real(DOUBLE), intent(  out) :: CourantObj
 
@@ -244,17 +245,10 @@ use Fox_dom                 ! parser XML Fortran
   logical                       , intent(  out)  :: RepriseCalcul
   type(FICHIER_T)               , intent(inout)  :: FichierRepriseEcr
   type(FICHIER_T)               , intent(inout)  :: FichierRepriseLec
-  logical                                        :: presence_ligne_deau
-  integer                                        :: type_entree_ligne
   type(FICHIER_T)               , intent(inout)  :: FichierLigne
-  integer                                        :: format_ligne
 
   type(ZONE_SECHE_T), dimension(:), pointer      :: ZoneSeche
   type(ZONE_FROT_T) , dimension(:),pointer       :: ZoneFrot
-
-! Utilisation Cray
-
-  logical                                        :: UtilisationCray
 
 ! Impressions - resultats
 
@@ -346,22 +340,18 @@ use Fox_dom                 ! parser XML Fortran
 ! SCALAIRES LOCAUX
 ! ----------------
 
-  logical           :: impression_doc
   integer           :: iext            ! ompteur sur les extremites libres
   integer           :: iprof           ! Compteur sur les profils
   integer           :: iprof_inf       ! borne inf de boucle
   integer           :: isect           ! Compteur sur les sections
   integer           :: retour          ! code de retour des fonctions intrinseques
-  integer           :: langue
   character(LEN=33) :: chaine_date     ! Chaine renvoyee par DATE_S
   integer           :: nb_site         ! Nombre de sites ou stocker
   integer           :: num_branche     ! Numero de branche de site ou stocker
   real(DOUBLE)      :: abscisse_rel    ! Abscisse relative du site ou stocker
   real(DOUBLE)      :: absc_abs        ! abscisse absolue correspondante
   integer           :: numero_max_loi  ! Numero de loi hydrau lu le + grand
-  logical           :: sauvegarde_modele ! flag de sauvegarde du modele
-  integer           :: ul              ! Numero d'unite d'un fichier
-  integer           :: nb_casier, num_liaison, iliaison, icasier, ull, ulc
+  integer           :: iliaison, icasier, ull, ulc
   integer           :: num_casier_origine, num_casier_fin, ilcc, nb_liaisonCC, nb_liaisonRC, jcasier
   integer, dimension(:,:), allocatable :: connect_casier
 
@@ -369,18 +359,16 @@ use Fox_dom                 ! parser XML Fortran
 
   !character(132)    :: !arbredappel_old
 
-  ! FoX XML
-  !--------
-  type(Node), pointer :: document => null()
-  type(Node), pointer :: element => null()
-  type(Node), pointer :: champ1 => null()
-  type(Node), pointer :: champ2 => null()
-  type(Node), pointer :: champ3 => null()
-  type(DOMconfiguration), pointer :: config => null()
-  type(DOMException) :: ex
-  integer :: ios
   integer, allocatable      :: itab(:)
   real(double), allocatable :: rtab(:)
+  character(len=256)  :: pathNode
+  character(len=1024) :: line
+  character(len=256)  :: xcasFile
+  integer             :: unitNum
+
+  real(DOUBLE) :: Abs_rel_controle
+  real(DOUBLE) :: Abs_abs_controle
+  integer      :: Bief_controle
 !========================== Instructions =============================
 
 ! INITIALISATION
@@ -395,32 +383,23 @@ use Fox_dom                 ! parser XML Fortran
 !
    nullify(CF1)
 
-   ! FoX : initialisation
-   !---------------------
-   config => newDOMConfig()
-   call setParameter(config, "xml-declaration", .false.)
-   call setParameter(config, "validate-if-schema", .true.)
-   document => parseFile(FichierMotCle%Nom,config,iostat=ios,ex=ex)
-   if (inException(ex).or.ios.ne.0) then
-       if( impression ) then
-           print*,"Parse error", getExceptionCode(ex)
-       endif
-       Erreur%Numero = 704
-       Erreur%ft     = err_704
-       Erreur%ft_c   = err_704c
-       call TRAITER_ERREUR( Erreur )
-       return
-   endif
-   element => getDocumentElement(document)
-
+   ! Open .xcas file
+   unitNum = FichierMotCle%Unite
+   xcasFile = FichierMotCle%Nom
+   open(unit=unitNum, file=xcasFile, status="old", action="read", iostat=retour)
+   if(retour.ne.0) then
+    erreur%numero = 3
+      erreur%ft     = err_3
+      erreur%ft_c   = err_3c
+      call traiter_erreur(erreur, xcasFile)
+      return
+   end if
 !========================================================================
 !                       LECTURE DES PARAMETRES GENERAUX
 !========================================================================
 
 ! Ouverture du fichier listing
 !-----------------------------
-!  JML Nom donne par l'interface
-!    FichierListing%Nom = MOTCAR(ADRESS(4,15))
 
     UniteListing = FichierListing%Unite
 
@@ -441,35 +420,16 @@ use Fox_dom                 ! parser XML Fortran
 
 ! Version du code
 !----------------
-
-  champ1 => item(getElementsByTagName(document, "parametresGeneraux"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "versionCode"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,VersionCode)
-  if (VersionCode > 3) then
-    Erreur%Numero = 300
-    Erreur%ft   = err_300
-    Erreur%ft_c = err_300c
-    call TRAITER_ERREUR  (Erreur)
-    return
-  end if
+pathNode = 'parametresGeneraux/versionCode'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) VersionCode
 
 
 ! Noyau SARAP/REZO/MASCARET
 !--------------------------
-  champ2 => item(getElementsByTagname(champ1, "code"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,Noyau)
+pathNode = 'parametresGeneraux/code'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) Noyau
   if (Noyau == NOYAU_SARAP) then
       Regime = REGIME_PERMANENT
   else if (Noyau == NOYAU_MASCARET .or. Noyau == NOYAU_REZODT) then
@@ -496,171 +456,95 @@ use Fox_dom                 ! parser XML Fortran
 
 ! Fichier Fortran
 !----------------
-
-  champ2 => item(getElementsByTagname(champ1, "progPrincipal"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  nom_fortran = getTextContent(champ2)
+pathNode = 'parametresGeneraux/progPrincipal'
+nom_fortran = xcasReader(unitNum, pathNode)
 
 ! Nom du fichier des bibliotheques
 !---------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "bibliotheques"), 0)
-  nom_bibli=' '
-  if(associated(champ2).neqv..false.) then
-     champ3 => item(getElementsByTagname(champ2, "bibliotheque"), 0)
-     if(associated(champ3).eqv..false.) then
-        call xerror(Erreur)
-        return
-     endif
-     nom_bibli = getTextContent(champ3)
-  endif
+pathNode = 'parametresGeneraux/bibliotheques'
+line = xcasReader(unitNum, pathNode)
+if(len(trim(line)).ne.0) then
+  pathNode = 'parametresGeneraux/bibliotheques/bibliotheque'
+  nom_bibli = xcasReader(unitNum, pathNode)
+endif
 
 ! Presence de Casiers (implique un couplage LIDO-CASIER)
 ! ------------------------------------------------------
+pathNode = 'parametresGeneraux/presenceCasiers'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) OptionCasier
 
-  champ2 => item(getElementsByTagname(champ1, "presenceCasiers"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,OptionCasier)
-
-! MS2018
 ! Courlis coupling (implies a MASCARET-COURLIS coupling)
 ! ------------------------------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "optionCourlis"), 0)
-  if(associated(champ2).eqv..false.) then
-     OptionCourlis = .false.
-  else
-    call extractDataContent(champ2,OptionCourlis)
-  endif
-
-  ! Reading courlis argument only of
-  if(OptionCourlis) then
-    champ2 => item(getElementsByTagname(champ1, "fichierMotCleCourlis"), 0)
-    if(associated(champ2).eqv..false.) then
-        print*,"Parse error => fichierMotCleCourlis"
-        call xerror(Erreur)
-        return
-    endif
-    FichierMotCleCourlis%Nom  = getTextContent(champ2)
-
-    champ2 => item(getElementsByTagname(champ1, "dictionaireCourlis"), 0)
-    if(associated(champ2).eqv..false.) then
-        print*,"Parse error => dictionaireCourlis"
-        call xerror(Erreur)
-        return
-    endif
-    FichierDicoCourlis%Nom  = getTextContent(champ2)
-  endif
-
-! Fin MS2018
+pathNode = 'parametresGeneraux/optionCourlis'
+line = xcasReader(unitNum, pathNode)
+if(len(trim(line)).eq.0) then  ! avoid direct comparison
+  optionCourlis = .false.
+else
+  read(unit=line, fmt=*) OptionCourlis
+  pathNode = 'parametresGeneraux/fichierMotCleCourlis'
+  FichierMotCleCourlis%Nom = xcasReader(unitNum, pathNode)
+  pathNode = 'parametresGeneraux/dictionaireCourlis'
+  FichierDicoCourlis%Nom = xcasReader(unitNum, pathNode)
+endif
 
 ! Perte de charge automatique due aux confluents
 ! ----------------------------------------------
+pathNode = 'parametresModelePhysique/perteChargeConf'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) PerteChargeConfluent
 
-  champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "perteChargeConf"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,PerteChargeConfluent)
-
-! Perte de charge automatique due aux confluents
-! ----------------------------------------------
-
-   champ1 => item(getElementsByTagName(document, "parametresNumeriques"), 0)
-   if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "perteChargeAutoElargissement"), 0)
-   if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-   endif
-   call extractDataContent(champ2,PerteElargissementTrans)
+! Perte de charge automatique due aux elargissements
+! --------------------------------------------------
+pathNode = 'parametresNumeriques/perteChargeAutoElargissement'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) PerteElargissementTrans
 
 ! Calcul d'une onde de submersion
 !--------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "calcOndeSubmersion"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,OndeSubm)
-  if (OndeSubm .and. Noyau == NOYAU_SARAP) then
-    Erreur%Numero = 301
-    Erreur%ft   = err_301
-    Erreur%ft_c = err_301c
-    call TRAITER_ERREUR  (Erreur, 'Dam break flood wave', 'SARAP')
-    return
-  end if
+pathNode = 'parametresNumeriques/calcOndeSubmersion'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) OndeSubm
+if( OndeSubm .and. Noyau == NOYAU_SARAP ) then
+   Erreur%Numero = 301
+   Erreur%ft     = err_301
+   Erreur%ft_c   = err_301c
+   call TRAITER_ERREUR( Erreur , 'Dam break flood wave' , 'SARAP' )
+   return
+end if
 
   !
   ! Modelisation de type Boussinesq
   ! -------------------------------
-   champ2 => item(getElementsByTagname(champ1, "termesNonHydrostatiques"), 0)
-   if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-   call extractDataContent(champ2,Boussinesq)
+  pathNode = 'parametresNumeriques/termesNonHydrostatiques'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Boussinesq
 
   !
   ! Empechement du torrentiel pour REZO
   ! -----------------------------------
-  champ2 => item(getElementsByTagname(champ1, "attenuationConvection"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,NoConvection)
+  pathNode = 'parametresNumeriques/attenuationConvection'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) NoConvection
 
   !
   ! Apport de debit dans la quantite de mvt
   ! -------------------------------
-  champ2 => item(getElementsByTagname(champ1, "apportDebit"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,cqmv)
+  pathNode = 'parametresNumeriques/apportDebit'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) cqmv
 
-! Calcul de validation
-!---------------------
+  ! Calcul de validation
+  !---------------------
+  pathNode = 'parametresGeneraux/validationCode'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) CalculValidation
 
-  champ1 => item(getElementsByTagName(document, "parametresGeneraux"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "validationCode"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,CalculValidation)
-
-! Type de validation
-!-------------------
-
-  champ2 => item(getElementsByTagname(champ1, "typeValidation"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,TypeValidation)
+  ! Type de validation
+  !-------------------
+  pathNode = 'parametresGeneraux/typeValidation'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) typeValidation
 
 !=======================
 ! MODELISATION PHYSIQUE
@@ -668,18 +552,9 @@ use Fox_dom                 ! parser XML Fortran
 
 ! Modelisation du lit (Debord/Fond-Berge)
 !----------------------------------------
-
-  champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "compositionLits"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,ModeleLit)
+pathNode = 'parametresModelePhysique/compositionLits'
+line = xcasReader(unitNum, pathNode)
+read(unit=line, fmt=*) ModeleLit
 
   if (ModeleLit.lt.0.or.ModeleLit.gt.2) then
       Erreur%Numero = 305
@@ -689,463 +564,317 @@ use Fox_dom                 ! parser XML Fortran
       return
   end if
 
-! Conservation du frottement sur les parois verticales
-!-----------------------------------------------------
+  ! Conservation du frottement sur les parois verticales
+  !-----------------------------------------------------
+  pathNode = 'parametresModelePhysique/conservFrotVertical'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) FrottParoiVerticale
 
-  champ2 => item(getElementsByTagname(champ1, "conservFrotVertical"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,FrottParoiVerticale)
+  ! Debordement progressif dans le lit majeur
+  !------------------------------------------
+  pathNode = 'parametresModelePhysique/debordement/litMajeur'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) DebProgressifLM
 
-! Debordement progressif dans le lit majeur
-!------------------------------------------
+  ! Debordement progressif dans les zones de stockage
+  !--------------------------------------------------
+  pathNode = 'parametresModelePhysique/debordement/zoneStock'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) DebProgressifZS
 
-  champ2 => item(getElementsByTagname(champ1, "debordement"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "litMajeur"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,DebProgressifLM)
+  ! Elevation de la cote signalant l'arrivee du front
+  !--------------------------------------------------
+  pathNode = 'parametresModelePhysique/elevCoteArrivFront'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) DZArriveeFront
 
-! Debordement progressif dans les zones de stockage
-!--------------------------------------------------
+  ! Froude Limite pour les conditions aux limites
+  !----------------------------------------------
+  pathNode = 'parametresNumeriques/froudeLimCondLim'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) FroudeLim
 
-  champ3 => item(getElementsByTagname(champ2, "zoneStock"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,DebProgressifZS)
+  ! Traitement du frottement
+  !-------------------------
+  pathNode = 'parametresNumeriques/traitImplicitFrot'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) FrottementImplicite
 
-! Elevation de la cote signalant l'arrivee du front
-!--------------------------------------------------
+  ! Implicitation du noyau transcritique
+  !-------------------------------------
+  pathNode = 'parametresNumeriques/implicitNoyauTrans'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Impli_Trans
 
-  champ2 => item(getElementsByTagname(champ1, "elevCoteArrivFront"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,DZArriveeFront)
+  ! Optimisation du temps calcul (flux figes)
+  !------------------------------------------
+  pathNode = 'parametresNumeriques/optimisNoyauTrans'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Opt
 
-! Froude Limite pour les conditions aux limites
-!----------------------------------------------
-
-  champ1 => item(getElementsByTagName(document, "parametresNumeriques"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "froudeLimCondLim"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,FroudeLim)
-
-! Traitement du frottement
-!-------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "traitImplicitFrot"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,FrottementImplicite)
-
-! Implicitation du noyau transcritique
-!-------------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "implicitNoyauTrans"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,Impli_Trans)
-
-! Optimisation du temps calcul (flux figes)
-!------------------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "optimisNoyauTrans"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,Opt)
-
-! Hauteur d'eau minimale
-! ----------------------
-
-  champ2 => item(getElementsByTagname(champ1, "hauteurEauMini"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,HEPS)
+  ! Hauteur d'eau minimale
+  ! ----------------------
+  pathNode = 'parametresNumeriques/hauteurEauMini'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) HEPS
 
   ! Interpolation lineaire du coefficient de Frottement
   ! par rapport aux profils
   !---------------------------------------------------
-
-  champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "interpolLinStrickler"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,InterpLinCoeffFrott)
+  pathNode = 'parametresModelePhysique/interpolLinStrickler'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) InterpLinCoeffFrott
 
   ! Les profils sont definies en abscisse absolue
   ! sur le reseau
   !---------------------------------------------------
-  champ1 => item(getElementsByTagName(document, "parametresGeometrieReseau"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "geometrie"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "profilsAbscAbsolu"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,ProfAbs)
+  pathNode = 'parametresGeometrieReseau/geometrie/profilsAbscAbsolu'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) ProfAbs
 
-!=============================================================
-!                   PARAMETRES TEMPORELLES
-!=============================================================
+  !=============================================================
+  !                   PARAMETRES TEMPORELLES
+  !=============================================================
 
-! Pas de temps
-!-------------
-
-  champ1 => item(getElementsByTagName(document, "parametresTemporels"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
+  ! Pas de temps
+  !-------------
+  pathNode = 'parametresTemporels/pasTemps'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) DT
+  if( DT <= 0._DOUBLE ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Pas de temps' )
      return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "pasTemps"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,DT)
-
-  if (DT <= 0.) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Pas de temps')
-    return
   end if
 
-! Temps initial
-!--------------
+  ! Temps initial
+  !--------------
+  pathNode = 'parametresTemporels/tempsInit'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) TempsInitial
 
-  champ2 => item(getElementsByTagname(champ1, "tempsInit"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,TempsInitial)
-
-! Critere d'arret du calcul
-!--------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "critereArret"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,CritereArret)
-  if (CritereArret /= TEMPS_MAXIMUM .and. &
+  ! Critere d'arret du calcul
+  !--------------------------
+  pathNode = 'parametresTemporels/critereArret'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) CritereArret
+  if( CritereArret /= TEMPS_MAXIMUM .and. &
       CritereArret /= NOMBRE_DE_PAS_TEMPS_MAXIMUM .and. &
       CritereArret /= COTE_MAXIMALE_AU_POINT_DE_CONTROLE) then
-    Erreur%Numero = 305
-    Erreur%ft   = err_305
-    Erreur%ft_c = err_305c
-    call TRAITER_ERREUR  (Erreur, 'Critere d''arret', '1, 2 et 3')
-    return
+     Erreur%Numero = 305
+     Erreur%ft     = err_305
+     Erreur%ft_c   = err_305c
+     call TRAITER_ERREUR( Erreur , 'Critere d''arret' , '1, 2 et 3' )
+     return
   end if
 
-! Nombre de pas de temps du calcul
-!---------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "nbPasTemps"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  ! Nombre de pas de temps du calcul
+  !---------------------------------
+  pathNode = 'parametresTemporels/nbPasTemps'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) NbPasTemps
+  if( CritereArret == NOMBRE_DE_PAS_TEMPS_MAXIMUM .and. NbPasTemps <= 0 ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Nombre de pas de temps' )
      return
-  endif
-  call extractDataContent(champ2,NbPasTemps)
-
-  if (CritereArret == NOMBRE_DE_PAS_TEMPS_MAXIMUM .and. &
-      NbPasTemps <= 0) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Nombre de pas de temps')
-    return
   end if
 
-! Temps maximum du calcul
-!------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "tempsMax"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  ! Temps maximum du calcul
+  !------------------------
+  pathNode = 'parametresTemporels/tempsMax'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) TempsMaximum
+  if( CritereArret == TEMPS_MAXIMUM .and. TempsMaximum <= 0. ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Temps maximum de la simulation' )
      return
-  endif
-  call extractDataContent(champ2,TempsMaximum)
-
-  if (CritereArret == TEMPS_MAXIMUM .and. &
-      TempsMaximum <= 0.) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Temps maximum de la simulation')
-    return
   end if
 
-! Pas de temps variable
-!----------------------
+  ! Point de controle de la cote maximale pour l'arret du calcul
+  !-------------------------------------------------------------
+  pathNode = 'parametresTemporels/abscisseControle'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Abs_rel_controle
 
-  champ2 => item(getElementsByTagname(champ1, "pasTempsVar"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  pathNode = 'parametresTemporels/biefControle'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Bief_controle
+
+  pathNode = 'parametresTemporels/coteMax'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) Cote_max_controle
+  if( CritereArret == COTE_MAXIMALE_AU_POINT_DE_CONTROLE .and. Bief_controle <= 0.) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Bief associe au point de controle' )
      return
-  endif
-  call extractDataContent(champ2,PasTempsVariable)
-
-  if (PasTempsVariable .and. Noyau /= NOYAU_MASCARET) then
-    Erreur%Numero = 302
-    Erreur%ft   = err_302
-    Erreur%ft_c = err_302c
-    call TRAITER_ERREUR  (Erreur, 'Pas de temps variable', 'MASCARET')
-    return
   end if
 
-! Nombre de Courant souhaite
-!---------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "nbCourant"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  ! nb pas de temps non nul pour calculer POURC dans superviseur
+  if( CritereArret == COTE_MAXIMALE_AU_POINT_DE_CONTROLE .and. NbPasTemps <= 0. ) then
+     Erreur%Numero = 306
+     Erreur%ft   = err_306
+     Erreur%ft_c = err_306c
+     call TRAITER_ERREUR  (Erreur, 'Nombre de pas de temps')
      return
-  endif
-  call extractDataContent(champ2,CourantObj)
-  if (PasTempsVariable .and. CourantObj <= 0.) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Nombre de Courant souhaite')
-    return
+  end if
+
+  ! Pas de temps variable
+  !----------------------
+  pathNode = 'parametresTemporels/pasTempsVar'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) PasTempsVariable
+  if( PasTempsVariable .and. Noyau /= NOYAU_MASCARET ) then
+     Erreur%Numero = 302
+     Erreur%ft   = err_302
+     Erreur%ft_c = err_302c
+     call TRAITER_ERREUR  (Erreur, 'Pas de temps variable', 'MASCARET')
+     return
+  end if
+
+  ! Nombre de Courant souhaite
+  !---------------------------
+  pathNode = 'parametresTemporels/nbCourant'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) CourantObj
+  if( PasTempsVariable .and. CourantObj <= 0. ) then
+     Erreur%Numero = 306
+     Erreur%ft   = err_306
+     Erreur%ft_c = err_306c
+     call TRAITER_ERREUR  (Erreur, 'Nombre de Courant souhaite')
+     return
   end if
 
 
-!==============================================================
-!                       IMPRESSIONS - RESULTATS
-!==============================================================
+  !==============================================================
+  !                       IMPRESSIONS - RESULTATS
+  !==============================================================
 
-! Titre du calcul
-!----------------
+  ! Titre du calcul
+  !----------------
+  pathNode = 'parametresImpressionResultats/titreCalcul'
+  TitreCas = xcasReader(unitNum, pathNode)
 
-  champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "titreCalcul"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  TitreCas = getTextContent(champ2)
-! Impression de la geometrie
-!---------------------------
+  ! Impression de la geometrie
+  !---------------------------
   if (Impression) then
-      champ2 => item(getElementsByTagname(champ1, "impression"), 0)
-      if(associated(champ2).eqv..false.) then
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "impressionGeometrie"), 0)
-      if(associated(champ3).eqv..false.) then
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,impression_geo)
+    pathNode = 'parametresImpressionResultats/impression/impressionGeometrie'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) impression_geo
   else
      impression_geo = .FALSE.
   endif
 
-
-! Impression du planimetrage
-!---------------------------
+  ! Impression du planimetrage
+  !---------------------------
   if (Impression) then
-     champ3 => item(getElementsByTagname(champ2, "impressionPlanimetrage"), 0)
-     if(associated(champ3).eqv..false.) then
-        call xerror(Erreur)
-        return
-     endif
-     call extractDataContent(champ3,ImpressionPlani)
+    pathNode = 'parametresImpressionResultats/impression/impressionPlanimetrage'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) ImpressionPlani
   else
      ImpressionPlani = .FALSE.
   endif
 
-
-! Impression du reseau
-!---------------------
+  ! Impression du reseau
+  !---------------------
   if (Impression) then
-     champ3 => item(getElementsByTagname(champ2, "impressionReseau"), 0)
-     if(associated(champ3).eqv..false.) then
-        call xerror(Erreur)
-        return
-     endif
-     call extractDataContent(champ3,impression_reseau)
+    pathNode = 'parametresImpressionResultats/impression/impressionReseau'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) impression_reseau
   else
      impression_reseau = .FALSE.
   endif
 
-! Impression des lois hydrauliques
-!---------------------------------
-
+  ! Impression des lois hydrauliques
+  !---------------------------------
   if (Impression) then
-    champ3 => item(getElementsByTagname(champ2, "impressionLoiHydraulique"), 0)
-    if(associated(champ3).eqv..false.) then
-      call xerror(Erreur)
-      return
-    endif
-    call extractDataContent(champ3,impression_hydrau)
+    pathNode = 'parametresImpressionResultats/impression/impressionLoiHydraulique'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) impression_hydrau
   else
      impression_hydrau = .FALSE.
   endif
 
-! Impression de la ligne d'eau initiale
-!--------------------------------------
-
+  ! Impression de la ligne d'eau initiale
+  !--------------------------------------
   if (Impression) then
-     champ3 => item(getElementsByTagname(champ2, "impressionligneEauInitiale"), 0)
-     if(associated(champ3).eqv..false.) then
-        call xerror(Erreur)
-        return
-     endif
-     call extractDataContent(champ3,impression_ligne)
+    pathNode = 'parametresImpressionResultats/impression/impressionligneEauInitiale'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) impression_ligne
   else
      impression_ligne = .FALSE.
   endif
 
-! Impression en phase calcul
-!---------------------------
+  ! Impression en phase calcul
+  !---------------------------
   if (Impression) then
-     champ3 => item(getElementsByTagname(champ2, "impressionCalcul"), 0)
-     if(associated(champ3).eqv..false.) then
-        call xerror(Erreur)
-        return
-     endif
-     call extractDataContent(champ3,ImpressionCalcul)
+    pathNode = 'parametresImpressionResultats/impression/impressionCalcul'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) ImpressionCalcul
   else
      ImpressionCalcul = .FALSE.
   endif
 
-
-! Premier pas de temps a stocker
-!-------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "pasStockage"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  ! Premier pas de temps a stocker
+  !-------------------------------
+  pathNode = 'parametresImpressionResultats/pasStockage/premPasTpsStock'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) PremierPasStocke
+  if( PremierPasStocke <= 0 ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Premier pas de temps a stocker' )
      return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "premPasTpsStock"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,PremierPasStocke)
-  if (PremierPasStocke <= 0) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Premier pas de temps a stocker')
-    return
   end if
 
-! Pas de stockage
-!----------------
-
-  champ3 => item(getElementsByTagname(champ2, "pasStock"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
+  ! Pas de stockage
+  !----------------
+  pathNode = 'parametresImpressionResultats/pasStockage/pasStock'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) PasStockage
+  if( PasStockage <= 0 ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Pas de stockage' )
      return
-  endif
-  call extractDataContent(champ3,PasStockage)
-  if (PasStockage <= 0) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Pas de stockage')
-    return
   end if
 
-! Pas d'impression
-!-----------------
-
-  champ3 => item(getElementsByTagname(champ2, "pasImpression"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
+  ! Pas d'impression
+  !-----------------
+  pathNode = 'parametresImpressionResultats/pasStockage/pasImpression'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) PasImpression
+  if( PasImpression <= 0 ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Pas d''impression' )
      return
-  endif
-  call extractDataContent(champ3,PasImpression)
-  if (PasImpression <= 0) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Pas d''impression')
-    return
   end if
 
-! fichier des resultats
-!----------------------
-!  JML Noms donnes par l'interface
-! FichierResultat%Nom = MOTCAR(ADRESS(4,13))
-! FichierResultat2%Nom = MOTCAR(ADRESS(4,124))
-
-! format du fichier des resultats
-!--------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "resultats"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
+  ! format du fichier des resultats
+  !--------------------------------
+  pathNode = 'parametresImpressionResultats/resultats/postProcesseur'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) post_processeur
+  if( post_processeur /= POST_RUBENS .and. post_processeur /= POST_OPTHYCA ) then
+     if( post_processeur /= POST_OPTRU ) then
+        Erreur%Numero = 312
+        Erreur%ft     = err_312
+        Erreur%ft_c   = err_312c
+        call TRAITER_ERREUR( Erreur , post_processeur )
+        return
+     endif
   endif
-  champ3 => item(getElementsByTagname(champ2, "postProcesseur"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,post_processeur)
-  if (post_processeur /= POST_RUBENS .and. post_processeur /= POST_OPTHYCA) then
-      if (post_processeur /= POST_OPTRU) then
-          Erreur%Numero = 312
-          Erreur%ft   = err_312
-          Erreur%ft_c = err_312c
-          call TRAITER_ERREUR  (Erreur, post_processeur)
-          return
-       endif
-  end if
 
   if (post_processeur == POST_RUBENS) then
     if (Noyau == NOYAU_SARAP) then
@@ -1167,89 +896,45 @@ use Fox_dom                 ! parser XML Fortran
   else
      FormatResu2 = 0
   endif
-! fichier listing
-!----------------
 
-  ! Affectation en tete de sous programme
+  ! Ficher de reprise en ecriture
+  !------------------------------
+  pathNode = 'parametresImpressionResultats/fichReprise/fichRepriseEcr'
+  FichierRepriseEcr%Nom = xcasReader(unitNum, pathNode)
 
-! Ficher de reprise en ecriture
-!------------------------------
-
-  champ2 => item(getElementsByTagname(champ1, "fichReprise"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
+  ! Ecart entre branches
+  !---------------------
+  pathNode = 'parametresImpressionResultats/rubens/ecartInterBranch'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) ecart
+  if( ecart <= 0._DOUBLE ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Ecart entre branches' )
      return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "fichRepriseEcr"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  FichierRepriseEcr%Nom  = getTextContent(champ3)
-! Ecart entre branches
-!---------------------
-
-  champ2 => item(getElementsByTagname(champ1, "rubens"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "ecartInterBranch"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,ecart)
-  if (ecart <= 0.) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Ecart entre branches')
-    return
   end if
 
+  !============================================================
+  !                   LECTURE DE LA GEOMETRIE
+  !============================================================
 
-!============================================================
-!                   LECTURE DE LA GEOMETRIE
-!============================================================
-
-! SM ? Faut il allouer ici Profil
-
-! Nom du fichier geometrie
-!-------------------------
-!  JML Nom donne par l'interface
-!  FichierGeom%Nom = MOTCAR(ADRESS(4,23))
-
-
-! Format du fichier geometrie
-!----------------------------
-
-  champ1 => item(getElementsByTagName(document, "parametresGeometrieReseau"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
+  ! Format du fichier geometrie
+  !----------------------------
+  pathNode = 'parametresGeometrieReseau/format'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) FormatGeom
+  if( FormatGeom /= FORMAT_GEOM_LIDOV2P0 .and. FormatGeom /= FORMAT_GEOM_LIDOV3P0 ) then
+     Erreur%Numero = 305
+     Erreur%ft     = err_305
+     Erreur%ft_c   = err_305c
+     call TRAITER_ERREUR( Erreur , 'Format du fichier geometrie' , '1 et 2' )
      return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "format"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ2,FormatGeom)
-  if (FormatGeom /= FORMAT_GEOM_LIDOV2P0 .and.  &
-        FormatGeom /= FORMAT_GEOM_LIDOV3P0) then
-      Erreur%Numero = 305
-      Erreur%ft   = err_305
-      Erreur%ft_c = err_305c
-      call TRAITER_ERREUR  (Erreur, 'Format du fichier geometrie', '1 et 2')
-      return
   end if
 
-
-! Lecture de la geometrie
-!------------------------
-
+  ! Lecture de la geometrie
+  !------------------------
   call LEC_GEOM                    ( &
-
         Profil                     , & ! Resultats
         nb_bief_geom               , &
         ProfDebBief                , &
@@ -1268,20 +953,17 @@ use Fox_dom                 ! parser XML Fortran
     return
   endif
 
-!========================================================
-!              LECTURE DES LOIS HYDRAULIQUES
-!========================================================
-! doit etre avant call LEC_RESEAU
-
+  !========================================================
+  !              LECTURE DES LOIS HYDRAULIQUES
+  !========================================================
   call LEC_LOI_INTERFACE  ( &
-
      LoiHydrau        , & ! Tableau des lois hydrauliques
      FichiersLois     , & ! Les Fichiers des lois hydrauliques
      impression_hydrau, & ! Flag d'impression des lois hydrauliques
      UniteListing     , & ! Unite logique fichier listing
      CritereArret     , & ! Criter d'arret du calcul
      TempsMaximum     , & ! Temps maximum du calcul
-     document         , &  ! Pointeur vers document XML
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 
@@ -1294,7 +976,6 @@ use Fox_dom                 ! parser XML Fortran
 !========================================================
 
      call LEC_RESEAU       ( &
-
      NbBief                , & ! Nombre de biefs
      absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
      absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
@@ -1315,7 +996,7 @@ use Fox_dom                 ! parser XML Fortran
      ProfDebBief           , & ! Premiers profils des biefs
      ProfFinBief           , & ! Derniers profils des biefs
      Noyau                 , & ! Noyau de calcul
-     document              , &  ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
 
@@ -1342,7 +1023,6 @@ use Fox_dom                 ! parser XML Fortran
 !==============================================================
 
      call CALC_MAILLAGE    ( &
-
      X                     , & ! Tableau des abscisses
      TypeMaillage          , & ! Type de calcul du maillage
      FichierMaillage       , & ! Fichier du maillage
@@ -1353,27 +1033,23 @@ use Fox_dom                 ! parser XML Fortran
      absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
      absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
      impression_geo        , & ! Flag d'impression de la geometrie
-     FichierListing%Unite          , & ! Unite logique fichier listing
-     document              , & ! Pointeur vers document XML
+     FichierListing%Unite  , & ! Unite logique fichier listing
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
-
 
      if (Erreur%Numero /= 0) then
        return
      endif
 
-
-
-!==============================================================
-!                      LECTURE DU PLANIMETRAGE
-!==============================================================
+     !==============================================================
+     !                      LECTURE DU PLANIMETRAGE
+     !==============================================================
 
      call LEC_PLANIM     ( &
-
      Profil              , & ! Profils geometriques
      FichierListing%Unite, &
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 
@@ -1381,118 +1057,82 @@ use Fox_dom                 ! parser XML Fortran
        return
      endif
 
-!====================================================================
-!                 LECTURE DES CONDITIONS INITIALES
-!====================================================================
+     !====================================================================
+     !                 LECTURE DES CONDITIONS INITIALES
+     !====================================================================
 
-! Reprise de calcul
-!------------------
+     ! Reprise de calcul
+     !------------------
+     pathNode = 'parametresConditionsInitiales/repriseEtude/repriseCalcul'
+     line = xcasReader(unitNum, pathNode)
+     read(unit=line, fmt=*) RepriseCalcul
 
-  champ1 => item(getElementsByTagName(document, "parametresConditionsInitiales"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "repriseEtude"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "repriseCalcul"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,RepriseCalcul)
+     !========================================================
+     !                     CALCUL DE IDT et XDT
+     !========================================================
+     retour = 0
+     if(.not.associated(IDT)) allocate (IDT(size(X)), STAT = retour)
+     if (retour /= 0) then
+       Erreur%Numero = 5
+       Erreur%ft   = err_5
+       Erreur%ft_c = err_5c
+       call TRAITER_ERREUR  (Erreur, 'IDT')
+       return
+     end if
 
-!========================================================
-!                     CALCUL DE IDT et XDT
-!========================================================
-  retour = 0
-  if(.not.associated(IDT)) allocate (IDT(size(X)), STAT = retour)
-  if (retour /= 0) then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR  (Erreur, 'IDT')
-    return
-  end if
+     if(.not.associated(XDT)) allocate (XDT(size(X)), STAT = retour)
+     if (retour /= 0) then
+       Erreur%Numero = 5
+       Erreur%ft   = err_5
+       Erreur%ft_c = err_5c
+       call TRAITER_ERREUR  (Erreur, 'XDT')
+       return
+     end if
 
-  if(.not.associated(XDT)) allocate (XDT(size(X)), STAT = retour)
-  if (retour /= 0) then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR  (Erreur, 'XDT')
-    return
-  end if
+     iprof_inf = 1
 
-  iprof_inf = 1
-
-  do isect =1,size(X(:))
-
-    iprof = iprof_inf
-
-    do while ((X(isect) <  (Profil(iprof)%AbsAbs   - EPS4)) .or.    &
-              (X(isect) >= (Profil(iprof+1)%AbsAbs - EPS4)))
-
-      if ((abs(X(isect)- Profil(size(Profil(:)))%AbsAbs)) <= 0.0001)  exit
-
-      iprof = iprof + 1
-    end do
-    XDT(isect) = (X(isect) - Profil(iprof)%AbsAbs) /               &
+     do isect =1,size(X(:))
+       iprof = iprof_inf
+      do while ((X(isect) <  (Profil(iprof)%AbsAbs   - EPS4)) .or.    &
+                  (X(isect) >= (Profil(iprof+1)%AbsAbs - EPS4)))
+          if ((abs(X(isect)- Profil(size(Profil(:)))%AbsAbs)) <= 0.0001)  then
+              iprof = size(Profil(:))-1
+              exit
+          endif
+          iprof = iprof + 1
+      end do
+      XDT(isect) = (X(isect) - Profil(iprof)%AbsAbs) /               &
                  (Profil(iprof + 1)%AbsAbs - Profil(iprof)%AbsAbs)
-    IDT(isect) = iprof
-
-    iprof_inf = iprof
-
+      IDT(isect) = iprof
+      iprof_inf = iprof
   end do
-!
-!==============================================================
-!               IMPRESSIONS - RESULTATS  annexe
-!==============================================================
-
-! Option de stockage
-!-------------------
-
-  champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "stockage"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "option"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,OptionStockage)
-  if (OptionStockage /= STOCKAGE_TOUTES_SECTION .and. &
+  !
+  !==============================================================
+  !               IMPRESSIONS - RESULTATS  annexe
+  !==============================================================
+  ! Option de stockage
+  !-------------------
+  pathNode = 'parametresImpressionResultats/stockage/option'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) OptionStockage
+  if( OptionStockage /= STOCKAGE_TOUTES_SECTION .and. &
       OptionStockage /= STOCKAGE_LISTE_SECTION) then
-    Erreur%Numero = 305
-    Erreur%ft   = err_305
-    Erreur%ft_c = err_305c
-    call TRAITER_ERREUR  (Erreur, 'Option de stockage','1 ou 2')
-    return
+     Erreur%Numero = 305
+     Erreur%ft     = err_305
+     Erreur%ft_c   = err_305c
+     call TRAITER_ERREUR( Erreur , 'Option de stockage' , '1 ou 2' )
+     return
   end if
 
-  champ3 => item(getElementsByTagname(champ2, "nbSite"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
+  pathNode = 'parametresImpressionResultats/stockage/nbSite'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) nb_site
+  if( OptionStockage == STOCKAGE_LISTE_SECTION .and. nb_site <= 0 ) then
+     Erreur%Numero = 306
+     Erreur%ft     = err_306
+     Erreur%ft_c   = err_306c
+     call TRAITER_ERREUR( Erreur , 'Nombre de sites' )
      return
-  endif
-  call extractDataContent(champ3,nb_site)
-  if (OptionStockage == STOCKAGE_LISTE_SECTION .and. &
-      nb_site <= 0) then
-    Erreur%Numero = 306
-    Erreur%ft   = err_306
-    Erreur%ft_c = err_306c
-    call TRAITER_ERREUR  (Erreur, 'Nombre de sites')
-    return
   end if
 
   if (OptionStockage == STOCKAGE_LISTE_SECTION) then
@@ -1523,21 +1163,15 @@ use Fox_dom                 ! parser XML Fortran
        return
     end if
 
-    champ3 => item(getElementsByTagname(champ2, "branche"), 0)
-    if(associated(champ3).eqv..false.) then
-       call xerror(Erreur)
-       return
-    endif
-    call extractDataContent(champ3,itab)
-    champ3 => item(getElementsByTagname(champ2, "abscisse"), 0)
-    if(associated(champ3).eqv..false.) then
-       call xerror(Erreur)
-       return
-    endif
-    call extractDataContent(champ3,rtab)
+    pathNode = 'parametresImpressionResultats/stockage/branche'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) itab
+
+    pathNode = 'parametresImpressionResultats/stockage/abscisse'
+    line = xcasReader(unitNum, pathNode)
+    read(unit=line, fmt=*) rtab
 
     do isect = 1,nb_site
-
       num_branche = itab(isect)
       if (num_branche < 1) then
         Erreur%Numero = 372
@@ -1579,47 +1213,83 @@ use Fox_dom                 ! parser XML Fortran
     deallocate(rtab)
 
   endif
+  !=============================================================
+  !                      CAS D'UN ARRET DU CALCUL
+  !           AVEC COTE MAXIMALE ATTEINTE A UN POINT DE CONTROLE
+  !=============================================================
+  ! initialisation des variables
+  Section_controle = 1
+  Abs_abs_controle = 0
 
-!==============================================================
-!                      LECTURE DES FROTTEMENTS
-!==============================================================
+  if( CritereArret == COTE_MAXIMALE_AU_POINT_DE_CONTROLE ) then
+    !erreur sur l'abs rel ou le no du bief
+    if( Bief_controle <= 0 .or. &
+        Bief_controle > size(ProfDebBief) ) then
+        Erreur%Numero = 332
+        Erreur%ft     = err_332
+        Erreur%ft_c   = err_332c
+        call TRAITER_ERREUR( Erreur , 'point de controle pour arret du calcul' , &
+            Bief_controle , 1 )
+        return
+    end if
 
-! Lois de frottement
-!-------------------
+    if( Abs_rel_controle < (Profil(ProfDebBief(Bief_controle))%AbsRel-EPS4) &
+           .or. &
+          Abs_rel_controle > (Profil(ProfFinBief(Bief_controle))%AbsRel+EPS4) ) then
+        Erreur%Numero = 387
+        Erreur%ft     = err_387
+        Erreur%ft_c   = err_387c
+        call TRAITER_ERREUR( Erreur , 'point de controle pour arret du calcul' , &
+                              Bief_controle )
+        return
+    end if
 
-  champ1 => item(getElementsByTagName(document, "parametresCalage"), 0)
-  if(associated(champ1).eqv..false.) then
-     call xerror(Erreur)
-     return
+    ! calcul de l'abscisse abs
+    Abs_abs_controle = ABS_ABS_S        ( &
+      Bief_controle                     , &
+      Abs_rel_controle                  , &
+      Profil                            , &
+      ProfDebBief                       , &
+      ProfFinBief                       , &
+      Erreur                              &
+                                         )
+    if( Erreur%Numero /= 0 ) then
+      return
+    end if
+
+    ! Calcul de la section de calcul correspondante
+    call XINDIC_S                          (&
+        Section_controle,                  &
+        Abs_abs_controle,                  &
+        X,                                 &
+        Erreur                              )
+    if( Erreur%Numero /= 0 ) then
+      return
+    endif
   endif
-  champ2 => item(getElementsByTagname(champ1, "frottement"), 0)
-  if(associated(champ2).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  champ3 => item(getElementsByTagname(champ2, "loi"), 0)
-  if(associated(champ3).eqv..false.) then
-     call xerror(Erreur)
-     return
-  endif
-  call extractDataContent(champ3,LoiFrottement)
-  if (LoiFrottement < LOI_FROTTEMENT_STRICKLER .or. &
-      LoiFrottement > LOI_FROTTEMENT_NB_MAX) then
-    Erreur%Numero = 366
-    Erreur%ft   = err_366
-    Erreur%ft_c = err_366c
-    call TRAITER_ERREUR  (Erreur, LoiFrottement)
-    return
+
+  !==============================================================
+  !                      LECTURE DES FROTTEMENTS
+  !==============================================================
+  ! Lois de frottement
+  !-------------------
+  pathNode = 'parametresCalage/frottement/loi'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) LoiFrottement
+  if( LoiFrottement < LOI_FROTTEMENT_STRICKLER .or. &
+       LoiFrottement > LOI_FROTTEMENT_NB_MAX ) then
+      Erreur%Numero = 366
+      Erreur%ft     = err_366
+      Erreur%ft_c   = err_366c
+      call TRAITER_ERREUR( Erreur , LoiFrottement )
+      return
   end if
 
-! Si on a lu un fichier geometrie au format 3.0 (c.a.d. qu'on n'a
-! pas lu les coeff de frottement), on lit les coeff maintenant.
-!---------------------------------------------------------------
-
-     if  (FormatGeom == FORMAT_GEOM_LIDOV3P0) then
-
+  ! Si on a lu un fichier geometrie au format 3.0 (c.a.d. qu'on n'a
+  ! pas lu les coeff de frottement), on lit les coeff maintenant.
+  !---------------------------------------------------------------
+  if  (FormatGeom == FORMAT_GEOM_LIDOV3P0) then
        call  LEC_FROTTEMENT  ( &
-
        CF1                   , &
        CF2                   , &
        X                     , &
@@ -1632,23 +1302,19 @@ use Fox_dom                 ! parser XML Fortran
        absc_rel_ext_fin_bief , &
        InterpLinCoeffFrott   , &
        UniteListing          , &
-       document              , &
+       unitNum               , & ! Unite logique .xcas
        Erreur                  & ! Erreur
                              )
 
-       if (Erreur%Numero /= 0) then
-         return
-       endif
+    if (Erreur%Numero /= 0) then
+     return
+    endif
+  endif
 
-     endif
-
-!========================================================
-!       CALCUL DE LA TABLE DE CONNECTIVITE
-!========================================================
-
-
-
-     call CALC_CONNECT     ( &
+  !========================================================
+  !       CALCUL DE LA TABLE DE CONNECTIVITE
+  !========================================================
+  call CALC_CONNECT     ( &
      Connect               , & ! Table de connectivite
      NbBief                , & ! Nombre de biefs
      absc_abs_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
@@ -1664,39 +1330,31 @@ use Fox_dom                 ! parser XML Fortran
      Erreur                  & ! Erreur
                            )
 
-     if (Erreur%Numero /= 0) then
-       return
-     endif
+  if (Erreur%Numero /= 0) then
+     return
+  endif
 
-
-!==============================================================
-!                  LECTURE DES ZONES DE STOCKAGE
-!==============================================================
-
-
-     if  (FormatGeom == FORMAT_GEOM_LIDOV3P0) then
-
-       call LEC_STOCKAGE        ( &
-
+  !==============================================================
+  !                  LECTURE DES ZONES DE STOCKAGE
+  !==============================================================
+  if  (FormatGeom == FORMAT_GEOM_LIDOV3P0) then
+      call LEC_STOCKAGE        ( &
             Profil              , & ! Profils geometriques
             PresenceZoneStockage, & ! Flag d'existence de zones de stockage
             FichierListing%Unite, & ! Unite logique fichier listing
-            document            , & ! Pointeur vers document XML
+            unitNum             , & ! Unite logique .xcas
             Erreur                & ! Erreur
                                 )
 
        if (Erreur%Numero /= 0) then
          return
        endif
+  endif
 
-     endif
-
-!==============================================================
-!                    LECTURE DES ZONES SECHES
-!==============================================================
-
-     call LEC_ZONE_SECHE   ( &
-
+  !==============================================================
+  !                    LECTURE DES ZONES SECHES
+  !==============================================================
+  call LEC_ZONE_SECHE   ( &
      ZoneSeche             , & ! Zones seches
      Connect               , & ! Connectivite du reseau
      X                     , & ! Maillage
@@ -1706,22 +1364,19 @@ use Fox_dom                 ! parser XML Fortran
      absc_rel_ext_deb_bief , &
      absc_rel_ext_fin_bief , &
      FichierListing%Unite  , & ! Unite logique fichier listing
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
 
-     if (Erreur%Numero /= 0) then
-       return
-     endif
+  if (Erreur%Numero /= 0) then
+   return
+  endif
 
-!==============================================================
-!      CALCUL DE L'ALGORITHME DE PARCOURS DES BIEFS
-!==============================================================)
-
-    if (Noyau == NOYAU_SARAP) then
-
+  !==============================================================
+  !      CALCUL DE L'ALGORITHME DE PARCOURS DES BIEFS
+  !==============================================================)
+  if (Noyau == NOYAU_SARAP) then
       call ALGOP                  ( &
-
                Algorithme         , &
                size(X)            , &
                NbExtNoeud         , &
@@ -1734,17 +1389,13 @@ use Fox_dom                 ! parser XML Fortran
       if (Erreur%Numero /= 0) then
         return
       endif
+   endif
 
-    endif
-
-!========================================================
-!                      LECTURE DU BARRAGE
-!========================================================
-
+   !========================================================
+   !                      LECTURE DU BARRAGE
+   !========================================================
     if (OndeSubm) then
-
       call LEC_BARRAGE      ( &
-
       Barrage               , & ! Barrage
       Connect               , & ! Connectivite du reseau
       X                     , & ! Tableau du maillage
@@ -1754,161 +1405,143 @@ use Fox_dom                 ! parser XML Fortran
       absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
       absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
       FichierListing%Unite  , & ! Unite logique fichier listing
-      document              , & ! Pointeur vers document XML
+      unitNum               , & ! Unite logique .xcas
       Erreur                  & ! Erreur
                             )
 
       if (Erreur%Numero /= 0) then
         return
       endif
-
     endif
 
-
-!=========================================================
-!                   LECTURE DES SINGULARITES
-!=========================================================
-
+    !=========================================================
+    !                   LECTURE DES SINGULARITES
+    !=========================================================
      call LEC_SING         ( &
-
-     Singularite           , & ! Pertes de charges singulieres
-     LoiHydrau             , & ! Loi hydraulique
-     Connect               , & ! Connectivite du reseau
-     X                     , & ! Maillage
-     Profil                , & ! Profils geometriques
-     ProfDebBief           , & ! Premiers profils des biefs
-     ProfFinBief           , & ! Derniers profils des biefs
-     absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
-     absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
-     Noyau                 , & ! Noyau de calcul utilise
-     UniteListing          , &
-     document              , & ! Pointeur vers document XML
-     Erreur                  & ! Erreur
-                           )
+       Singularite           , & ! Pertes de charges singulieres
+       LoiHydrau             , & ! Loi hydraulique
+       Connect               , & ! Connectivite du reseau
+       X                     , & ! Maillage
+       Profil                , & ! Profils geometriques
+       ProfDebBief           , & ! Premiers profils des biefs
+       ProfFinBief           , & ! Derniers profils des biefs
+       absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
+       absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
+       Noyau                 , & ! Noyau de calcul utilise
+       UniteListing          , &
+       unitNum               , & ! Unite logique .xcas
+       Erreur                  & ! Erreur
+                             )
 
      if (Erreur%Numero /= 0) then
        return
      endif
 
-!==============================================================
-!            LECTURE DES PERTES DE CHARGE SINGULIERES
-!==============================================================
-
+     !==============================================================
+     !            LECTURE DES PERTES DE CHARGE SINGULIERES
+     !==============================================================
      call LEC_PCSING       ( &
+       PCSing                , & ! Pertes de charges singulieres
+       X                     , & ! Tableau du maillage
+       Profil                , & ! Profils geometriques
+       ProfDebBief           , & ! Premiers profils des biefs
+       ProfFinBief           , & ! Derniers profils des biefs
+       absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
+       absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
+       FichierListing%Unite  , &
+       unitNum               , & ! Unite logique .xcas
+       Erreur                  & ! Erreur
+                             )
+     if (Erreur%Numero /= 0) then
+       return
+     endif
 
-     PCSing                , & ! Pertes de charges singulieres
-     X                     , & ! Tableau du maillage
-     Profil                , & ! Profils geometriques
-     ProfDebBief           , & ! Premiers profils des biefs
-     ProfFinBief           , & ! Derniers profils des biefs
-     absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
-     absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
-     FichierListing%Unite  , &
-     document              , & ! Pointeur vers document XML
-     Erreur                  & ! Erreur
-                           )
+    !==============================================================
+    !                      LECTURE DES DEBITS D'APPORTS
+    !==============================================================
+    call LEC_APPORT            ( &
+         Apport                , & ! Tableau des lois hydrauliques
+         Connect               , & ! Table de connectivite du reseau
+         X                     , & ! Maillage
+         LoiHydrau             , & ! Lois hydrauliques
+         Profil                , & ! Profils geometriques
+         ProfDebBief           , & ! Premiers profils des biefs
+         ProfFinBief           , & ! Derniers profils des biefs
+         absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
+         absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
+         FichierListing%Unite  , & !
+         unitNum               , & ! Unite logique .xcas
+         Erreur                  & ! Erreur
+                               )
+
+         if (Erreur%Numero /= 0) then
+           return
+         endif
+
+    !==============================================================
+    !                      LECTURE DES DEVERSOIRS
+    !==============================================================
+    call LEC_DEVER             ( &
+         Deversoir             , & ! Tableau des lois hydrauliques
+         Connect               , & ! Table de connectivite du reseau
+         X                     , & ! Maillage
+         LoiHydrau             , & ! Lois hydrauliques
+         Profil                , & ! Profils geometriques
+         ProfDebBief           , & ! Premiers profils des biefs
+         ProfFinBief           , & ! Derniers profils des biefs
+         absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
+         absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
+         FichierListing%Unite  , &
+         unitNum               , & ! Unite logique .xcas
+         Erreur                  & ! Erreur
+                               )
 
      if (Erreur%Numero /= 0) then
        return
      endif
 
-
-!==============================================================
-!                      LECTURE DES DEBITS D'APPORTS
-!==============================================================
-
-call LEC_APPORT            ( &
-
-     Apport                , & ! Tableau des lois hydrauliques
-     Connect               , & ! Table de connectivite du reseau
-     X                     , & ! Maillage
-     LoiHydrau             , & ! Lois hydrauliques
-     Profil                , & ! Profils geometriques
-     ProfDebBief           , & ! Premiers profils des biefs
-     ProfFinBief           , & ! Derniers profils des biefs
-     absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
-     absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
-     FichierListing%Unite  , & !
-     document              , & ! Pointeur vers document XML
-     Erreur                  & ! Erreur
-                           )
-
-     if (Erreur%Numero /= 0) then
-       return
-     endif
-
-!==============================================================
-!                      LECTURE DES DEVERSOIRS
-!==============================================================
-
-call LEC_DEVER             ( &
-
-     Deversoir             , & ! Tableau des lois hydrauliques
-     Connect               , & ! Table de connectivite du reseau
-     X                     , & ! Maillage
-     LoiHydrau             , & ! Lois hydrauliques
-     Profil                , & ! Profils geometriques
-     ProfDebBief           , & ! Premiers profils des biefs
-     ProfFinBief           , & ! Derniers profils des biefs
-     absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
-     absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
-     FichierListing%Unite  , &
-     document              , & ! Pointeur vers document XML
-     Erreur                  & ! Erreur
-                           )
-
-     if (Erreur%Numero /= 0) then
-       return
-     endif
-
-!==============================================================
-!                      LECTURE DES CONFLUENTS
-!==============================================================
-
-
+    !==============================================================
+    !                      LECTURE DES CONFLUENTS
+    !==============================================================
      call LEC_CONFLUENT  ( &
-
-     Confluent           , &
-     Connect             , &
-     FichierListing%Unite , &
-     Noyau               , &
-     document            , & ! Pointeur vers document XML
-     Erreur                & ! Erreur
-                         )
+       Confluent           , &
+       Connect             , &
+       FichierListing%Unite , &
+       Noyau               , &
+       unitNum               , & ! Unite logique .xcas
+       Erreur                & ! Erreur
+                           )
 
      if (Erreur%Numero /= 0) then
        return
      endif
 
 
-!==============================================================
-!    LECTURE DES ABAQUES DES PERTES DE CHARGE AUX CONFLUENTS
-!==============================================================
+    !==============================================================
+    !    LECTURE DES ABAQUES DES PERTES DE CHARGE AUX CONFLUENTS
+    !==============================================================
     call INIT_ABAQUE(Abaque)
 
-!
-!=============================================================
-!               LECTURE DES VARIABLES A SORTIR
-!=============================================================
-     VarCalc(:) = .FALSE.
-     call LEC_SORTIES    ( &
-     VarSto              , &
-     VarCalc             , &
-     document            , & ! Pointeur vers document XML
-     Erreur                & ! Erreur
-                         )
+    !=============================================================
+    !               LECTURE DES VARIABLES A SORTIR
+    !=============================================================
+    VarCalc(:) = .FALSE.
+    call LEC_SORTIES    ( &
+       VarSto              , &
+       VarCalc             , &
+       unitNum             , & ! Unite logique .xcas
+       Erreur                & ! Erreur
+                           )
 
      if (Erreur%numero /= 0) then
        return
      endif
 
+    if (OptionCasier) then
 
-  if (OptionCasier) then
-
-!=======================================================================
-!                       LECTURE DES FICHIERS CASIERS
-!=======================================================================
-
+    !=======================================================================
+    !                       LECTURE DES FICHIERS CASIERS
+    !=======================================================================
     ulc = FichierListingCasier%Unite
     if (Impression) then
       open(unit=ulc, file=FichierListingCasier%Nom, access='SEQUENTIAL', &
@@ -1923,10 +1556,6 @@ call LEC_DEVER             ( &
          return
       end if
     endif
-
-
-  !  JML Nom donne par l'interface
-  !FichierListingLiaison%Nom = MOTCAR(ADRESS(4,203))
 
     ull = FichierListingLiaison%Unite
 
@@ -1943,20 +1572,14 @@ call LEC_DEVER             ( &
          return
       end if
     endif
-  !  JML Noms donnes par l'interface
-  !FichierResultatCasier%Nom = MOTCAR(ADRESS(4,200))
-  !FichierResultatLiaison%Nom = MOTCAR(ADRESS(4,202))
-  !
-  !FichierGeomCasier%Nom = MOTCAR(ADRESS(4,204))
 
-  !========================================================================
-  !                       LECTURE DE LA VARIABLE CASIER
-  !========================================================================
-
+    !========================================================================
+    !                       LECTURE DE LA VARIABLE CASIER
+    !========================================================================
     call LEC_CASIER                  (&
                   Casier,               &
                   FichierGeomCasier,    &
-                  document,             & ! Pointeur vers document XML
+                  unitNum             , & ! Unite logique .xcas
                   Erreur    )
 
     if (Erreur%Numero /= 0) then
@@ -1972,14 +1595,11 @@ call LEC_DEVER             ( &
               call TRAITER_ERREUR  (Erreur, 'de la matrice de connection')
               return
     end if
-
     connect_casier(:,:) = 0
 
-  !========================================================================
-  !                       LECTURE DE LA VARIABLE LIAISON
-  !========================================================================
-
-
+    !========================================================================
+    !                       LECTURE DE LA VARIABLE LIAISON
+    !========================================================================
     call LEC_LIAISON         (&
                   Liaison,    &
                   connect_casier,           &
@@ -1987,21 +1607,16 @@ call LEC_DEVER             ( &
                   Profil,       &
                   ProfDebBief,              &
                   ProfFinBief,              &
-                  document,                 &  ! Pointeur vers document XML
+                  unitNum             , & ! Unite logique .xcas
                   Erreur)
 
     if (Erreur%Numero /= 0) then
           return
     end if
 
-  !==========================================================================
-  !   CALCUL DE LA MATRICE DE CONNECTION CASIER - CASIER
-  !=========================================================================
-
-
-  ! corrige 18/02/05 - prise en compte complete des liaisons multiples casier-casier
-  ! version v5p2 d'origine = 1 seule liaison prise en compte entre 2 memes casiers
-
+    !==========================================================================
+    !   CALCUL DE LA MATRICE DE CONNECTION CASIER - CASIER
+    !=========================================================================
     do icasier = 1, size(Casier)
 
       ! on compte le nombre de liaisons casier - casier relie a icasier
@@ -2056,11 +1671,8 @@ call LEC_DEVER             ( &
                 end if
             end select
           end do
-
         end if
-
       end do
-
     end do
 
     !==========================================================================
@@ -2105,14 +1717,11 @@ call LEC_DEVER             ( &
   !========================================================================
   !                       LECTURE DE LA VARIABLE APPORTPLUIE
   !========================================================================
- !  write(12,*)'DEbut LEC_APPORT_PLUIE'
-
-
     call LEC_APPORT_PLUIE          (&
                    ApportPluie,       &
                    size(Casier),      &
                    LoiHydrau,         &
-                   document,          & ! Pointeur vers document XML
+                   unitNum             , & ! Unite logique .xcas
                    ulc,&
                    Erreur)
 
@@ -2343,11 +1952,7 @@ call LEC_DEVER             ( &
       endif
   end if
 
-  !Erreur%arbredappel = !arbredappel_old
-!     write(12,*)'Fin Pretrait'
-
-   call destroy(document)
-   call destroy(config)
+  close(unitNum)
 
   return
 
@@ -2363,11 +1968,8 @@ call LEC_DEVER             ( &
                &  '-------------------',/)
   10010 format ('Noyau de calcul utilise                         : ',A8)
   10020 format ('Nom du fichier des mots-cles                    : ',A)
-  10025 format ('Nom du fichier du dictionnaire                  : ',A)
   10030 format ('Nom du fichier du programme principal           : ',A)
   10035 format ('Nom du fichier des bibliotheques                : ',A)
-  10037 format ('Sauvegarde du modele                            : ',A)
-  10040 format ('Nom du fichier de sauvegarde du modele          : ',A)
   10044 format ('Presence de casier                              : ',A)
   10045 format ('Calcul auto des pertes de charge aux confluents : ',A)
   10046 format ('Perte automatique aux elargissements transcritique : ',A)
@@ -2396,10 +1998,6 @@ call LEC_DEVER             ( &
   10190 format ('Duree maximale du calcul               : ',f12.1)
   10200 format ('Pas de temps variable                  : ',A3)
   10210 format ('Nombre de Courant objectif             : ',f12.3)
-
-  10220 format (/,'CRAY',/, &
-               &  '----',/)
-  10230 format ('Utilisation du Cray                    : ',A3)
 
   10300 format (/,'IMPRESSION-RESULTATS',/, &
                &  '--------------------',/)
@@ -2430,13 +2028,6 @@ call LEC_DEVER             ( &
 
   10560 format (/,'CONDITIONS INITIALES',/, &
                &  '--------------------',/)
-  10570 format ('Reprise de calcul                        : ',A3)
-  10580 format ('Fichier de reprise en lecture            : ',A)
-
-  10590 format (/,'Presence d''une ligne d''eau initiale     : ',A3)
-  10600 format ('Mode d''entree de la ligne d''eau         : ',A)
-  10610 format ('Nom du fichier de la ligne d''eau        : ',A)
-  10620 format ('Format du fichier de la ligne d''eau     : ',A)
 
 
 

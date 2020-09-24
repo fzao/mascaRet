@@ -22,7 +22,7 @@ CONTAINS
     USE M_PRECISION
 ! LOI_FROTTEMENT_STRICKLER
     USE M_CONSTANTES_CALCUL_C
-! GPES, W23, 
+! GPES, W23,
     USE M_PARAMETRE_C
 ! Definition du type Erreur
     USE M_ERREUR_T
@@ -47,7 +47,6 @@ CONTAINS
 !character(132) :: !arbredappel_old ! arbre d'appel precedent
 ! Constantes
 !-----------
-    DOUBLE PRECISION, SAVE :: w58=0.625
     INTRINSIC DSQRT
     INTRINSIC DLOG10
     INTEGER :: branch
@@ -67,29 +66,29 @@ CONTAINS
     IF (rh1 .EQ. 0._DOUBLE) THEN
       rh1b = 0.D0
     ELSE
-      SELECT CASE  (loifrottement) 
-      CASE (loi_frottement_strickler) 
+      SELECT CASE  (loifrottement)
+      CASE (loi_frottement_strickler)
 !----------------------------------------------------
 ! Strickler fixe
 !----------------------------------------------------
         chezy = cf1*rh1**w16
         CALL PUSHCONTROL3B(1)
-      CASE (loi_frottement_chezy) 
+      CASE (loi_frottement_chezy)
 !----------
 ! Chezy fixe
 !----------
         chezy = cf1
         CALL PUSHCONTROL3B(2)
-      CASE (loi_frottement_colebrook) 
+      CASE (loi_frottement_colebrook)
 !----------------------------------------------------
 ! COLEBROOK   x(alpha[ks])
 !----------------------------------------------------
         chezy = 2._DOUBLE*(0.190_DOUBLE*cf1+0.972_DOUBLE)*DSQRT(&
 &         8._DOUBLE*gpes)*DLOG10(12._DOUBLE*rh1/cf1)
         CALL PUSHCONTROL3B(3)
-      CASE (loi_frottement_bazin) 
-!----------------------------------------------------	
-! BAZIN   Chezy(i) en fonction de RH et mb (fixe)  
+      CASE (loi_frottement_bazin)
+!----------------------------------------------------
+! BAZIN   Chezy(i) en fonction de RH et mb (fixe)
 !----------------------------------------------------
         chezy = 45._DOUBLE/(1._DOUBLE+cf1/rh1)
         CALL PUSHCONTROL3B(4)

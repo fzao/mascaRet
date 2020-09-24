@@ -200,7 +200,7 @@ contains
     end function GET_TYPE_VAR_SAUVE
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -219,7 +219,7 @@ contains
       taille2                = 0
       taille3                = 0
       MessageErreur          = ""
-      
+
       if ( index(NomVar, 'State.Save.H2OTBS') > 0) then
          if (ASSOCIATED(Instance%H2OTBS)) then
             taille1 = size(Instance%H2OTBS)
@@ -350,7 +350,7 @@ contains
    end function GET_TAILLE_VAR_SAUVE
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -627,7 +627,7 @@ contains
    end function SET_TAILLE_VAR_SAUVE
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -767,8 +767,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_SAUVE = 0
       MessageErreur          = ""
       err             = 0
@@ -937,10 +935,6 @@ contains
       type(SAUVE_T),          intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_SAUVE = 0
       MessageErreur          = ""
 

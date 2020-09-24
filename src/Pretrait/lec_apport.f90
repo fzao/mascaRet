@@ -27,7 +27,7 @@ subroutine LEC_APPORT ( &
      AbscRelExtDebBief, & ! Abscisse rel de l'extremite debut du bief
      AbscRelExtFinBief, & ! Abscisse rem de l'extremite debut du bief
      UniteListing     , & ! Unite logique fichier listing
-     document         , & ! Pointeur vers document XML
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 
@@ -51,7 +51,7 @@ subroutine LEC_APPORT ( &
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -66,7 +66,7 @@ subroutine LEC_APPORT ( &
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document      
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    real(DOUBLE) :: abs_abs     ! abscisse absolue de l'apport
@@ -76,9 +76,10 @@ subroutine LEC_APPORT ( &
    integer      :: retour       ! code de retour des fonctions intrinseques
    integer      :: num_branche  ! numero de branche du deversoir
    integer      :: num_loi      ! numero de loi
-   type(Node), pointer :: champ1,champ2,champ3,champ4
    integer, allocatable :: itab1(:),itab2(:)
    real(double), allocatable :: rtab1(:),rtab2(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -90,24 +91,14 @@ subroutine LEC_APPORT ( &
    !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>LEC_APPORT'
 
    if (UniteListing >0) write(UniteListing,10000)
-
-   champ1 => item(getElementsByTagname(document, "parametresApportDeversoirs"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresApportDeversoirs"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "debitsApports"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresApportDeversoirs/debitsApports'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
        nb_apport = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nbQApport"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => nbQApport"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,nb_apport)
+       pathNode = 'parametresApportDeversoirs/debitsApports/nbQApport'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nb_apport
        if( nb_apport < 0 ) then
           Erreur%Numero = 306
           Erreur%ft     = err_306
@@ -161,52 +152,34 @@ subroutine LEC_APPORT ( &
           Erreur%ft_c   = err_5c
           call TRAITER_ERREUR( Erreur , 'rtab2' )
           return
-      end if 
-      
-      champ3 => item(getElementsByTagname(champ2, "numBranche"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numBranche"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab1)
-      champ3 => item(getElementsByTagname(champ2, "numLoi"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numLoi"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab2)
-      champ3 => item(getElementsByTagname(champ2, "abscisses"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => abscisses"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab1)
-      champ3 => item(getElementsByTagname(champ2, "longueurs"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => longueurs"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab2)
-      
+      end if
+
+      pathNode = 'parametresApportDeversoirs/debitsApports/numBranche'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab1
+
+      pathNode = 'parametresApportDeversoirs/debitsApports/numLoi'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab2
+
+      pathNode = 'parametresApportDeversoirs/debitsApports/abscisses'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab1
+
+      pathNode = 'parametresApportDeversoirs/debitsApports/longueurs'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab2
+
       do iapp = 1 , nb_apport
 
-         champ3 => item(getElementsByTagname(champ2, "noms"), 0)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => noms"
-            call xerror(Erreur)
-            return
-         endif
-         champ4 => item(getElementsByTagname(champ2, "string"), iapp-1)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => string"
-            call xerror(Erreur)
-            return
-         endif
-         Apport(iapp)%Nom = getTextContent(champ4)
+         if(iapp.eq.1) then
+           pathNode = 'parametresApportDeversoirs/debitsApports/noms/string'
+           Apport(iapp)%Nom = xcasReader(unitNum, pathNode)
+        else
+          pathNode = 'string'
+          Apport(iapp)%Nom = xcasReader(unitNum, pathNode, 0)
+        endif
+
          if (UniteListing >0) write(UniteListing,10020) iapp , Apport(iapp)%Nom
          Apport(iapp)%NumBranche = itab1(iapp)
          num_branche              = Apport(iapp)%NumBranche
@@ -330,7 +303,7 @@ subroutine LEC_APPORT ( &
       deallocate(itab2)
       deallocate(rtab1)
       deallocate(rtab2)
-      
+
       !----------------
       ! Si pas d'apport
       !----------------
@@ -358,21 +331,21 @@ subroutine LEC_APPORT ( &
    10040 format ('Numero loi : ',i3)
 
   contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror   
-   
+
+   end subroutine xerror
+
 end subroutine LEC_APPORT

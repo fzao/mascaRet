@@ -43,7 +43,7 @@ subroutine CALCUL( &
           CSING,DSING , &
           OptionCasier, & ! Presence de casiers
           Aliai,Bliai , & ! Coefficients de l'equation discretisee d'une liaison
-          Cliai,Dliai , & 
+          Cliai,Dliai , &
           Qliai       , &
           ApportPluie , &
           Liaison     , &
@@ -122,14 +122,13 @@ subroutine CALCUL( &
    type(CONNECT_T)             , intent(in)    :: Connect             ! Table de connectivite du reseau
    type(REZOMAT_T)             , intent(inout) :: Matrice             ! Matrice du reseau
    type(LIAISON_T), dimension(:), intent(inout) :: Liaison
-   type(CASIER_T) , dimension(:), intent(inout) :: Casier 
+   type(CASIER_T) , dimension(:), intent(inout) :: Casier
    type(APPORT_PLUIE_T), dimension(:), intent(in   ) :: ApportPluie
    !
    ! Variables locales ..
    !
    integer i,j,k,jj,f,iliaison                    ! Indices de boucle
    integer kl,ku                                  ! Demi-largeurs de bande
-   integer info                                   ! Info code retour de DGBSV
    integer nval,nrow                              ! Indices de remplissage
    integer ori,ext                                ! Origine et extremite des biefs
    integer nbBief                                 ! Nombre de biefs
@@ -157,7 +156,7 @@ subroutine CALCUL( &
    real(DOUBLE) :: WQ, WQ1, WQ2, WQ3, WQ4, WQ5
    real(DOUBLE) :: WRI, WRJ, WSI, WSJ
    real(DOUBLE) :: WST1I, WST1J, WST2I, WST2J
-   real(DOUBLE) :: AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP,DELTA
+   real(DOUBLE) :: AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP
    real(DOUBLE) :: CQMVI                 ! Constante pour la prise en compte du terme Quantite de Mouvement pour les apports
    real(DOUBLE) :: HI,HJ,FRI,FRJ,FR,CFR  ! Pour l'attenuation de la convection
    real(DOUBLE) , parameter :: theta = 1.D0  ! Coefficient d'implicitation des l'equation de continuite des casiers. 1.0 => Full Implicite
@@ -184,13 +183,13 @@ subroutine CALCUL( &
 
    !
    ! prise en compte de l'apport de debit dans la qte de mvt
-   ! 
-   if( CQMV.EQ.0 ) then 
+   !
+   if( CQMV.EQ.0 ) then
       CQMVI = 0.D0
-   else 
+   else
       CQMVI = 1.D0
    endif
-   
+
    !
    ! Resolution d'un pas de temps : boucle sur les biefs du reseau
    !
@@ -275,20 +274,20 @@ subroutine CALCUL( &
                   AP = 0._DOUBLE
                endif
             endif
-            
-         elseif ( Matrice%SecLiai(j).gt.0 ) then 
-            AK = Q(i) - Q(j)          
+
+         elseif ( Matrice%SecLiai(j).gt.0 ) then
+            AK = Q(i) - Q(j)
             AP = Z(i) - Z(j)
-            do iliaison = 1, size(Matrice%LiaiSec)     
+            do iliaison = 1, size(Matrice%LiaiSec)
                 if ( Matrice%LiaiSec(iliaison) == j ) then
                     AK = AK + Qliai(iliaison)
                 endif
             enddo
 
          else
-         
+
              !
-             ! Determination des macro-coefficients de l'equation de continuite : AG,AH,AI,AJ,AK 
+             ! Determination des macro-coefficients de l'equation de continuite : AG,AH,AI,AJ,AK
              !
              PX =  X(I) - X(J)
              B1I  = B1(I)
@@ -347,7 +346,7 @@ subroutine CALCUL( &
              AK = Q(J) - Q(I) + QINJEC(I)
 
              !
-             ! Determination des macro-coefficients de l'equation de quantite de mouvement : AL,AM,AN,AO,AP 
+             ! Determination des macro-coefficients de l'equation de quantite de mouvement : AL,AM,AN,AO,AP
              !
 
              WB1   = ( SIGN( Q(I)**2 , Q(I)) + SIGN(Q(J)**2 , Q(J) ) ) / 2._DOUBLE
@@ -478,7 +477,7 @@ subroutine CALCUL( &
                 ! Coefficient de relaxation : formule heuristique (RME)
                 CFR = DMAX1(0._DOUBLE,1._DOUBLE-FR**2._DOUBLE)
 
-                ! Relaxation des termes 
+                ! Relaxation des termes
                 WF1 = WF1 * CFR
                 WF2 = WF2 * CFR
                 WF3 = WF3 * CFR
@@ -566,9 +565,9 @@ subroutine CALCUL( &
                 nval = nval + 1
                 Matrice%valA(nval) = AM
              endif
-             
+
           elseif ( Matrice%SecLiai(j).gt.0 ) then ! La section est reliee a une liaison
-        
+
             ! Conservation du debit
             nval = nval + 1
             Matrice%valA(nval) = + 1._DOUBLE
@@ -580,15 +579,15 @@ subroutine CALCUL( &
                     Matrice%ValA(nval) = - 1._DOUBLE
                 endif
             enddo
-            
+
             ! Egalite des cotes
             nval = nval + 1
             Matrice%valA(nval) = + 1._DOUBLE
             nval = nval + 1
             Matrice%valA(nval) = - 1._DOUBLE
-               
+
          endif
-             
+
          nrow = nrow + 1
 
       end do PASS2 ! fin de boucle sur les sections
@@ -633,10 +632,10 @@ subroutine CALCUL( &
 
    endif
 
-   if( OptionCasier ) then   
+   if( OptionCasier ) then
         !
         ! Liaisons
-        ! 
+        !
         do i = 1, size(Matrice%LiaiSec)
             nrow            = nrow + 1
             nval                = nval + 1
@@ -646,7 +645,7 @@ subroutine CALCUL( &
             nval                = nval + 1
             Matrice%valA(nval)  = Cliai(i)
             Matrice%b(nrow)     = Dliai(i)
-        enddo    
+        enddo
 
         !
         ! Casiers
@@ -668,7 +667,7 @@ subroutine CALCUL( &
             do j = 1, size(Casier(i)%LiaisonRC(:,1))
                 nval                = nval + 1
                 Matrice%valA(nval)  = - theta
-                Matrice%b(nrow)     = Matrice%b(nrow) + Qliai( Casier(i)%LiaisonRC(j,1) )  
+                Matrice%b(nrow)     = Matrice%b(nrow) + Qliai( Casier(i)%LiaisonRC(j,1) )
             enddo
 
             do j = 1, size(Casier(i)%LiaisonCC(:,1))    ! Le signe change en fonction de Camont/Caval
@@ -684,12 +683,12 @@ subroutine CALCUL( &
             enddo
         enddo
    endif
-      
+
    !
    ! Resolution du systeme lineaire
    !
    if(Matrice%SOLV.eq.2) then ! => Y12M
-   
+
       Matrice%snr(1:Matrice%NNZ) = Matrice%colA(1:Matrice%NNZ)
       Matrice%rnr(1:Matrice%NNZ) = Matrice%rowA(1:Matrice%NNZ)
 
@@ -702,10 +701,10 @@ subroutine CALCUL( &
          return
       endif
 
-      if( OptionCasier.eqv..false. ) then 
+      if( OptionCasier.eqv..false. ) then
         Matrice%iflag(4) = 2
       endif
-      
+
    else ! => LAPACK
 
      KL = Matrice%KL
@@ -723,7 +722,7 @@ subroutine CALCUL( &
          return
      endif
 
-   endif  
+   endif
 
    !
    ! Mise a jour de la solution sur la riviere
@@ -750,13 +749,13 @@ subroutine CALCUL( &
             if( abs(Liaison(I)%DebitEchange) .GT.EPS6 ) then
                 Liaison(I)%VitesseEchange = Liaison(I)%DebitEchange / ( Liaison(I)%Largeur * &
                                           ( Liaison(I)%CoteMoyenne - Liaison(I)%Cote ) )
-            end if    
+            end if
        enddo
 
        do I = 1, size(casier)
             ! calcul de la cote :
-            Casier(I)%Cote = Casier(I)%Cote + Matrice%b( Matrice%noVarDZC(I) ) 
-            ! Surface et volume :            
+            Casier(I)%Cote = Casier(I)%Cote + Matrice%b( Matrice%noVarDZC(I) )
+            ! Surface et volume :
             if( Casier(I)%Cote - Casier(I)%CoteFond < EPS6 ) then
                 Casier(I)%Cote = Casier(I)%CoteFond
                 Casier(I)%Surface = Casier(I)%Loi_Z_S(1,2)

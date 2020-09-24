@@ -119,7 +119,7 @@ module M_LIAISONRC_T
     end function GET_TYPE_VAR_LIAISONRC
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -173,7 +173,7 @@ module M_LIAISONRC_T
    end function GET_TAILLE_VAR_LIAISONRC
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -194,7 +194,7 @@ module M_LIAISONRC_T
    end function SET_TAILLE_VAR_LIAISONRC
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -328,10 +328,6 @@ module M_LIAISONRC_T
       type(LIAISONRC_T),      intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_LIAISONRC = 0
       MessageErreur          = ""
 
@@ -348,10 +344,6 @@ module M_LIAISONRC_T
       type(LIAISONRC_T),      intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_LIAISONRC = 0
       MessageErreur          = ""
 

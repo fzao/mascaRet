@@ -137,7 +137,7 @@ subroutine  PRETRAIT                                       ( &
    use M_LEC_LIAISON_I         ! interface du sous-programme Lec_Liaison
    use M_LEC_APPORT_PLUIE_I    ! interface du sous-programme Lec_Apport_Pluie
    use M_CONSTANTES_CASIER_C   ! constantes de calcul propres a CASIER
-   use Fox_dom                 ! parser XML Fortran
+   use M_XCAS_S
 
    !.. Implicit Declarations ..
    implicit none
@@ -229,8 +229,6 @@ subroutine  PRETRAIT                                       ( &
    integer                                        :: format_ligne
    type(ZONE_SECHE_T), dimension(:), pointer      :: ZoneSeche
    type(ZONE_FROT_T) , dimension(:), pointer      :: ZoneFrot
-   ! Utilisation Cray
-   logical                                        :: UtilisationCray
    ! Impressions - resultats
    character(LEN=255), intent(  out) :: TitreCas
    logical                                       :: impression_geo
@@ -298,8 +296,6 @@ subroutine  PRETRAIT                                       ( &
    type(ERREUR_T)                   , intent(inout) :: Erreur
    ! SCALAIRES LOCAUX
    ! ----------------
-   character(LEN=72) :: NOMDIC
-   logical           :: impression_doc
    integer           :: iext            ! compteur sur les extremites libres
    integer           :: iprof           ! Compteur sur les profils
    integer           :: iprof_inf       ! borne inf de boucle
@@ -316,21 +312,18 @@ subroutine  PRETRAIT                                       ( &
    real(DOUBLE) :: Abs_rel_controle
    real(DOUBLE) :: Abs_abs_controle
    integer      :: Bief_controle
-   integer        :: nb_casier, num_liaison, iliaison, icasier, ull, ulc
+   integer        ::  iliaison, icasier, ull, ulc
    integer        :: num_casier_origine, num_casier_fin, ilcc, nb_liaisonCC, nb_liaisonRC, jcasier
    integer, dimension(:,:), allocatable :: connect_casier
    integer        :: i,j,Nbcrue,max_nba
    integer, allocatable      :: itab(:)
    real(double), allocatable :: rtab(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
+   character(len=256)  :: xcasFile
+   integer             :: unitNum
    ! Erreur
    !character(132)    :: !arbredappel_old
-
-   ! FoX XML
-   !--------
-   type(Node), pointer :: document,element,champ1,champ2,champ3,champ4,champ5
-   type(DOMconfiguration), pointer :: config
-   type(DOMException) :: ex
-   integer :: ios
 
    !========================== Instructions =============================
    ! INITIALISATION
@@ -343,39 +336,22 @@ subroutine  PRETRAIT                                       ( &
    !
    nullify(CF1)
 
-   ! FoX : initialisation
-   !---------------------
-   config => newDOMConfig()
-   call setParameter(config, "xml-declaration", .false.)
-   call setParameter(config, "validate-if-schema", .true.)
-   document => parseFile(FichierMotCle%Nom,config,iostat=ios,ex=ex)
-   if (inException(ex).or.ios.ne.0) then
-       print*,"Parse error", getExceptionCode(ex)
-       call xerror(Erreur)
-       return
-   endif
-   element => getDocumentElement(document)
-   !print *, 'element principal = ',getLocalName(element)
+   ! Open .xcas file
+   unitNum = FichierMotCle%Unite
+   xcasFile = FichierMotCle%Nom
+   open(unit=unitNum, file=xcasFile, status="old", action="read", iostat=retour)
+   if(retour.ne.0) then
+    erreur%numero = 3
+      erreur%ft     = err_3
+      erreur%ft_c   = err_3c
+      call traiter_erreur(erreur, xcasFile)
+      return
+   end if
 
-   champ1 => item(getElementsByTagname(document, "parametresImpressionResultats"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresImpressionResultats"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "listing"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => listing"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "fichListing"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => fichListing"
-       call xerror(Erreur)
-       return
-   endif
-   FichierListing%Nom = getTextContent(champ3)
+   ! Read the listing file name
+   pathNode = 'parametresImpressionResultats/listing/fichListing'
+   line = xcasReader(unitNum, pathNode)
+   FichierListing%Nom = line
    !========================================================================
    !                       LECTURE DES PARAMETRES GENERAUX
    !========================================================================
@@ -396,26 +372,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Version du code
    !----------------
-   champ1 => item(getElementsByTagName(document, "parametresGeneraux"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresGeneraux"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "versionCode"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => versionCode"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,VersionCode)
-   if( VersionCode > 3 ) then
-      Erreur%Numero = 300
-      Erreur%ft     = err_300
-      Erreur%ft_c   = err_300c
-      call TRAITER_ERREUR( Erreur )
-      return
-   end if
+   pathNode = 'parametresGeneraux/versionCode'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) VersionCode
 
    call DATE_S(chaine_date)
 
@@ -435,13 +394,10 @@ subroutine  PRETRAIT                                       ( &
 
    ! Noyau SARAP/REZO/MASCARET
    !--------------------------
-   champ2 => item(getElementsByTagname(champ1, "code"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => code"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Noyau)
+   pathNode = 'parametresGeneraux/code'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Noyau
+
    if( Noyau == NOYAU_SARAP ) then
       Regime = REGIME_PERMANENT
    else if( Noyau == NOYAU_MASCARET .or. Noyau == NOYAU_REZODT ) then
@@ -467,48 +423,31 @@ subroutine  PRETRAIT                                       ( &
 
    ! Fichier Fortran
    !----------------
-   champ2 => item(getElementsByTagname(champ1, "progPrincipal"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => progPrincipal"
-       call xerror(Erreur)
-       return
-   endif
-   nom_fortran = getTextContent(champ2)
+   pathNode = 'parametresGeneraux/progPrincipal'
+   nom_fortran = xcasReader(unitNum, pathNode)
+
    write(UniteListing,10030) trim(nom_fortran)
 
    ! Nom du fichier des bibliotheques
    !---------------------------------
-   champ2 => item(getElementsByTagname(champ1, "bibliotheques"), 0)
-   if(associated(champ2).neqv..false.) then
-      champ3 => item(getElementsByTagname(champ2, "bibliotheque"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => bibliotheque"
-         call xerror(Erreur)
-         return
-      endif
-      nom_bibli = getTextContent(champ3)
-      write(UniteListing,10035) trim(nom_bibli)
+   pathNode = 'parametresGeneraux/bibliotheques'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).ne.0) then
+     pathNode = 'parametresGeneraux/bibliotheques/bibliotheque'
+     nom_bibli = xcasReader(unitNum, pathNode)
+     write(UniteListing,10035) trim(nom_bibli)
    endif
 
    ! Sauvegarde du modele
    !---------------------
-   champ2 => item(getElementsByTagname(champ1, "sauveModele"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => sauveModele"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,sauvegarde_modele)
+   pathNode = 'parametresGeneraux/sauveModele'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) sauvegarde_modele
+
    if( sauvegarde_modele ) then
       write(UniteListing,10037) 'OUI'
-      ! Nom du fichier de sauvegarde du modele
-      champ2 => item(getElementsByTagname(champ1, "fichSauvModele"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => fichSauvModele"
-         call xerror(Erreur)
-         return
-      endif
-      FichierModele%Nom = getTextContent(champ2)
+      pathNode = 'parametresGeneraux/fichSauvModele'
+      FichierModele%Nom = xcasReader(unitNum, pathNode)
       write(UniteListing,10040) trim(FichierModele%Nom)
    else
       write(UniteListing,10037) 'NON'
@@ -516,66 +455,40 @@ subroutine  PRETRAIT                                       ( &
 
    ! Presence de Casiers (implique un couplage LIDO-CASIER)
    ! ------------------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "presenceCasiers"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => presenceCasiers"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,OptionCasier)
+   pathNode = 'parametresGeneraux/presenceCasiers'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) OptionCasier
    if( OptionCasier ) then
       write(UniteListing, 10044) 'OUI'
    else
       write(UniteListing, 10044) 'NON'
    endif
 
-   ! MS2018 : Courlis integration
    ! Courlis Coupling (implies a MASCARET-COURLIS coupling)
    ! ------------------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "optionCourlis"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresGeneraux/optionCourlis'
+   line = xcasReader(unitNum, pathNode)
+
+   if(len(trim(line)).eq.0) then  ! avoid direct comparison
      optionCourlis = .false.
    else
-     call extractDataContent(champ2,OptionCourlis)
-     write(*,*) OptionCourlis
+     read(unit=line, fmt=*) OptionCourlis
      if( OptionCourlis ) then
        write(UniteListing, 10047) 'OUI'
      else
        write(UniteListing, 10047) 'NON'
      endif
-     champ2 => item(getElementsByTagname(champ1, "fichierMotCleCourlis"), 0)
-     if(associated(champ2).eqv..false.) then
-       print*,"Parse error => fichierMotCleCourlis"
-       call xerror(Erreur)
-       return
-     endif
-     FichierMotCleCourlis%Nom  = getTextContent(champ2)
-     write(*,*) FichierMotCleCourlis%Nom
-     champ2 => item(getElementsByTagname(champ1, "dictionaireCourlis"), 0)
-     if(associated(champ2).eqv..false.) then
-       print*,"Parse error => dictionaireCourlis"
-       call xerror(Erreur)
-       return
-     endif
-     FichierDicoCourlis%Nom  = getTextContent(champ2)
-     ! Fin MS2018
+     pathNode = 'parametresGeneraux/fichierMotCleCourlis'
+     FichierMotCleCourlis%Nom = xcasReader(unitNum, pathNode)
+     pathNode = 'parametresGeneraux/dictionaireCourlis'
+     FichierDicoCourlis%Nom = xcasReader(unitNum, pathNode)
    endif
 
    ! Perte de charge automatique due aux confluents
    ! ----------------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresModelePhysique"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "perteChargeConf"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => perteChargeConf"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,PerteChargeConfluent)
+   pathNode = 'parametresModelePhysique/perteChargeConf'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PerteChargeConfluent
    if( PerteChargeConfluent ) then
       write(UniteListing,10045) 'OUI'
    else
@@ -584,19 +497,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Perte de charge automatique due aux elargissements
    ! --------------------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresNumeriques"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresNumeriques"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "perteChargeAutoElargissement"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => perteChargeAutoElargissement"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,PerteElargissementTrans)
+   pathNode = 'parametresNumeriques/perteChargeAutoElargissement'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PerteElargissementTrans
    if( PerteElargissementTrans ) then
       write(UniteListing,10046) 'OUI'
    else
@@ -605,13 +508,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Calcul d'une onde de submersion
    !--------------------------------
-   champ2 => item(getElementsByTagname(champ1, "calcOndeSubmersion"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => calcOndeSubmersion"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,OndeSubm)
+   pathNode = 'parametresNumeriques/calcOndeSubmersion'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) OndeSubm
    if( OndeSubm .and. Noyau == NOYAU_SARAP ) then
       Erreur%Numero = 301
       Erreur%ft     = err_301
@@ -625,65 +524,37 @@ subroutine  PRETRAIT                                       ( &
    !
    ! Modelisation de type Boussinesq
    ! -------------------------------
-   champ2 => item(getElementsByTagname(champ1, "termesNonHydrostatiques"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => termesNonHydrostatiques"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Boussinesq)
-
+   pathNode = 'parametresNumeriques/termesNonHydrostatiques'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Boussinesq
    !
    ! Empechement du torrentiel pour REZO
    ! -----------------------------------
-   champ2 => item(getElementsByTagname(champ1, "attenuationConvection"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => attenuationConvection"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,NoConvection)
+   pathNode = 'parametresNumeriques/attenuationConvection'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NoConvection
 
    !
    ! Apport de debit dans la quantite de mvt
    ! -------------------------------
-   champ2 => item(getElementsByTagname(champ1, "apportDebit"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => apportDebit"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,cqmv)
-
+   pathNode = 'parametresNumeriques/apportDebit'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) cqmv
    ! Calcul de validation
    !---------------------
-   champ1 => item(getElementsByTagName(document, "parametresGeneraux"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresGeneraux"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "validationCode"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => validationCode"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,CalculValidation)
+   pathNode = 'parametresGeneraux/validationCode'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) CalculValidation
    if( CalculValidation ) then
       write(UniteListing,10060)
    endif
 
    ! Type de validation
    !-------------------
-   champ2 => item(getElementsByTagname(champ1, "typeValidation"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => typeValidation"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,TypeValidation)
-   if( CalculValidation ) then
+   pathNode = 'parametresGeneraux/typeValidation'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) typeValidation
+   if( typeValidation.ne.0 ) then
       write(UniteListing,10070) TypeValidation
    endif
 
@@ -694,19 +565,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Modelisation du lit (Debord/Fond-Berge)
    !----------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresModelePhysique"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "compositionLits"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => compositionLits"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,ModeleLit)
+   pathNode = 'parametresModelePhysique/compositionLits'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ModeleLit
 
    if( ModeleLit.lt.0.or.ModeleLit.gt.2 ) then
       Erreur%Numero = 305
@@ -726,13 +587,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Conservation du frottement sur les parois verticales
    !-----------------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "conservFrotVertical"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => conservFrotVertical"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,FrottParoiVerticale)
+   pathNode = 'parametresModelePhysique/conservFrotVertical'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) FrottParoiVerticale
    if( FrottParoiVerticale ) then
       write(UniteListing,10090) 'OUI'
    else
@@ -741,19 +598,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Debordement progressif dans le lit majeur
    !------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "debordement"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => debordement"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "litMajeur"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => litMajeur"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,DebProgressifLM)
+   pathNode = 'parametresModelePhysique/debordement/litMajeur'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) DebProgressifLM
    if( DebProgressifLM ) then
       write(UniteListing,10100) 'OUI'
    else
@@ -762,13 +609,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Debordement progressif dans les zones de stockage
    !--------------------------------------------------
-   champ3 => item(getElementsByTagname(champ2, "zoneStock"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => zoneStock"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,DebProgressifZS)
+   pathNode = 'parametresModelePhysique/debordement/zoneStock'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) DebProgressifZS
    if( DebProgressifZS ) then
       write(UniteListing,10110) 'OUI'
    else
@@ -777,41 +620,23 @@ subroutine  PRETRAIT                                       ( &
 
    ! Elevation de la cote signalant l'arrivee du front
    !--------------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "elevCoteArrivFront"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => elevCoteArrivFront"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,DZArriveeFront)
+   pathNode = 'parametresModelePhysique/elevCoteArrivFront'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) DZArriveeFront
    write(UniteListing,10115) DZArriveeFront
 
    ! Froude Limite pour les conditions aux limites
    !----------------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresNumeriques"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresNumeriques"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "froudeLimCondLim"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => froudeLimCondLim"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,FroudeLim)
+   pathNode = 'parametresNumeriques/froudeLimCondLim'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) FroudeLim
    write(UniteListing,10120) FroudeLim
 
    ! Traitement du frottement
    !-------------------------
-   champ2 => item(getElementsByTagname(champ1, "traitImplicitFrot"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => traitImplicitFrot"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,FrottementImplicite)
+   pathNode = 'parametresNumeriques/traitImplicitFrot'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) FrottementImplicite
    if( FrottementImplicite ) then
       write(UniteListing,10130) 'IMPLICITATION DU FROTTEMENT'
    else
@@ -820,13 +645,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Implicitation du noyau transcritique
    !-------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "implicitNoyauTrans"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => implicitNoyauTrans"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Impli_Trans)
+   pathNode = 'parametresNumeriques/implicitNoyauTrans'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Impli_Trans
    if( Impli_Trans )  then
       write(UniteListing,10136) 'IMPLICITATION DU SOLVEUR '
    else
@@ -835,43 +656,25 @@ subroutine  PRETRAIT                                       ( &
 
    ! Optimisation du temps calcul (flux figes)
    !------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "optimisNoyauTrans"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => optimisNoyauTrans"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Opt)
+   pathNode = 'parametresNumeriques/optimisNoyauTrans'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Opt
    if( opt ) then
       write(UniteListing,10136) 'OPTIMISATION DU TEMPS CALCUL (FLUX FIGES)'
    endif
 
    ! Hauteur d'eau minimale
    ! ----------------------
-   champ2 => item(getElementsByTagname(champ1, "hauteurEauMini"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => hauteurEauMini"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,HEPS)
+   pathNode = 'parametresNumeriques/hauteurEauMini'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) HEPS
 
    ! Interpolation lineaire du coefficient de Frottement
    ! par rapport aux profils
    !---------------------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresModelePhysique"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresModelePhysique"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "interpolLinStrickler"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => interpolLinStrickler"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,InterpLinCoeffFrott)
+   pathNode = 'parametresModelePhysique/interpolLinStrickler'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) InterpLinCoeffFrott
    if( InterpLinCoeffFrott ) then
       write(UniteListing,10135) 'OUI'
    else
@@ -881,101 +684,48 @@ subroutine  PRETRAIT                                       ( &
    ! Les profils sont definies en abscisse absolue
    ! sur le reseau
    !---------------------------------------------------
-   champ1 => item(getElementsByTagName(document, "parametresGeometrieReseau"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresGeometrieReseau"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "geometrie"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => geometrie"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "profilsAbscAbsolu"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => profilsAbscAbsolu"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,Prof_Abs)
+   pathNode = 'parametresGeometrieReseau/geometrie/profilsAbscAbsolu'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Prof_Abs
 
 !TAPENADE--
    !=============================================================
    !      DONNEES POUR LE CALAGE AUTOMATIQUE DU STRICKLER
    !=============================================================
-   champ1 => item(getElementsByTagName(document, "parametresCalageAuto"), 0)
-   if(associated(champ1).eqv..false.) then
+   pathNode = 'parametresCalageAuto'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
        Option_Calage = .false.
    else
-      champ2 => item(getElementsByTagname(champ1, "parametres"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => parametres"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "modeCalageAuto"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => modeCalageAuto"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Option_Calage)
+      pathNode = 'parametresCalageAuto/parametres/modeCalageAuto'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Option_Calage
    endif
 
    if( Option_Calage ) then
       ! Parametres generaux
-      champ3 => item(getElementsByTagname(champ2, "nomFichResult"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nomFichResult"
-         call xerror(Erreur)
-         return
-      endif
-      FichierResultatCalage%nom = getTextContent(champ3)
-      champ3 => item(getElementsByTagname(champ2, "nomFichListing"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nomFichListing"
-         call xerror(Erreur)
-         return
-      endif
-      FichierResultat1Calage%nom = getTextContent(champ3)
-      champ3 => item(getElementsByTagname(champ2, "typeLit"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => typeLit"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Calage_constantes%IESTIM)
-      champ3 => item(getElementsByTagname(champ2, "nbMaxIterations"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nbMaxIterations"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Calage_constantes%NITER)
-      champ3 => item(getElementsByTagname(champ2, "precision"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => precision"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Calage_constantes%Precis)
+      pathNode = 'parametresCalageAuto/parametres/nomFichResult'
+      FichierResultatCalage%nom = xcasReader(unitNum, pathNode)
+
+      pathNode = 'parametresCalageAuto/parametres/nomFichListing'
+      FichierResultat1Calage%nom = xcasReader(unitNum, pathNode)
+
+      pathNode = 'parametresCalageAuto/parametres/typeLit'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Calage_constantes%IESTIM
+
+      pathNode = 'parametresCalageAuto/parametres/nbMaxIterations'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Calage_constantes%NITER
+
+      pathNode = 'parametresCalageAuto/parametres/precision'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Calage_constantes%Precis
 
       ! Zone de frottements
-      champ2 => item(getElementsByTagname(champ1, "zones"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => zones"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "nbZones"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nbZones"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,nb_zone_frottement)
+      pathNode = 'parametresCalageAuto/zones/nbZones'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) nb_zone_frottement
 
       allocate( Calage_frott(nb_zone_frottement) , STAT = retour )
       if( retour /= 0 ) then
@@ -995,45 +745,37 @@ subroutine  PRETRAIT                                       ( &
           return
       end if
 
-      champ3 => item(getElementsByTagname(champ2, "absDebZone"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => absDebZone"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab)
+      pathNode = 'parametresCalageAuto/zones/absDebZone'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab
+
       do i = 1 , nb_zone_frottement
          Calage_frott(i)%Abscdeb_zone_frott = rtab(i)
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "absFinZone"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => absFinZone"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab)
+      pathNode = 'parametresCalageAuto/zones/absFinZone'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab
+
       do i = 1 , nb_zone_frottement
          Calage_frott(i)%Abscfin_zone_frott = rtab(i)
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMin"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => coefLitMin"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab)
+      pathNode = 'parametresCalageAuto/zones/coefLitMin'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab
+
       do i = 1 , nb_zone_frottement
          Calage_frott(i)%Valeur_coeff_min = rtab(i)
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMinBinf"), 0)
-      if(associated(champ3).eqv..false.) then
+      pathNode = 'parametresCalageAuto/zones/coefLitMinBinf'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          ! Valeurs par defaut (Kmin=1)
          rtab(:) = 25.D0
       else
-         call extractDataContent(champ3,rtab)
+         read(unit=line, fmt=*) rtab
       endif
       do i = 1 , nb_zone_frottement
          if(rtab(i).ge.1.d-1) then
@@ -1043,12 +785,13 @@ subroutine  PRETRAIT                                       ( &
          endif
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMinBsup"), 0)
-      if(associated(champ3).eqv..false.) then
+      pathNode = 'parametresCalageAuto/zones/coefLitMinBsup'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          ! Valeurs par defaut (Kmax=100)
          rtab(:) = 100.D0
       else
-         call extractDataContent(champ3,rtab)
+         read(unit=line, fmt=*) rtab
       endif
       do i = 1 , nb_zone_frottement
          if(rtab(i).ge.1.d-1) then
@@ -1058,23 +801,21 @@ subroutine  PRETRAIT                                       ( &
          endif
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMaj"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => coefLitMaj"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab)
+      pathNode = 'parametresCalageAuto/zones/coefLitMaj'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab
+
       do i = 1 , nb_zone_frottement
          Calage_frott(i)%Valeur_coeff_maj = rtab(i)
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMajBinf"), 0)
-      if(associated(champ3).eqv..false.) then
+      pathNode = 'parametresCalageAuto/zones/coefLitMajBinf'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          ! Valeurs par defaut (Kmin=1)
          rtab(:) = 1.D0
       else
-         call extractDataContent(champ3,rtab)
+         read(unit=line, fmt=*) rtab
       endif
       do i = 1 , nb_zone_frottement
          if(rtab(i).ge.1.d-1) then
@@ -1084,12 +825,13 @@ subroutine  PRETRAIT                                       ( &
          endif
       enddo
 
-      champ3 => item(getElementsByTagname(champ2, "coefLitMajBsup"), 0)
-      if(associated(champ3).eqv..false.) then
+      pathNode = 'parametresCalageAuto/zones/coefLitMajBsup'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
          ! Valeurs par defaut (Kmax=100)
          rtab(:) = 25.D0
       else
-         call extractDataContent(champ3,rtab)
+         read(unit=line, fmt=*) rtab
       endif
       do i = 1 , nb_zone_frottement
          if(rtab(i).ge.1.d-1) then
@@ -1102,19 +844,9 @@ subroutine  PRETRAIT                                       ( &
       deallocate(rtab)
 
       ! Crues
-      champ2 => item(getElementsByTagname(champ1, "listeCrues"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => listeCrues"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "nbCrues"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => nbCrues"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,Calage_crues%Nb_crue)
+      pathNode = 'parametresCalageAuto/listeCrues/nbCrues'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) Calage_crues%Nb_crue
       Nbcrue               = Calage_crues%Nb_crue
 
       allocate( Calage_crues%Nmes(Nbcrue) , STAT = retour)
@@ -1134,34 +866,26 @@ subroutine  PRETRAIT                                       ( &
          return
       end if
 
-      champ3 => item(getElementsByTagname(champ2, "crues"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => crues"
-         call xerror(Erreur)
-         return
+      pathNode = 'parametresCalageAuto/listeCrues/crues'
+      line = xcasReader(unitNum, pathNode)
+      if(len(trim(line)).eq.0) then
+          print*,"Parse error => crues"
+          call xerror(Erreur)
+          return
       endif
 
       Do i = 1 , Calage_crues%Nb_crue
-         champ4 => item(getElementsByTagname(champ3, "structureParametresCrueCalageAutomatique"), i-1 )
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => structureParametresCrueCalageAutomatique"
-            call xerror(Erreur)
-            return
+         pathNode = 'structureParametresCrueCalageAutomatique/nbMesures'
+         if(i.eq.1) then
+           line = xcasReader(unitNum, pathNode, 0)
+         else
+            line = xcasReader(unitNum, pathNode, 1)
          endif
-         champ5 => item(getElementsByTagname(champ4, "nbMesures"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => nbMesures"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,Calage_crues%Nmes(i))
-         champ5 => item(getElementsByTagname(champ4, "nbApports"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => nbApports"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,Calage_crues%NbApports(i))
+         read(unit=line, fmt=*) Calage_crues%Nmes(i)
+
+         pathNode = 'nbApports'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) Calage_crues%NbApports(i)
       enddo
       max_mes = maxval( Calage_crues%nmes )
       max_nba = maxval( Calage_crues%NbApports )
@@ -1223,27 +947,52 @@ subroutine  PRETRAIT                                       ( &
          return
       end if
 
+      pathNode = 'parametresCalageAuto/listeCrues/crues'
+      line = xcasReader(unitNum, pathNode)
+
       Do I = 1 , Nbcrue
-         champ4 => item(getElementsByTagname(champ3, "structureParametresCrueCalageAutomatique"), i-1 )
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => structureParametresCrueCalageAutomatique"
-            call xerror(Erreur)
-            return
+         pathNode = 'structureParametresCrueCalageAutomatique/debitAmont'
+         if(i.eq.1) then
+           line = xcasReader(unitNum, pathNode, 0)
+         else
+           line = xcasReader(unitNum, pathNode, 1)
          endif
-         champ5 => item(getElementsByTagname(champ4, "debitAmont"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => debitAmont"
-            call xerror(Erreur)
+         read(unit=line, fmt=*) Calage_crues%DEBIT(i)
+
+         pathNode = 'coteAval'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) Calage_crues%ZAVAL(i)
+
+         allocate( rtab(Calage_crues%Nmes(i)) , STAT = retour )
+         if( retour /= 0 ) then
+            Erreur%Numero = 5
+            Erreur%ft     = err_5
+            Erreur%ft_c   = err_5c
+            call TRAITER_ERREUR( Erreur , 'rtab' )
             return
-         endif
-         call extractDataContent(champ5,Calage_crues%DEBIT(i))
-         champ5 => item(getElementsByTagname(champ4, "coteAval"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => coteAval"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,Calage_crues%ZAVAL(i))
+         end if
+
+         pathNode = 'absMesures'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab
+         do j = 1 , Calage_crues%Nmes(i)
+            Calage_crues%Xmesu(i,j) = rtab(j)
+         enddo
+
+         pathNode = 'coteMesures'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab
+         do j = 1 , Calage_crues%Nmes(i)
+            Calage_crues%Zmesu(i,j) = rtab(j)
+         enddo
+
+         pathNode = 'pondMesures'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab
+         do j = 1 , Calage_crues%Nmes(i)
+            Calage_crues%Pond(i,j) = rtab(j)
+         enddo
+         deallocate(rtab)
 
          if(Calage_crues%NbApports(i).gt.0) then
              allocate( rtab(Calage_crues%NbApports(i)) , STAT = retour )
@@ -1255,73 +1004,22 @@ subroutine  PRETRAIT                                       ( &
                 return
              end if
 
-             champ5 => item(getElementsByTagname(champ4, "absApports"), 0 )
-             if(associated(champ5).eqv..false.) then
-                print*,"Parse error => absApports"
-                call xerror(Erreur)
-                return
-             endif
-             call extractDataContent(champ5,rtab)
+             pathNode = 'absApports'
+             line = xcasReader(unitNum, pathNode, 0)
+             read(unit=line, fmt=*) rtab
              do j = 1 , Calage_crues%NbApports(i)
                 Calage_Crues%abscisse(i,j) = rtab(j)
              enddo
 
-             champ5 => item(getElementsByTagname(champ4, "debitApports"), 0 )
-             if(associated(champ5).eqv..false.) then
-                print*,"Parse error => debitApports"
-                call xerror(Erreur)
-                return
-             endif
-             call extractDataContent(champ5,rtab)
+             pathNode = 'debitApports'
+             line = xcasReader(unitNum, pathNode, 0)
+             read(unit=line, fmt=*) rtab
              do j = 1 , Calage_crues%NbApports(i)
                 Calage_Crues%apport_X(i,j) = rtab(j)
              enddo
 
              deallocate(rtab)
          endif
-
-         allocate( rtab(Calage_crues%Nmes(i)) , STAT = retour )
-         if( retour /= 0 ) then
-            Erreur%Numero = 5
-            Erreur%ft     = err_5
-            Erreur%ft_c   = err_5c
-            call TRAITER_ERREUR( Erreur , 'rtab' )
-            return
-         end if
-
-         champ5 => item(getElementsByTagname(champ4, "absMesures"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => absMesures"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,rtab)
-         do j = 1 , Calage_crues%Nmes(i)
-            Calage_crues%Xmesu(i,j) = rtab(j)
-         enddo
-
-         champ5 => item(getElementsByTagname(champ4, "coteMesures"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => coteMesures"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,rtab)
-         do j = 1 , Calage_crues%Nmes(i)
-            Calage_crues%Zmesu(i,j) = rtab(j)
-         enddo
-
-         champ5 => item(getElementsByTagname(champ4, "pondMesures"), 0 )
-         if(associated(champ5).eqv..false.) then
-            print*,"Parse error => pondMesures"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ5,rtab)
-         do j = 1 , Calage_crues%Nmes(i)
-            Calage_crues%Pond(i,j) = rtab(j)
-         enddo
-         deallocate(rtab)
 
       enddo
 
@@ -1334,19 +1032,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Pas de temps
    !-------------
-   champ1 => item(getElementsByTagName(document, "parametresTemporels"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresTemporels"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "pasTemps"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => pasTemps"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,DT)
+   pathNode = 'parametresTemporels/pasTemps'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) DT
    if( DT <= 0._DOUBLE ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1359,24 +1047,16 @@ subroutine  PRETRAIT                                       ( &
 
    ! Temps initial
    !--------------
-   champ2 => item(getElementsByTagname(champ1, "tempsInit"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => tempsInit"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,TempsInitial)
+   pathNode = 'parametresTemporels/tempsInit'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) TempsInitial
    write(UniteListing,10160) TempsInitial
 
    ! Critere d'arret du calcul
    !--------------------------
-   champ2 => item(getElementsByTagname(champ1, "critereArret"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => critereArret"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,CritereArret)
+   pathNode = 'parametresTemporels/critereArret'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) CritereArret
    if( CritereArret /= TEMPS_MAXIMUM .and. &
        CritereArret /= NOMBRE_DE_PAS_TEMPS_MAXIMUM .and. &
        CritereArret /= COTE_MAXIMALE_AU_POINT_DE_CONTROLE) then
@@ -1397,13 +1077,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Nombre de pas de temps du calcul
    !---------------------------------
-   champ2 => item(getElementsByTagname(champ1, "nbPasTemps"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => nbPasTemps"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,NbPasTemps)
+   pathNode = 'parametresTemporels/nbPasTemps'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) NbPasTemps
    if( CritereArret == NOMBRE_DE_PAS_TEMPS_MAXIMUM .and. NbPasTemps <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1414,28 +1090,17 @@ subroutine  PRETRAIT                                       ( &
 
    ! Point de controle de la cote maximale pour l'arret du calcul
    !-------------------------------------------------------------
-   champ2 => item(getElementsByTagname(champ1, "abscisseControle"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => abscisseControle"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Abs_rel_controle)
-   champ2 => item(getElementsByTagname(champ1, "biefControle"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => biefControle"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Bief_controle)
-   champ2 => item(getElementsByTagname(champ1, "coteMax"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => coteMax"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,Cote_max_controle)
+   pathNode = 'parametresTemporels/abscisseControle'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Abs_rel_controle
 
+   pathNode = 'parametresTemporels/biefControle'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Bief_controle
+
+   pathNode = 'parametresTemporels/coteMax'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) Cote_max_controle
    if( CritereArret == COTE_MAXIMALE_AU_POINT_DE_CONTROLE .and. Bief_controle <= 0.) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1455,13 +1120,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Temps maximum du calcul
    !------------------------
-   champ2 => item(getElementsByTagname(champ1, "tempsMax"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => tempsMax"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,TempsMaximum)
+   pathNode = 'parametresTemporels/tempsMax'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) TempsMaximum
    if( CritereArret == TEMPS_MAXIMUM .and. TempsMaximum <= 0. ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1478,13 +1139,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Pas de temps variable
    !----------------------
-   champ2 => item(getElementsByTagname(champ1, "pasTempsVar"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => pasTempsVar"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,PasTempsVariable)
+   pathNode = 'parametresTemporels/pasTempsVar'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PasTempsVariable
    if( PasTempsVariable .and. Noyau /= NOYAU_MASCARET ) then
       Erreur%Numero = 302
       Erreur%ft   = err_302
@@ -1501,13 +1158,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Nombre de Courant souhaite
    !---------------------------
-   champ2 => item(getElementsByTagname(champ1, "nbCourant"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => nbCourant"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,CourantObj)
+   pathNode = 'parametresTemporels/nbCourant'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) CourantObj
    if( PasTempsVariable .and. CourantObj <= 0. ) then
       Erreur%Numero = 306
       Erreur%ft   = err_306
@@ -1525,36 +1178,15 @@ subroutine  PRETRAIT                                       ( &
 
    ! Titre du calcul
    !----------------
-   champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresImpressionResultats"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "titreCalcul"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => titreCalcul"
-       call xerror(Erreur)
-       return
-   endif
-   TitreCas = getTextContent(champ2)
+   pathNode = 'parametresImpressionResultats/titreCalcul'
+   TitreCas = xcasReader(unitNum, pathNode)
    write(UniteListing,10310) TitreCas
 
    ! Impression de la geometrie
    !---------------------------
-   champ2 => item(getElementsByTagname(champ1, "impression"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => impression"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "impressionGeometrie"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionGeometrie"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,impression_geo)
+   pathNode = 'parametresImpressionResultats/impression/impressionGeometrie'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) impression_geo
    if( impression_geo ) then
       write(UniteListing,10320) 'OUI'
    else
@@ -1563,13 +1195,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Impression du planimetrage
    !---------------------------
-   champ3 => item(getElementsByTagname(champ2, "impressionPlanimetrage"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionPlanimetrage"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,ImpressionPlani)
+   pathNode = 'parametresImpressionResultats/impression/impressionPlanimetrage'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ImpressionPlani
    if( ImpressionPlani ) then
       write(UniteListing,10330) 'OUI'
    else
@@ -1578,13 +1206,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Impression du reseau
    !---------------------
-   champ3 => item(getElementsByTagname(champ2, "impressionReseau"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionReseau"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,impression_reseau)
+   pathNode = 'parametresImpressionResultats/impression/impressionReseau'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) impression_reseau
    if( impression_reseau ) then
       write(UniteListing,10340) 'OUI'
    else
@@ -1593,13 +1217,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Impression des lois hydrauliques
    !---------------------------------
-   champ3 => item(getElementsByTagname(champ2, "impressionLoiHydraulique"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionHydraulique"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,impression_hydrau)
+   pathNode = 'parametresImpressionResultats/impression/impressionLoiHydraulique'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) impression_hydrau
    if( impression_hydrau ) then
       write(UniteListing,10350) 'OUI'
    else
@@ -1608,13 +1228,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Impression de la ligne d'eau initiale
    !--------------------------------------
-   champ3 => item(getElementsByTagname(champ2, "impressionligneEauInitiale"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionligneEauInitiale"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,impression_ligne)
+   pathNode = 'parametresImpressionResultats/impression/impressionligneEauInitiale'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) impression_ligne
    if( impression_ligne ) then
       write(UniteListing,10360) 'OUI'
    else
@@ -1623,13 +1239,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Impression en phase calcul
    !---------------------------
-   champ3 => item(getElementsByTagname(champ2, "impressionCalcul"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => impressionCalcul"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,ImpressionCalcul)
+   pathNode = 'parametresImpressionResultats/impression/impressionCalcul'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ImpressionCalcul
    if( ImpressionCalcul ) then
       write(UniteListing,10365) 'OUI'
    else
@@ -1638,19 +1250,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Premier pas de temps a stocker
    !-------------------------------
-   champ2 => item(getElementsByTagname(champ1, "pasStockage"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => pasStockage"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "premPasTpsStock"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => premPasTpsStock"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,PremierPasStocke)
+   pathNode = 'parametresImpressionResultats/pasStockage/premPasTpsStock'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PremierPasStocke
    if( PremierPasStocke <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1663,13 +1265,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Pas de stockage
    !----------------
-   champ3 => item(getElementsByTagname(champ2, "pasStock"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => pasStock"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,PasStockage)
+   pathNode = 'parametresImpressionResultats/pasStockage/pasStock'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PasStockage
    if( PasStockage <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1682,13 +1280,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Pas d'impression
    !-----------------
-   champ3 => item(getElementsByTagname(champ2, "pasImpression"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => pasImpression"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,PasImpression)
+   pathNode = 'parametresImpressionResultats/pasStockage/pasImpression'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) PasImpression
    if( PasImpression <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1701,19 +1295,8 @@ subroutine  PRETRAIT                                       ( &
 
    ! fichier des resultats
    !----------------------
-   champ2 => item(getElementsByTagname(champ1, "resultats"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => resultats"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "fichResultat"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => fichResultat"
-       call xerror(Erreur)
-       return
-   endif
-   FichierResultat%Nom  = getTextContent(champ3)
+   pathNode = 'parametresImpressionResultats/resultats/fichResultat'
+   FichierResultat%Nom = xcasReader(unitNum, pathNode)
    !!!! ATTENTION !!!!!
    FichierResultat2%Nom = ""
 
@@ -1721,13 +1304,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! format du fichier des resultats
    !--------------------------------
-   champ3 => item(getElementsByTagname(champ2, "postProcesseur"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => postProcesseur"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,post_processeur)
+   pathNode = 'parametresImpressionResultats/resultats/postProcesseur'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) post_processeur
    if( post_processeur /= POST_RUBENS .and. post_processeur /= POST_OPTHYCA ) then
       if( post_processeur /= POST_OPTRU ) then
          Erreur%Numero = 312
@@ -1772,36 +1351,15 @@ subroutine  PRETRAIT                                       ( &
 
    ! Ficher de reprise en ecriture
    !------------------------------
-   champ2 => item(getElementsByTagname(champ1, "fichReprise"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => fichReprise"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "fichRepriseEcr"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => fichRepriseEcr"
-       call xerror(Erreur)
-       return
-   endif
-   FichierRepriseEcr%Nom  = getTextContent(champ3)
+   pathNode = 'parametresImpressionResultats/fichReprise/fichRepriseEcr'
+   FichierRepriseEcr%Nom = xcasReader(unitNum, pathNode)
    write(UniteListing,10420) FichierRepriseEcr%Nom
 
    ! Ecart entre branches
    !---------------------
-   champ2 => item(getElementsByTagname(champ1, "rubens"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => rubens"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "ecartInterBranch"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => ecartInterBranch"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,ecart)
+   pathNode = 'parametresImpressionResultats/rubens/ecartInterBranch'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) ecart
    if( ecart <= 0._DOUBLE ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -1818,30 +1376,15 @@ subroutine  PRETRAIT                                       ( &
 
    ! Nom du fichier geometrie
    !-------------------------
-   champ1 => item(getElementsByTagName(document, "parametresGeometrieReseau"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresGeometrieReseau"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "fichier"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => fichier"
-       call xerror(Erreur)
-       return
-   endif
-   FichierGeom%Nom = getTextContent(champ2)
+   pathNode = 'parametresGeometrieReseau/fichier'
+   FichierGeom%Nom = xcasReader(unitNum, pathNode)
    write(UniteListing,10450) FichierGeom%Nom
 
    ! Format du fichier geometrie
    !----------------------------
-   champ2 => item(getElementsByTagname(champ1, "format"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => format"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ2,FormatGeom)
+   pathNode = 'parametresGeometrieReseau/format'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) FormatGeom
    if( FormatGeom /= FORMAT_GEOM_LIDOV2P0 .and. FormatGeom /= FORMAT_GEOM_LIDOV3P0 ) then
       Erreur%Numero = 305
       Erreur%ft     = err_305
@@ -1886,7 +1429,7 @@ subroutine  PRETRAIT                                       ( &
       UniteListing     , & ! Unite logique fichier listing
       CritereArret     , & ! Criter d'arret du calcul
       TempsMaximum     , & ! Temps maximum du calcul
-      document         , & ! Pointeur vers document XML
+      unitNum          , & ! Unite logique du fichier .xcas
       Erreur             & ! Erreur
                        )
    if( Erreur%Numero /= 0 ) then
@@ -1917,7 +1460,7 @@ subroutine  PRETRAIT                                       ( &
      ProfDebBief           , & ! Premiers profils des biefs
      ProfFinBief           , & ! Derniers profils des biefs
      Noyau                 , & ! Noyau de calcul
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -1953,7 +1496,7 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
      impression_geo        , & ! Flag d'impression de la geometrie
      FichierListing%Unite  , & ! Unite logique fichier listing
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -1966,7 +1509,7 @@ subroutine  PRETRAIT                                       ( &
    call LEC_PLANIM       ( &
      Profil              , & ! Profils geometriques
      FichierListing%Unite, &
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
    if( Erreur%Numero /= 0 ) then
@@ -1980,25 +1523,9 @@ subroutine  PRETRAIT                                       ( &
 
    ! Reprise de calcul
    !------------------
-   champ1 => item(getElementsByTagName(document, "parametresConditionsInitiales"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresConditionsInitiales"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "repriseEtude"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => repriseEtude"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "repriseCalcul"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => repriseCalcul"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,RepriseCalcul)
+   pathNode = 'parametresConditionsInitiales/repriseEtude/repriseCalcul'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) RepriseCalcul
    if( RepriseCalcul .and. Noyau == NOYAU_SARAP ) then
       Erreur%Numero = 301
       Erreur%ft     = err_301
@@ -2015,51 +1542,18 @@ subroutine  PRETRAIT                                       ( &
 
    ! Ficher de reprise en lecture
    !-----------------------------
-   champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresImpressionResultats"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "fichReprise"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => fichReprise"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "fichRepriseEcr"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => fichRepriseEcr"
-       call xerror(Erreur)
-       return
-   endif
-   FichierRepriseLec%Nom = getTextContent(champ3)
+   pathNode = 'parametresImpressionResultats/fichReprise/fichRepriseEcr'
+   FichierRepriseLec%Nom = xcasReader(unitNum, pathNode)
+
    if( RepriseCalcul ) then
       write(UniteListing,10580) FichierRepriseLec%Nom
    endif
 
    ! LIGNE D'EAU INITIALE
    !---------------------
-   ! Presence d'une ligne d'eau initiale
-   champ1 => item(getElementsByTagName(document, "parametresConditionsInitiales"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresConditionsInitiales"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "ligneEau"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => ligneEau"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "LigEauInit"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => ligneEauInit"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,presence_ligne_deau)
+   pathNode = 'parametresConditionsInitiales/ligneEau/LigEauInit'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) presence_ligne_deau
    if( ( Noyau == NOYAU_REZODT .or. Noyau == NOYAU_MASCARET) .and. &
        .not.RepriseCalcul .and. .not.presence_ligne_deau) then
       Erreur%Numero = 349
@@ -2077,13 +1571,9 @@ subroutine  PRETRAIT                                       ( &
 
    if( presence_ligne_deau ) then
       ! Type d'entree de la ligne d'eau initiale
-      champ3 => item(getElementsByTagname(champ2, "modeEntree"), 0)
-      if(associated(champ3).eqv..false.) then
-        print*,"Parse error => modeEntree"
-        call xerror(Erreur)
-       return
-      endif
-      call extractDataContent(champ3,type_entree_ligne)
+      pathNode = 'parametresConditionsInitiales/ligneEau/modeEntree'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) type_entree_ligne
       if( type_entree_ligne == SAISIE_PAR_CLAVIER .and.  &
           TypeMaillage == TYPE_MAILLAGE_PRECEDENT) then
          Erreur%Numero = 350
@@ -2098,24 +1588,15 @@ subroutine  PRETRAIT                                       ( &
 
          ! Nom du fichier
          !---------------
-         champ3 => item(getElementsByTagname(champ2, "fichLigEau"), 0)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => fichLigEau"
-            call xerror(Erreur)
-            return
-         endif
-         FichierLigne%Nom =  getTextContent(champ3)
+         pathNode = 'parametresConditionsInitiales/ligneEau/fichLigEau'
+         FichierLigne%Nom = xcasReader(unitNum, pathNode)
          write(UniteListing,10610) FichierLigne%Nom
 
          ! Format du fichier
          !------------------
-         champ3 => item(getElementsByTagname(champ2, "formatFichLig"), 0)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => formatFichLig"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ3,format_ligne)
+         pathNode = 'parametresConditionsInitiales/ligneEau/formatFichLig'
+         line = xcasReader(unitNum, pathNode)
+         read(unit=line, fmt=*) format_ligne
          if( format_ligne /= FORMAT_STO_OPTHYCA .and.  &
              format_ligne /= FORMAT_STO_PERMANENT) then
             Erreur%Numero = 305
@@ -2220,8 +1701,10 @@ subroutine  PRETRAIT                                       ( &
       iprof = iprof_inf
       do while( ( X(isect) <  (Profil(iprof)%AbsAbs   - EPS4) ) .or.    &
                 ( X(isect) >= (Profil(iprof+1)%AbsAbs - EPS4) ) )
-         if( ( dabs(X(isect)- Profil(size(Profil(:)))%AbsAbs)) <= 0.0001_DOUBLE ) exit
-
+         if( ( dabs(X(isect)- Profil(size(Profil(:)))%AbsAbs)) <= 0.0001_DOUBLE ) then
+             iprof = size(Profil(:)) - 1
+             exit
+         endif
          iprof = iprof + 1
       end do
       XDT(isect) = ( X(isect) - Profil(iprof)%AbsAbs ) / ( Profil(iprof + 1)%AbsAbs - Profil(iprof)%AbsAbs )
@@ -2235,25 +1718,9 @@ subroutine  PRETRAIT                                       ( &
    !==============================================================
    ! Option de stockage
    !-------------------
-   champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresImpressionResultats"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "stockage"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => stockage"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "option"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => option"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,OptionStockage)
+   pathNode = 'parametresImpressionResultats/stockage/option'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) OptionStockage
    if( OptionStockage /= STOCKAGE_TOUTES_SECTION .and. &
        OptionStockage /= STOCKAGE_LISTE_SECTION) then
       Erreur%Numero = 305
@@ -2269,13 +1736,9 @@ subroutine  PRETRAIT                                       ( &
       write(UniteListing,10432) 'A certaines sections'
    endif
 
-   champ3 => item(getElementsByTagname(champ2, "nbSite"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbSite"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nb_site)
+   pathNode = 'parametresImpressionResultats/stockage/nbSite'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_site
    if( OptionStockage == STOCKAGE_LISTE_SECTION .and. nb_site <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -2314,23 +1777,15 @@ subroutine  PRETRAIT                                       ( &
           return
       end if
 
-      champ3 => item(getElementsByTagname(champ2, "branche"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => branche"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab)
-      champ3 => item(getElementsByTagname(champ2, "abscisse"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => abscisse"
-         call xerror(Erreur)
-       return
-      endif
-      call extractDataContent(champ3,rtab)
+      pathNode = 'parametresImpressionResultats/stockage/branche'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab
+
+      pathNode = 'parametresImpressionResultats/stockage/abscisse'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab
 
       do isect = 1 , nb_site
-
          num_branche = itab(isect)
          if( num_branche < 1 ) then
             Erreur%Numero = 372
@@ -2430,25 +1885,9 @@ subroutine  PRETRAIT                                       ( &
    !==============================================================
    ! Lois de frottement
    !-------------------
-   champ1 => item(getElementsByTagName(document, "parametresCalage"), 0)
-   if(associated(champ1).eqv..false.) then
-       print*,"Parse error => parametresCalage"
-       call xerror(Erreur)
-       return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "frottement"), 0)
-   if(associated(champ2).eqv..false.) then
-       print*,"Parse error => frottement"
-       call xerror(Erreur)
-       return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "loi"), 0)
-   if(associated(champ3).eqv..false.) then
-       print*,"Parse error => loi"
-       call xerror(Erreur)
-       return
-   endif
-   call extractDataContent(champ3,LoiFrottement)
+   pathNode = 'parametresCalage/frottement/loi'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) LoiFrottement
    if( LoiFrottement < LOI_FROTTEMENT_STRICKLER .or. &
        LoiFrottement > LOI_FROTTEMENT_NB_MAX ) then
       Erreur%Numero = 366
@@ -2475,7 +1914,7 @@ subroutine  PRETRAIT                                       ( &
       absc_rel_ext_fin_bief , &
       InterpLinCoeffFrott   , &
       UniteListing          , &
-      document              , & ! Pointeur vers document XML
+      unitNum               , & ! Unite logique .xcas
       Erreur                  & ! Erreur
                             )
       if( Erreur%Numero /= 0 ) then
@@ -2513,7 +1952,7 @@ subroutine  PRETRAIT                                       ( &
             Profil              , & ! Profils geometriques
             PresenceZoneStockage, & ! Flag d'existence de zones de stockage
             FichierListing%Unite, & ! Unite logique fichier listing
-            document            , & ! Pointeur vers document XML
+            unitNum             , & ! Unite logique .xcas
             Erreur                & ! Erreur
                                 )
       if( Erreur%Numero /= 0 ) then
@@ -2534,7 +1973,7 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_deb_bief , &
      absc_rel_ext_fin_bief , &
      FichierListing%Unite  , & ! Unite logique fichier listing
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -2573,7 +2012,7 @@ subroutine  PRETRAIT                                       ( &
       absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
       absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
       FichierListing%Unite  , & ! Unite logique fichier listing
-      document              , & ! Pointeur vers document XML
+      unitNum               , & ! Unite logique .xcas
       Erreur                  & ! Erreur
                             )
       if( Erreur%Numero /= 0 ) then
@@ -2596,7 +2035,7 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
      Noyau                 , & ! Noyau de calcul utilise
      UniteListing          , &
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -2615,7 +2054,7 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_deb_bief , & ! Abscisse de l'extremite debut du bief
      absc_rel_ext_fin_bief , & ! Abscisse de l'extremite debut du bief
      FichierListing%Unite  , &
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -2636,7 +2075,7 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
      absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
      FichierListing%Unite  , & !
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
    if( Erreur%Numero /= 0 ) then
@@ -2657,9 +2096,10 @@ subroutine  PRETRAIT                                       ( &
      absc_rel_ext_deb_bief , & ! Abscisse rel de l'extremite debut du bief
      absc_rel_ext_fin_bief , & ! Abscisse rel de l'extremite debut du bief
      FichierListing%Unite  , &
-     document              , & ! Pointeur vers document XML
+     unitNum               , & ! Unite logique .xcas
      Erreur                  & ! Erreur
                            )
+
    if( Erreur%Numero /= 0 ) then
       return
    endif
@@ -2672,7 +2112,7 @@ subroutine  PRETRAIT                                       ( &
      Connect             , &
      FichierListing%Unite, &
      Noyau               , &
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
    if( Erreur%Numero /= 0 ) then
@@ -2697,7 +2137,7 @@ subroutine  PRETRAIT                                       ( &
    call LEC_SORTIES      ( &
      VarSto              , &
      VarCalc             , &
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 
@@ -2803,25 +2243,8 @@ subroutine  PRETRAIT                                       ( &
       !                       LECTURE DES FICHIERS CASIERS
       !=======================================================================
       ulc                      = FichierListingCasier%Unite
-      champ1 => item(getElementsByTagName(document, "parametresImpressionResultats"), 0)
-      if(associated(champ1).eqv..false.) then
-         print*,"Parse error => parametresImpresionResultats"
-         call xerror(Erreur)
-       return
-      endif
-      champ2 => item(getElementsByTagname(champ1, "casier"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => casier"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "listingCasier"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => listingCasier"
-         call xerror(Erreur)
-         return
-      endif
-      FichierListingCasier%Nom = getTextContent(champ3)
+      pathNode = 'parametresImpressionResultats/casier/listingCasier'
+      FichierListingCasier%Nom = xcasReader(unitNum, pathNode)
 
       open(unit=ulc, file=FichierListingCasier%Nom, access='SEQUENTIAL', &
            action='WRITE'           , form='FORMATTED'       , iostat=RETOUR      , &
@@ -2834,13 +2257,8 @@ subroutine  PRETRAIT                                       ( &
          return
       end if
 
-      champ3 => item(getElementsByTagname(champ2, "listingLiaison"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => listingLiaison"
-         call xerror(Erreur)
-         return
-      endif
-      FichierListingLiaison%Nom = getTextContent(champ3)
+      pathNode = 'parametresImpressionResultats/casier/listingLiaison'
+      FichierListingLiaison%Nom = xcasReader(unitNum, pathNode)
 
       ull                       = FichierListingLiaison%Unite
 
@@ -2855,49 +2273,14 @@ subroutine  PRETRAIT                                       ( &
          return
       end if
 
-      champ1 => item(getElementsByTagname(document, "parametresImpressionResultats"), 0)
-      if(associated(champ1).eqv..false.) then
-         print*,"Parse error => parametresImpressionResultats"
-         call xerror(Erreur)
-       return
-      endif
-      champ2 => item(getElementsByTagname(champ1, "casier"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => casier"
-         call xerror(Erreur)
-         return
-      endif
-      champ3 => item(getElementsByTagname(champ2, "resultatCasier"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => resultatCasier"
-         call xerror(Erreur)
-         return
-      endif
-      FichierResultatCasier%Nom = getTextContent(champ3)
-      champ3 => item(getElementsByTagname(champ2, "resultatLiaison"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => resultatLiaison"
-         call xerror(Erreur)
-         return
-      endif
-      FichierResultatLiaison%Nom = getTextContent(champ3)
-      champ1 => item(getElementsByTagname(document, "parametresCasier"), 0)
-      if(associated(champ1).eqv..false.) then
-         print*,"Parse error => parametresCasier"
-         call xerror(Erreur)
-       return
-      endif
-      champ2 => item(getElementsByTagname(champ1, "fichierGeomCasiers"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => fichierGeomCasiers"
-         Erreur%Numero = 704
-         Erreur%ft     = err_704
-         Erreur%ft_c   = err_704c
-         call TRAITER_ERREUR( Erreur )
-         return
-      endif
-      FichierGeomCasier%Nom  = getTextContent(champ2)
+      pathNode = 'parametresImpressionResultats/casier/resultatCasier'
+      FichierResultatCasier%Nom = xcasReader(unitNum, pathNode)
 
+      pathNode = 'parametresImpressionResultats/casier/resultatLiaison'
+      FichierResultatLiaison%Nom = xcasReader(unitNum, pathNode)
+
+      pathNode = 'parametresCasier/fichierGeomCasiers'
+      FichierGeomCasier%Nom = xcasReader(unitNum, pathNode)
 
       !========================================================================
       !                       LECTURE DE LA VARIABLE CASIER
@@ -2905,7 +2288,7 @@ subroutine  PRETRAIT                                       ( &
       call LEC_CASIER                (&
                 Casier,               &
                 FichierGeomCasier,    &
-                document,             & ! Pointeur vers document XML
+                unitNum,              &
                 Erreur    )
       if( Erreur%Numero /= 0 ) then
          return
@@ -2919,7 +2302,6 @@ subroutine  PRETRAIT                                       ( &
           call TRAITER_ERREUR( Erreur , 'de la matrice de connection casier-casier' )
           return
       end if
-
       connect_casier(:,:) = 0
 
       !========================================================================
@@ -2932,7 +2314,7 @@ subroutine  PRETRAIT                                       ( &
                 Profil,           &
                 ProfDebBief,      &
                 ProfFinBief,      &
-                document,         & ! Pointeur vers document XML
+                unitNum,         & ! Pointeur vers document XML
                 Erreur       )
       if( Erreur%Numero /= 0 ) then
          return
@@ -3038,18 +2420,15 @@ subroutine  PRETRAIT                                       ( &
                  ApportPluie,       &
                  size(Casier),      &
                  LoiHydrau,         &
-                 document,          & ! Pointeur vers document XML
+                 unitNum,           & ! Unite logique .xcas
                  ulc,&
                  Erreur)
       if( Erreur%Numero /= 0 ) then
          return
       end if
-
    end if
 
-   !call destroy(document)
-   !call destroy(config)
-
+   close(unitNum)
    !Erreur%arbredappel = !arbredappel_old
 
    return
@@ -3065,7 +2444,6 @@ subroutine  PRETRAIT                                       ( &
                 &  '-------------------',/)
    10010 format ('Noyau de calcul utilise                         : ',A8)
    10020 format ('Nom du fichier des mots-cles                    : ',A)
-   10025 format ('Nom du fichier du dictionnaire                  : ',A)
    10030 format ('Nom du fichier du programme principal           : ',A)
    10035 format ('Nom du fichier des bibliotheques                : ',A)
    10037 format ('Sauvegarde du modele                            : ',A)
@@ -3097,9 +2475,6 @@ subroutine  PRETRAIT                                       ( &
    10190 format ('Duree maximale du calcul               : ',f12.1)
    10200 format ('Pas de temps variable                  : ',A3)
    10210 format ('Nombre de Courant objectif             : ',f12.3)
-   10220 format (/,'CRAY',/, &
-                &  '----',/)
-   10230 format ('Utilisation du Cray                    : ',A3)
    10300 format (/,'IMPRESSION-RESULTATS',/, &
                 &  '--------------------',/)
    10310 format ('Titre du calcul                        : ',A)

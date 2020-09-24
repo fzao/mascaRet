@@ -183,7 +183,7 @@ contains
     end function GET_TYPE_VAR_PROFIL
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -281,7 +281,7 @@ contains
    end function GET_TAILLE_VAR_PROFIL
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -358,7 +358,7 @@ contains
    end function SET_TAILLE_VAR_PROFIL
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -550,9 +550,9 @@ contains
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.CrossSection.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.CrossSection.ReachName') > 0) then
-         Instance%NomBief = valeur
+         Instance%NomBief = valeur(1:255)
       else
          SET_STRING_PROFIL = 1
          MessageErreur         = "SET_STRING_PROFIL - Unknown variable name"
@@ -574,8 +574,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_PROFIL = 0
       MessageErreur          = ""
 
@@ -623,10 +621,6 @@ contains
       type(PROFIL_T),         intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_PROFIL = 0
       MessageErreur          = ""
 

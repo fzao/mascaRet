@@ -98,7 +98,6 @@ subroutine CCL(                     &
    real(DOUBLE)   :: surface_mouillee  !
    real(DOUBLE)   :: perimetre_mouille !
    real(DOUBLE)   :: rayon_hydrau      !
-   real(DOUBLE)   :: terme             ! terme de calcul
    real(DOUBLE)   :: pente_fond      ! pente du fond
    real(DOUBLE)   :: debitance       ! debitance
    real(DOUBLE)   :: debitance_cible ! debitance vers laquelle converger

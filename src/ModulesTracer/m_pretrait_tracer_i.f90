@@ -55,7 +55,7 @@ module M_PRETRAIT_TRACER_I
                 Fichier_Meteo , & ! Fichier meteo
                               ! Impression des parametres et resultats
             FichierResuTracer , & ! Fichier resultats
-             FormatResuTracer , & 
+             FormatResuTracer , &
          FichierListingTracer , & ! Fichier listing
         ImpressionConcListing , & ! Logique pour les impressions
         ImpressionBilanTracer , & ! Logique pour les impressions
@@ -96,14 +96,14 @@ module M_PRETRAIT_TRACER_I
    use M_ERREUR_T                    ! Traitement des erreurs
    use M_MESSAGE_C
    use M_MESSAGE_TRACER_C
-   use Fox_dom                 ! parser XML Fortran
+   use M_XCAS_S
 
    !.. Implicit Declarations ..
    implicit none
 
    !.. Gestion des mots-cles ..
    type(FICHIER_T), intent(inout) :: FichierMotCle
-   !.. Variables d'entree (maillage et hydraulique) .. 
+   !.. Variables d'entree (maillage et hydraulique) ..
    integer , intent(in   ) :: Noyau        ! Noyau de calcul hydraulique
    integer , intent(in   ) :: Type_maillage
    type(CONNECT_T) , intent(in   ) :: Connect

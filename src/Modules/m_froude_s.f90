@@ -91,8 +91,6 @@ module M_FROUDE_S
    !.. Variables locales ..
    !-----------------------
    !character(132) :: !arbredappel_old
-   integer        :: num_bief
-   real(DOUBLE)   :: absc_rel
 
    !============================= Instructions ===========================
    Erreur%Numero = 0

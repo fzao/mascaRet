@@ -127,8 +127,8 @@ SUBROUTINE REPAR_B(deb, debb, vmoy, vmoyb, beta, betab, q1, q2, s1, s1b&
   DOUBLE PRECISION :: st1_temp
   DOUBLE PRECISION :: rh
   DOUBLE PRECISION :: rhb
-  DOUBLE PRECISION :: a, a0, deb1, deb2, eta, fp1, fp2, fs1, fs2, r0, s&
-& , stequi, useta
+  DOUBLE PRECISION :: a, a0, deb1, deb2, eta, fp1, fp2, r0, s&
+& , stequi
   DOUBLE PRECISION :: ab, a0b, deb1b, deb2b, etab, fp1b, fp2b, fs1b, &
 & fs2b, r0b, sb, stequib
 !character(132) :: !arbredappel_old
@@ -468,10 +468,8 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
   DOUBLE PRECISION :: charge_amontb, charge_avalb
   DOUBLE PRECISION :: charge
   DOUBLE PRECISION :: largeur_seuil
-  DOUBLE PRECISION :: largeur_seuilb
   DOUBLE PRECISION :: q1, q2
   DOUBLE PRECISION :: qamont
-  DOUBLE PRECISION :: qamontb
   DOUBLE PRECISION :: rh
   DOUBLE PRECISION :: zam1, zam2
   DOUBLE PRECISION :: zam1b, zam2b
@@ -489,7 +487,6 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
   INTEGER :: ad_count
   INTEGER :: i
   INTEGER :: branch
-  INTEGER :: ad_to
   INTEGER :: ad_count0
   INTEGER :: i0
   INTEGER :: ad_count1
@@ -527,8 +524,8 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
 !Erreur%Arbredappel = trim(!Erreur%arbredappel)//'=>PSING'
 ! CALCUL SUIVANT LE TYPE DE LA SINGULARITE
 ! ----------------------------------------
-  SELECT CASE  (singularite%type) 
-  CASE (singularite_type_zamont_zaval_q) 
+  SELECT CASE  (singularite%type)
+  CASE (singularite_type_zamont_zaval_q)
 ! RECHERCHE DES DEBITS ENCADRANT LE DEBIT AMONT
     q1 = singularite%ptq(1)
     q2 = singularite%ptq(SIZE(singularite%ptq))
@@ -588,7 +585,7 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
 &                      :), dummyzerodiffb, singularite%ptzamont(iq, :), &
 &                      dummyzerodiffb0, arg1, erreur)
     END IF
-  CASE (singularite_type_zamont_q) 
+  CASE (singularite_type_zamont_q)
 ! COTE AMONT EN REGIME DENOYE
     arg1 = SIZE(singularite%ptz)
     CALL INTERPOLATION_S(zam, qam, premier_ordre_interpolation, &
@@ -726,7 +723,7 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
 &                    premier_ordre_interpolation, singularite%ptq(:), &
 &                    dummyzerodiffb3, singularite%ptz(:), &
 &                    dummyzerodiffb4, arg1, erreur)
-  CASE (singularite_type_profil_crete) 
+  CASE (singularite_type_profil_crete)
     largeur_seuil = singularite%ptx(SIZE(singularite%ptx)) - singularite&
 &     %ptx(1)
     IF (0._DOUBLE .LT. zav - singularite%cotecrete) THEN
@@ -879,7 +876,7 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
     CALL POPCONTROL1B(branch)
     IF (branch .EQ. 0) zavb = zavb + charge_avalb
     zamb = 0.D0
-  CASE (singularite_type_crete_coeff) 
+  CASE (singularite_type_crete_coeff)
     CALL RHSBP_SECTION_S(largeur_seuil, zref, singularite%cotecrete, idt&
 &                  (section), xdt(section), profil, b1plan, erreur)
     IF (0._DOUBLE .LT. zav - singularite%cotecrete) THEN
@@ -1027,10 +1024,10 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
     CALL POPCONTROL1B(branch)
     IF (branch .EQ. 0) zavb = zavb + charge_avalb
     zamb = 0.D0
-  CASE (singularite_type_z_t) 
+  CASE (singularite_type_z_t)
     zamb = 0.D0
     zavb = 0.D0
-  CASE (singularite_type_q_zamont) 
+  CASE (singularite_type_q_zamont)
     arg1 = SIZE(singularite%ptz)
     CALL INTERPOLATION_S(zam, qam, premier_ordre_interpolation, &
 &                  singularite%ptq(:), singularite%ptz(:), arg1, erreur)
@@ -1525,17 +1522,16 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
   INTEGER, PARAMETER :: itmax1=20
 !.. Variables locales ..
 !-----------------------
-  INTEGER, DIMENSION(:) :: idebtor(nbsect), ifintor(nbsect), kpass(&
-& nbsect)
+  INTEGER, DIMENSION(:) :: idebtor(nbsect), kpass(nbsect)
   DOUBLE PRECISION, DIMENSION(:) :: zc(nbsect), fimp(nbsect)
   DOUBLE PRECISION :: zcb(nbsect)
   INTEGER :: izone, nb_zone
-  DOUBLE PRECISION :: jav, js, javam, javc, jam
+  DOUBLE PRECISION :: jav, js, javam, javc
   DOUBLE PRECISION :: javb, jsb, javamb
-  DOUBLE PRECISION :: zam1, zam2, zav, zav1, zav2, zam, yp1, yp2, zam3, &
+  DOUBLE PRECISION :: zam1, zam2, zav, zam, zam3, &
 & zam22, zam21, zmil
   DOUBLE PRECISION :: zam1b, zam2b, zavb, zam22b, zam21b, zmilb
-  DOUBLE PRECISION :: dx, dq, ypmil, yp22, yp21, dz
+  DOUBLE PRECISION :: dx, dq, ypmil, yp21, dz
   DOUBLE PRECISION :: dqb
   DOUBLE PRECISION :: cqmvj
   DOUBLE PRECISION :: y
@@ -1562,14 +1558,11 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
   DOUBLE PRECISION :: epsil
   DOUBLE PRECISION :: sc
   DOUBLE PRECISION :: debc
-  DOUBLE PRECISION :: debcb
   DOUBLE PRECISION :: hc
   DOUBLE PRECISION :: zcrit
   DOUBLE PRECISION :: zcritb
   DOUBLE PRECISION :: betac
-  DOUBLE PRECISION :: betacb
   DOUBLE PRECISION :: vc
-  DOUBLE PRECISION :: vcb
   DOUBLE PRECISION :: vc2
   DOUBLE PRECISION :: dxbeta
   DOUBLE PRECISION :: dxbetab
@@ -1607,8 +1600,8 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
 ! Compteur sur les singularites
   INTEGER :: ising
   INTEGER :: num_bief
-  DOUBLE PRECISION :: absc_rel, toto1, toto2
-  CHARACTER(len=132) :: arbredappel_old
+  DOUBLE PRECISION :: absc_rel
+!  CHARACTER(len=132) :: arbredappel_old
   INTRINSIC TRIM
   INTRINSIC SIGN
   INTRINSIC SIZE
@@ -1660,7 +1653,7 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
   fin_bief = connect%finbief(numbief)
 !
 !  Prise compte des apports de debit dans la qte de mvt
-! 
+!
   IF (cqmv .EQ. 0) THEN
     cqmvj = 0.d0
   ELSE
@@ -2350,7 +2343,7 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
             CALL PUSHCONTROL1B(1)
           END IF
 !
-! Initialisation des valeurs de la fonctions aux bornes 
+! Initialisation des valeurs de la fonctions aux bornes
 !
           zam2 = zam21
           arg1 = j + 1
@@ -3568,9 +3561,6 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
  2030 FORMAT('Passage en torrentiel DETECTE a la section : ',i5,/, &
 &        'Bief n0 ',i3,', Abscisse relative : ',g12.3,/, &
 &        'cote critique Zcrit = ',f8.3)
- 2040 FORMAT('Passage en torrentiel NON DETECTE a la section : ',i5,/, &
-&        'bief n0 ',i3,', abscisse relative ',g12.3,/, &
-&        'cote critique Zcrit = ',f8.3)
  2080 FORMAT('A la section : ',i5,', bief n0 ',i3,&
 &        ', abscisse relative = ',g12.3,/, &
 &        'perte de charge singuliere JS = ',f8.3)
@@ -3650,7 +3640,7 @@ SUBROUTINE CALC_PC_CONFLU_B(pcsing, pcsingb, z, zb, q, qb, x, zref, &
   INTEGER, PARAMETER :: abaque_c=3
 ! Variables locales
   TYPE CONF_T
-      SEQUENCE 
+      SEQUENCE
       INTEGER, DIMENSION(3) :: section
       DOUBLE PRECISION, DIMENSION(3) :: debit
       DOUBLE PRECISION, DIMENSION(3) :: largeur
@@ -3658,7 +3648,7 @@ SUBROUTINE CALC_PC_CONFLU_B(pcsing, pcsingb, z, zb, q, qb, x, zref, &
       INTEGER, DIMENSION(3) :: nature
   END TYPE CONF_T
   TYPE CONF_T_B
-      SEQUENCE 
+      SEQUENCE
       DOUBLE PRECISION, DIMENSION(3) :: debit
       DOUBLE PRECISION, DIMENSION(3) :: largeur
   END TYPE CONF_T_B
@@ -3678,19 +3668,16 @@ SUBROUTINE CALC_PC_CONFLU_B(pcsing, pcsingb, z, zb, q, qb, x, zref, &
   DOUBLE PRECISION :: c6abc(3)
   DOUBLE PRECISION :: c6abcb(3)
   DOUBLE PRECISION :: alpha_c6(6), qc6(5)
-  DOUBLE PRECISION :: alpha_c6b(6)
   DOUBLE PRECISION :: c6qinf(6), c6qsup(6)
   DOUBLE PRECISION :: c6(2), c6a, c6b, c6c
   DOUBLE PRECISION :: c6b0(2), c6ab, c6bb, c6cb
   DOUBLE PRECISION :: angle_conf
-  DOUBLE PRECISION :: angle_confb
   DOUBLE PRECISION :: lf, ll, lp, llp, qp, ql, qpl
   DOUBLE PRECISION :: lfb, llb, lpb, llpb, qpb, qlb, qplb
 ! elargissement branche amont princ / branche aval
   DOUBLE PRECISION :: elargissement
   DOUBLE PRECISION :: elargissementb
   DOUBLE PRECISION :: qinf, qsup, c6_inf, c6_sup
-  DOUBLE PRECISION :: c6_infb, c6_supb
   DOUBLE PRECISION :: rapport
   DOUBLE PRECISION :: rapportb
   DOUBLE PRECISION :: q_max
@@ -3719,8 +3706,6 @@ SUBROUTINE CALC_PC_CONFLU_B(pcsing, pcsingb, z, zb, q, qb, x, zref, &
   REAL :: angle1
   REAL :: angle2
   INTRINSIC ABS
-  INTEGER :: ad_to
-  INTEGER :: ad_to0
   INTEGER :: branch
   INTEGER :: ad_count
   INTEGER :: i
@@ -3959,7 +3944,7 @@ label_ext:DO iext=1,SIZE(connect%numbiefconfluence(inoeu, :))
 ! TEST DOMAINE
 !-------------
       IF (qpl .GT. 5._DOUBLE) THEN
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10000) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10000)
       END IF
 ! Calcul de Llp=Ll/Lp
 ! -------------------
@@ -3994,21 +3979,21 @@ label_ext:DO iext=1,SIZE(connect%numbiefconfluence(inoeu, :))
       IF (llp .LT. 0.25_DOUBLE) THEN
         CALL PUSHINTEGER4(iabaque)
         CALL PUSHCONTROL1B(0)
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10010) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10010)
       ELSE
         CALL PUSHINTEGER4(iabaque)
         CALL PUSHCONTROL1B(0)
       END IF
       IF (llp .GT. 0.625_DOUBLE) THEN
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10020) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10020)
       END IF
 ! Prise en compte de l'angle (il est en radians dans Confluent)
 ! -------------------------------------------------------------
       DO iext=1,nb_ext
         IF (conf%nature(iext) .EQ. branche_princ_amont) angle1 = &
-&           confluent(inoeu)%angleafflu(iext)
-        IF (conf%nature(iext) .EQ. branche_laterale) angle2 = confluent(&
-&           inoeu)%angleafflu(iext)
+&           real(confluent(inoeu)%angleafflu(iext))
+        IF (conf%nature(iext) .EQ. branche_laterale) angle2 = real(confluent(&
+&           inoeu)%angleafflu(iext))
       END DO
       IF (angle1 - angle2 .GE. 0.) THEN
         angle_conf = angle1 - angle2
@@ -4485,10 +4470,8 @@ SUBROUTINE QNODE_B(q, qb, z, zb, numconfluence, numpassage, connect, &
   INTEGER :: ii1
   INTEGER :: num_sect
   LOGICAL :: type_origine
-  DOUBLE PRECISION :: qamont
   DOUBLE PRECISION :: qamontb
   INTRINSIC SIZE
-  DOUBLE PRECISION :: tmp
   INTEGER :: branch
   DOUBLE PRECISION :: tmpb
 !character(132) :: !arbredappel_old
@@ -4728,7 +4711,6 @@ SUBROUTINE QREPAR_B(sommedebitance, sommedebitanceb, zaval, zavalb, &
   DOUBLE PRECISION :: debm1b
   DOUBLE PRECISION :: debp1
   DOUBLE PRECISION :: debp1b
-  DOUBLE PRECISION :: delq
   DOUBLE PRECISION :: delqb
   DOUBLE PRECISION :: derivd
   DOUBLE PRECISION :: derivdb
@@ -4746,10 +4728,8 @@ SUBROUTINE QREPAR_B(sommedebitance, sommedebitanceb, zaval, zavalb, &
   DOUBLE PRECISION :: rh1b, rh2b
   DOUBLE PRECISION :: s1, s2
   DOUBLE PRECISION :: s1b, s2b
-  DOUBLE PRECISION :: sdelq
   DOUBLE PRECISION :: sdelqb
   DOUBLE PRECISION :: sdelz
-  DOUBLE PRECISION :: sq
   DOUBLE PRECISION :: sqb
   DOUBLE PRECISION :: sqddz
   DOUBLE PRECISION :: sqddzb
@@ -4786,7 +4766,6 @@ SUBROUTINE QREPAR_B(sommedebitance, sommedebitanceb, zaval, zavalb, &
   INTEGER :: arg1
   DOUBLE PRECISION :: result1
   INTEGER :: branch
-  INTEGER :: ad_to
   INTEGER :: ad_count
   INTEGER :: i0
   INTEGER :: ad_from
@@ -5892,7 +5871,6 @@ SUBROUTINE PERSAR_B(z, zb, q, qb, x, zref, cf1, cf1b, cf2, cf2b, pcsing&
   INTRINSIC SIZE
   INTRINSIC MAX
   INTRINSIC INT
-  INTEGER :: ad_to
   INTEGER :: ad_from
   INTEGER :: ad_to0
   INTEGER :: branch
@@ -5945,8 +5923,8 @@ label_ia:DO WHILE (ia .LT. nappel)
         isub = INT(algorithme(ia)/100)
         CALL PUSHINTEGER4(noeud_bief)
         noeud_bief = algorithme(ia) - 100*isub
-        SELECT CASE  (isub) 
-        CASE (appel_qbief) 
+        SELECT CASE  (isub)
+        CASE (appel_qbief)
 ! Connect%OrigineBief(noeud_bief) : NUMERO DE LA SECTION ORIGINE DU BIEF
 ! On cherche l'extremite libre qui correspond
 ! a la section Connect%OrigineBief(noeud_bief)
@@ -5975,7 +5953,7 @@ label_ia:DO WHILE (ia .LT. nappel)
           CALL PUSHINTEGER4(isec - 1)
           CALL PUSHINTEGER4(ad_from)
           CALL PUSHCONTROL3B(6)
-        CASE (appel_permat) 
+        CASE (appel_permat)
 ! Calcul des pertes de charge automatique aux confluences
           IF (pertechargeconfluent) THEN
             CALL PUSHCHARACTERARRAY(erreur%message, 400)
@@ -6031,7 +6009,7 @@ label_ia:DO WHILE (ia .LT. nappel)
           ELSE
             CALL PUSHCONTROL3B(5)
           END IF
-        CASE (appel_qnode_1er_pass) 
+        CASE (appel_qnode_1er_pass)
           numpassage = 1
 !/DONNEES MODIFIEES/
 !/DONNEES NON MODIFIEES/
@@ -6043,7 +6021,7 @@ label_ia:DO WHILE (ia .LT. nappel)
           ELSE
             CALL PUSHCONTROL3B(4)
           END IF
-        CASE (appel_qnode_2nd_pass) 
+        CASE (appel_qnode_2nd_pass)
           numpassage = 2
 !/DONNEES MODIFIEES/
 !/DONNEES NON MODIFIEES/
@@ -6055,7 +6033,7 @@ label_ia:DO WHILE (ia .LT. nappel)
           ELSE
             CALL PUSHCONTROL3B(3)
           END IF
-        CASE (appel_qrepar_1er_pass) 
+        CASE (appel_qrepar_1er_pass)
           numpassage = 1
 !/RESULTATS/
 !/DONNEES MODIFIEES/
@@ -6078,7 +6056,7 @@ label_ia:DO WHILE (ia .LT. nappel)
           ELSE
             CALL PUSHCONTROL3B(2)
           END IF
-        CASE (appel_qrepar_2nd_pass) 
+        CASE (appel_qrepar_2nd_pass)
           numpassage = 2
 !/RESULTATS/
 !/DONNEES MODIFIEES/
@@ -6447,14 +6425,12 @@ SUBROUTINE CQINJ_B(qinjec, qinjecb, x, z, zb, apport, deversoir, &
   INTEGER :: jj, k
   INTEGER :: nb_point
   INTEGER :: ns_debut, ns_fin
-  DOUBLE PRECISION :: q_apport
   DOUBLE PRECISION :: long_apport_modele
   DOUBLE PRECISION :: coeff_debit
   DOUBLE PRECISION :: cote_crete
 ! retour de fonction intrinseque
   INTEGER :: retour
   INTRINSIC SIZE
-  INTEGER :: ad_to
   INTEGER :: branch
   INTEGER :: ad_count
   INTEGER :: i
@@ -6906,9 +6882,7 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
   TYPE(DEVERSOIR_T), DIMENSION(:), INTENT(IN) :: deversoir
 !.. Local Scalars ..
   DOUBLE PRECISION :: vmoy
-  DOUBLE PRECISION :: vmoyb
   DOUBLE PRECISION :: deb
-  DOUBLE PRECISION :: debb
 ! Compteur sur les debits d'apport
   INTEGER :: iinj
 ! Compteur sur les sections
@@ -6918,7 +6892,6 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
 ! abscisse relative d'une section
   DOUBLE PRECISION :: absc_rel
 !character(132) :: !arbredappel_old  ! arbre dappel precedent
-  DOUBLE PRECISION :: hi, vi
 !.. Local Arrays ..
   DOUBLE PRECISION, DIMENSION(SIZE(x)) :: q
   DOUBLE PRECISION, DIMENSION(SIZE(x)) :: qb
@@ -7080,7 +7053,7 @@ SUBROUTINE DIFF_Z_CF12_BWD_SARAP(diff_z_bwd, dcf1_rwd, dcf2_rwd)
   USE M_NUM_BIEF_S
   USE M_FROUDE_S
   USE M_SARAP_I_B
-  USE M_SHARE_VAR        
+  USE M_SHARE_VAR
   IMPLICIT NONE
 
   DOUBLE PRECISION, DIMENSION(size(x)) :: diff_z_bwd

@@ -91,7 +91,7 @@ CONTAINS
 !character(132) :: !arbredappel_old
 ! Les Constantes sont declares dans le module M_PARAMETRES_C
 !.. Local Arrays ..
-    DOUBLE PRECISION, DIMENSION(2) :: fb1, fb2, fbs, fp1, fp2, fs1, fs2
+    DOUBLE PRECISION, DIMENSION(2) :: fb1, fb2, fp1, fp2, fs1, fs2
 !.. Intrinsic Functions ..
     INTRINSIC INT
 !============================= Instructions =============================
@@ -155,10 +155,6 @@ CONTAINS
     END IF
     zb = zb + yb
 ! ... Format Declarations ...
-10000 FORMAT( '<< ATTENTION >>', 'Dans la section de calcul n0 ',i4,/, &
-&          'Tirant d''eau = ',g15.7,' depassant la hauteur du profil'&
-&          ,/, 'Augmenter le nombre de pas de planimetrage : ',i4,&
-&          ' ou le pas : ',f7.2)
   END SUBROUTINE RHSBP_S_B
 !========================================================================
 ! Variables hydrauliques
@@ -168,7 +164,7 @@ CONTAINS
 ! Profil et Profils planimetres
 ! Unite logique fichier listing
 ! Erreur
- 
+
   SUBROUTINE RHSBP_SECTION_S_B(varsect, varsectb, zref, z, zb, idt, xdt&
 &   , profil, varprof, erreur)
 !***********************************************************************
@@ -214,7 +210,6 @@ CONTAINS
 ! Pas de planimetrage
     DOUBLE PRECISION :: pas
 ! Hauteur d'eau a la section
-    DOUBLE PRECISION :: yd
     DOUBLE PRECISION :: ydb
 ! Hauteur d'eau a la section
     DOUBLE PRECISION :: y_loc

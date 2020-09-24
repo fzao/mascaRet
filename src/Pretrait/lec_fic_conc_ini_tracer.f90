@@ -88,7 +88,6 @@ subroutine LEC_FIC_CONC_INI_TRACER( &
    character(2) :: CU
    character(3) :: CD
 
-   character(132) :: arbredappel_old ! arbre d'appel precedant
 
    !============================ Instructions ==============================
    !INITIALISATION
@@ -170,7 +169,7 @@ subroutine LEC_FIC_CONC_INI_TRACER( &
          !------------------------------------------------------
          do j = 1 , nb_trac
             if( j.lt.10 ) then
-               CU = 'C'//j_in_letter(j)
+               CU = 'C'//j_in_letter(j)(1:1)
                rang = index( chaine ,CU)
             else
                CD = 'C'//j_in_letter(j)

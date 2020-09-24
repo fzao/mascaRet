@@ -122,7 +122,7 @@ use M_Diffu_I
   real(DOUBLE)    , dimension(:) , intent(inout) :: Vit1
 
 ! Variables locales
-  integer :: i, k, iapp   ! Compteurs
+  integer :: i, k   ! Compteurs
   integer :: NbProfil   ! Nombre de profils
   integer :: NbCouche   ! Nombre de couches s�dimentaires
   integer :: NbApport   ! Nombre d'apports

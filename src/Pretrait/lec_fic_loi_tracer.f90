@@ -66,7 +66,7 @@ Subroutine LEC_FIC_LOI_TRACER( &
    use M_MESSAGE_TRACER_C
    use M_TRAITER_ERREUR_I  ! Traitement de l'erreur
 
-   !.. Implicit Declarations .. 
+   !.. Implicit Declarations ..
    implicit none
 
    ! Constantes
@@ -88,12 +88,9 @@ Subroutine LEC_FIC_LOI_TRACER( &
    integer                           :: rang        ! position du mot cle sur la ligne
    character(72)                     :: txt         ! chaine de caractere temporaire
    character(LEN_CHAINE)             :: chaine      ! Chaine contenant une ligne du fichier
-   character(LEN_CHAINE)             :: chaine_opt  ! chaine au format opthyca
-   character(LEN_CHAINE)             :: chaine_fort ! chaine convertie au format fortran
    character(1)                      :: ChaineVar
    ! Traitement des erreurs
    integer                           :: retour      ! code de retour des fonctions d'e/s
-   character(132)                    :: arbredappel_old  ! ancien arbre
    type(ERREUR_T) , intent(inout)    :: Erreur
 
    !============================ Instructions ===============================

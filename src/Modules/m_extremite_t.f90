@@ -130,7 +130,7 @@ contains
     end function GET_TYPE_VAR_EXTREMITE
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -192,7 +192,7 @@ contains
    end function GET_TAILLE_VAR_EXTREMITE
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -269,7 +269,7 @@ contains
    end function SET_TAILLE_VAR_EXTREMITE
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -427,7 +427,7 @@ contains
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.Boundary.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:30)
       else
          SET_STRING_EXTREMITE = 1
          MessageErreur         = "SET_STRING_EXTREMITE - Unknown variable name"
@@ -449,8 +449,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_EXTREMITE = 0
       MessageErreur       = ""
       err                 = 0
@@ -499,10 +497,6 @@ contains
       type(EXTREMITE_T),      intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_EXTREMITE = 0
       MessageErreur          = ""
 

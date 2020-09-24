@@ -104,6 +104,7 @@ function ALARG( &
       Erreur%ft     = err_100
       Erreur%ft_c   = err_100c
       call TRAITER_ERREUR( Erreur , TIRANT , DZ(NOEUD) * ( NMLARG - 1 ) , NOEUD )
+      ALARG = 0.
       return
    endif
 

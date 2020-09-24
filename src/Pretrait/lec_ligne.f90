@@ -120,15 +120,12 @@ subroutine LEC_LIGNE( &
    real(DOUBLE)    , dimension(:), pointer :: cf1_ini => null()   ! Coeff frottement majeur lu
    real(DOUBLE)    , dimension(:), pointer :: cf2_ini => null()   ! Coeff frottement majeur lu
    !character(132) :: !arbredappel_old
-   type(SECTION_REL_T) :: section
    integer      :: i,j, ideb_bief, ifin_bief  ! compteurs
    integer      :: nb_sect              ! nombre de sections de calculs
    logical      :: interpoler           ! test necessite interpolatione
    integer      :: RETOUR               ! code de retour des fonctions intrinseques
    real(DOUBLE) :: sigma                ! somme des differences entre deux maillages
    logical      :: presence_coeff_frott ! test de presence du coeff de frottement
-   real(DOUBLE) :: x_prec               ! abscisse
-   integer      :: branche_prec         ! numero de branche
 
    !============================ Instructions ==============================
    ! INITIALISATION

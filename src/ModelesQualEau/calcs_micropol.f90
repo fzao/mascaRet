@@ -57,7 +57,7 @@ SUBROUTINE CALCS_MICROPOL( RNU , S , &
 !  RESULTATS------------------------------------------------------------
 ! !  RNUV     ! TR ! D  ! TERMES SOURCES VOLUMIQUES IMPLICITES         !
 ! !  RNUS     ! TR ! D  ! TERME SOURCE SURFACIQUE IMPLICITES           !
-! !  SV       ! TR ! D  ! TERMES SOURCES  EXPLICITES                   ! 
+! !  SV       ! TR ! D  ! TERMES SOURCES  EXPLICITES                   !
 ! !___________!____!____!______________________________________________!
 !                               COMMON
 ! .___________.____.____.______________________________________________.
@@ -105,11 +105,11 @@ SUBROUTINE CALCS_MICROPOL( RNU , S , &
    !
    !  VARIABLES LOCALES
    !
-   REAL(DOUBLE) , DIMENSION (Nbsect)        :: U , PJ , TAUB
+   REAL(DOUBLE) , DIMENSION (Nbsect)        :: PJ , TAUB
    REAL(DOUBLE) , DIMENSION (Nbsect)        :: SEDP , RS
    REAL(DOUBLE) , DIMENSION (Nbsect,nbtra)  :: SS , SV
    REAL(DOUBLE) ERO , TAUR , TAUS , VITCHU , LAMBD , KD , KDESORP , RO , GRAV
-   INTEGER I , J , K
+   INTEGER I , K
    INTEGER :: IF1 = 0
    !
    SAVE RO , GRAV , ERO , TAUR , TAUS , VITCHU , LAMBD , KD , KDESORP , IF1
@@ -127,7 +127,7 @@ SUBROUTINE CALCS_MICROPOL( RNU , S , &
    ! ----------------------------------------------------------------
    ! -I- INITIALISATIONS
    !
-   ! 1) AFFECTATIONS DES PARAMETRES PHYSIQUES 
+   ! 1) AFFECTATIONS DES PARAMETRES PHYSIQUES
    !
    IF( IF1.EQ.0 ) THEN
       ERO     = TPARPH%ParQual_eau(1)
@@ -300,7 +300,7 @@ end function GET_TYPE_VAR_CALCS_MICROPOL
 
 function GET_TAILLE_VAR_CALCS_MICROPOL(ParQual_Eau, NomVar, taille1, MessageErreur)
 
-   use M_PRECISION 
+   use M_PRECISION
 
    implicit none
 
@@ -339,7 +339,7 @@ end function GET_TAILLE_VAR_CALCS_MICROPOL
 function GET_DOUBLE_CALCS_MICROPOL(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_DOUBLE_CALCS_MICROPOL    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -376,7 +376,7 @@ end function GET_DOUBLE_CALCS_MICROPOL
 function SET_DOUBLE_CALCS_MICROPOL(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_DOUBLE_CALCS_MICROPOL    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur

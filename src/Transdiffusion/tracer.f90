@@ -155,14 +155,13 @@ subroutine TRACER (       &
    real(DOUBLE), dimension(Nbsect,Nbtrac)      :: RK           ! Coefficient de diffusion
    real(DOUBLE)                                :: CR
    integer                                     :: nb_noeud , nb_ext , nbbief , nbsing
-   integer                                     :: IP , IS , INOEUD , IBIEF , ISING
-   integer                                     :: isect , num_sect , num_bief
-   real(DOUBLE), dimension(size(Singularite))        :: Xsing
+   integer                                     :: IP , IS , INOEUD , IBIEF
+   integer                                     :: num_sect , num_bief
    real(DOUBLE), dimension(size(Connect%OrigineBief)):: CL1 , CL2
    integer     , dimension(size(Connect%OrigineBief)):: TCL1 , TCL2
    logical, dimension(size(Connect%OrigineBief))     :: aval , resol
    real(DOUBLE)                                      :: Q_amont , Flux_amont
-   integer :: I , J , Choix_Modele
+   integer :: I , J
    integer :: IM , NSAMB , NSAVB , ICL , NSCMP , nbb_aval
    integer :: retour
    integer :: nok,num_sect0,ip0,inoeud0
@@ -674,7 +673,5 @@ subroutine TRACER (       &
    endif
 
    return
-
-   10000 format ('Temps = ',f12.3,' s - Nombre de courant maximal  : ',F5.2)
 
 end subroutine TRACER

@@ -103,6 +103,7 @@ function CELE( &
    call DICHO( JG , JD , SURF , SGEO(NOEUD,:) , ERREUR )
 
    if( Erreur%Numero /= 0 ) then
+      CELE = 0.
       return
    endif
 
@@ -120,6 +121,7 @@ function CELE( &
       Erreur%ft_c   = err_104c
       !arbredappel_old    = trim(!Erreur%arbredappel)
       !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>CELE'
+      CELE = 0.
       call TRAITER_ERREUR( Erreur , ALARG , NOEUD , JG , JD )
       return
    endif

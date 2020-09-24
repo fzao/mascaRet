@@ -44,8 +44,8 @@ subroutine  KLIAISON                    ( &
 !
 !     A*DQ_liaison + B*DZAMONT + C*DZAVAL = D
 !
-!     Appel = 1 : LES COEFFICIENTS DE L'EQUATION 
-!                 DE LA LIAISON ET LE DEBIT SONT CALCULES 
+!     Appel = 1 : LES COEFFICIENTS DE L'EQUATION
+!                 DE LA LIAISON ET LE DEBIT SONT CALCULES
 !     Appel = 2 : SEUL LE DEBIT THEORIQUE EST CALCULE
 !_____________________________________________________________________________
 !
@@ -76,19 +76,19 @@ subroutine  KLIAISON                    ( &
    use M_CONNECT_T        ! Definition du type CONNECT_T
    use M_LIAISON_T        ! Definition du type SINGULARITE_T
    use M_ERREUR_T         ! Definition du type ERREUR_T
-   use M_TRAITER_ERREUR_I ! Traitement des erreurs   
+   use M_TRAITER_ERREUR_I ! Traitement des erreurs
    use M_TRAITER_ERREUR_CASIER_I ! traitement des erreurs
    use M_MESSAGE_CASIER_C        ! messages d erreur propres a CASIER
    use M_NUM_BIEF_S       ! Calcul du num d'un bief d'apres num section calcul
-     
+
    use M_INTERPOLATION_S  ! Interpolation
    use M_RHSBP_S          ! Sous programme
-   
+
    use M_LIAISON_SEUIL_I    ! Interface de sous-programme
    use M_LIAISON_CHENAL_I   ! Interface de sous-programme
    use M_LIAISON_SIPHON_I   ! Interface de sous-programme
    use M_LIAISON_ORIFICE_I  ! Interface de sous-programme
-   
+
 
    implicit none
 
@@ -107,13 +107,12 @@ subroutine  KLIAISON                    ( &
    !.. Scalaires locaux ..
    integer :: type   ! Type de la singularite
    real(DOUBLE)   :: DQDZAM,DQDZAV
-   real(DOUBLE)   :: DX,DYQZ,DYQZ1,DYZQ1
    real(DOUBLE)   :: Zplafond
-   
+
    !character(132) :: arbredappel_old
-   integer        :: num_section     ! numero d'une section
-   integer        :: num_bief        ! numero du bief correspondant
-   real(DOUBLE)   :: abs_rel         ! abscisse relative correspondante
+   !integer        :: num_section     ! numero d'une section
+   !integer        :: num_bief        ! numero du bief correspondant
+   !real(DOUBLE)   :: abs_rel         ! abscisse relative correspondante
 
    !.. Intrinsic Functions ..
    intrinsic DABS, DMAX1, DMIN1
@@ -125,26 +124,26 @@ subroutine  KLIAISON                    ( &
    Erreur%Numero = 0
    !arbredappel_old    = trim(Erreur%arbredappel)
    !Erreur%arbredappel = trim(Erreur%arbredappel)//'=>KLIAISON'
-   
+
     DQDZAM = 0._DOUBLE
     DQDZAV = 0._DOUBLE
     Qliai  = 0._DOUBLE
-    
+
    !calcul de cote moyenne de la surface libre au dessus de la liaison
    if( dmin1( ZAM , ZAV ) <= Liaison%Cote ) then
       liaison%CoteMoyenne = 0.5_DOUBLE * ( dmax1( ZAM , ZAV ) + Liaison%Cote ) !haval est nulle
    else
       liaison%CoteMoyenne = 0.5_DOUBLE * ( ZAM + ZAV )
    end if
-    
+
    ! -----------------------------------------------------------------------
    ! CALCUL DES PARAMETRES CARACTERISTIQUES DES SINGULARITES
    ! -----------------------------------------------------------------------
     type   = liaison%Typeliaison
     select case( type )
-      
+
         case ( LIAISON_TYPE_SEUIL )     !************************************
-            
+
             if( ZAM > Liaison%Cote .or. ZAV > Liaison%Cote ) then
 
                call LIAISON_SEUIL                 ( &
@@ -157,33 +156,33 @@ subroutine  KLIAISON                    ( &
                   return
                end if
             end if
-            
+
             if( abs(Liaison%CoteMoyenne - Liaison%Cote) .LT.EPS6 ) then
                 Liaison%VitesseEchange = Liaison%DebitEchange / ( Liaison%Largeur * ( Liaison%CoteMoyenne - Liaison%Cote ) )
             end if
-            
+
         case( LIAISON_TYPE_CHENAL )     !************************************
-            
+
             if( ZAM > Liaison%Cote .or. ZAV > Liaison%Cote ) then
-            
+
                 call LIAISON_CHENAL             ( &
                     DQDZAM,DQDZAV,Qliai         , &
                     ZAM, ZAV, ZfAM, ZfAV        , &
                     Liaison                     , &
-                    Erreur                       )               
-                    
+                    Erreur                       )
+
                 if( Erreur%Numero /= 0 ) then
                     return
                 end if
             endif
-            
+
             ! Largeur /=0, test dans PRETRAIT_CASIER
             if( abs(Liaison%DebitEchange).GT.EPS6 ) then
                 Liaison%VitesseEchange = Liaison%DebitEchange / ( Liaison%Largeur * ( liaison%CoteMoyenne - Liaison%Cote ) )
             end if
-            
+
         case( LIAISON_TYPE_SIPHON )     !************************************
-        
+
             if( ZAM > Liaison%Cote .or. ZAV > Liaison%Cote ) then
 
                call LIAISON_SIPHON              ( &
@@ -191,16 +190,16 @@ subroutine  KLIAISON                    ( &
                      ZAM, ZAV, ZfAM, ZfAV       , &
                      Liaison                    , &
                      Erreur                     )
-               
+
                if( Erreur%Numero /= 0 ) then
                   return
                end if
             endif
             ! Section /=0, test dans PRETRAIT_CASIER
             Liaison%VitesseEchange = Liaison%DebitEchange / Liaison%Section
-        
+
         case( LIAISON_TYPE_ORIFICE )    !************************************
-        
+
             if( ZAM > Liaison%Cote .or. ZAV > Liaison%Cote ) then
 
                call LIAISON_ORIFICE             ( &
@@ -208,22 +207,22 @@ subroutine  KLIAISON                    ( &
                      ZAM, ZAV, ZfAM, ZfAV       , &
                      Liaison                    , &
                      Erreur                     )
-               
+
                if( Erreur%Numero /= 0 ) then
                   return
                end if
             endif
-            
+
             Zplafond = Liaison%cote + Liaison%section/liaison%largeur    !orifice rectangulaire
             if( ( ZAM >= Zplafond ) .or. ( ZAV >= Zplafond ) ) then   !orifice submerge
                 ! Section /=0, test dans PRETRAIT_CASIER
                 Liaison%VitesseEchange = Liaison%DebitEchange / Liaison%Section
             elseif( ( liaison%CoteMoyenne >= Liaison%Cote ) .and. ( abs(Liaison%DebitEchange).GT.EPS6 ) ) then
-                Liaison%VitesseEchange = Liaison%DebitEchange / ( Liaison%Largeur * ( liaison%CoteMoyenne - Liaison%Cote ) )    
+                Liaison%VitesseEchange = Liaison%DebitEchange / ( Liaison%Largeur * ( liaison%CoteMoyenne - Liaison%Cote ) )
             else
                 Liaison%VitesseEchange = 0
-            endif 
-            
+            endif
+
 !                if( ( liaison%CoteMoyenne == Liaison%Cote ) .and. ( Liaison%DebitEchange /= 0._DOUBLE ) ) then
 !                    Erreur%Numero = 802
 !                    Erreur%ft     = err_802
@@ -255,8 +254,8 @@ subroutine  KLIAISON                    ( &
     Bliai = DQDZAM
     Cliai = DQDZAV
     Dliai = 0._DOUBLE
-    
-    
+
+
 !    if( Impression ) then
 !            num_section = Singularite(NumSeuil)%Section
 !            num_bief    = NUM_BIEF_S( Connect , num_section , Erreur )
@@ -268,18 +267,12 @@ subroutine  KLIAISON                    ( &
 
 
    return
+!  10001 format ( /,                                             &
+!           ' LIAISON NUMERO = ',i4,/,                         &
+!           ' Bief n0 ',i4,' Abscisse relative X = ',f12.3,/,      &
+!           ' QAM=',f7.2,' QAV=',f7.2,' ZAM=',f7.2,' ZAV=',f7.2,/, &
+!           ' A=',e12.4,' B=',e12.4,' C=',e12.4,' D=',e12.4,/,     &
+!           ' QLIAI=',f7.2)
 
-   ! ... Format ...
-
-  10001 format ( /,                                             &
-         ' LIAISON NUMERO = ',i4,/,                         &
-         ' Bief n0 ',i4,' Abscisse relative X = ',f12.3,/,      &
-         ' QAM=',f7.2,' QAV=',f7.2,' ZAM=',f7.2,' ZAV=',f7.2,/, &
-         ' A=',e12.4,' B=',e12.4,' C=',e12.4,' D=',e12.4,/,     &
-         ' QLIAI=',f7.2)
-  10002 format ( /,                                             &
-         ' LIAISON NUMERO = ',i4,/,                         &
-         ' Bief n0 ',i4,' Abscisse relative X = ',f12.3,/,      &
-         ' QLIAI EFFECTIF  = ',f7.2/)
 
 end subroutine KLIAISON

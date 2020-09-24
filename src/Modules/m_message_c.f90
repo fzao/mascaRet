@@ -1470,7 +1470,7 @@ err_703c = '("The link ",i4,", with the abscissa ",f12.3," is on an extreme node
 !-------------------------------------------------------------------------
 !-------------------------------------------------------------------------
 character (*), parameter ::                                                &
-err_704  = '("Parse error or IO error with Fox while reading the data file .xcas")'
+err_704  = '("Parse error or IO error while reading the data file .xcas")'
 character (*), parameter ::                                                &
 err_704c = '("Error reading XCAS")'
 !-------------------------------------------------------------------------

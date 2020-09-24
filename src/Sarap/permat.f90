@@ -32,7 +32,7 @@ subroutine PERMAT ( &
      F1           , & ! Fonction impulsion
      Connect      , & ! Table de connectivite
      NumBief      , & ! Numero du bief
-     Nbsect       , & ! Nombre de sections 
+     Nbsect       , & ! Nombre de sections
      Singularite  , & ! Singularites
      ModeleLit    , & ! Modele du lit Debord/Fond/Berge
      Impression   , & ! Flag d'impression
@@ -183,7 +183,7 @@ subroutine PERMAT ( &
    real(DOUBLE)       ,                 intent(in)    :: Temps
    integer            ,                 intent(in)    :: LoiFrottement
    integer            ,                 intent(in)    :: Nbsect
-   integer             ,                intent(in)    :: CQMV 
+   integer             ,                intent(in)    :: CQMV
    type(ERREUR_T)     ,                 intent(inout) :: Erreur
    !.. Constantes ..
    !----------------
@@ -195,11 +195,11 @@ subroutine PERMAT ( &
    integer     , parameter :: ITMAX1 = 100
    !.. Variables locales ..
    !-----------------------
-   integer :: IDEBTOR(Nbsect),IFINTOR(Nbsect),Kpass(Nbsect)
+   integer :: IDEBTOR(Nbsect),Kpass(Nbsect)
    real (DOUBLE) :: ZC(Nbsect),Fimp(Nbsect)
    integer               :: Izone,nb_zone
    real(DOUBLE) :: JAV , JS , JAVAM , JAVC,JAM
-   real(DOUBLE) :: ZAM1, ZAM2, ZAV ,ZAV1,ZAV2 ,ZAM,YP1,YP2,ZAM3,ZAM22,ZAM21,ZMIL
+   real(DOUBLE) :: ZAM1, ZAM2, ZAV ,ZAM,YP2,ZAM3,ZAM22,ZAM21,ZMIL
    real(DOUBLE) :: DX, DQ,YPMIL,YP22,YP21,DZ
    real(DOUBLE) :: CQMVJ
    real(DOUBLE) :: Y
@@ -244,7 +244,7 @@ subroutine PERMAT ( &
    integer        :: fin_bief
    integer        :: ising             ! Compteur sur les singularites
    integer        :: num_bief
-   real(DOUBLE)   :: absc_rel , toto1,Toto2
+   real(DOUBLE)   :: absc_rel
    character(132) :: arbredappel_old
 
    !============================= Instructions ===========================
@@ -260,13 +260,13 @@ subroutine PERMAT ( &
 
    !
    !  Prise compte des apports de debit dans la qte de mvt
-   ! 
-   if( CQMV.EQ.0 ) then 
+   !
+   if( CQMV.EQ.0 ) then
       CQMVJ = 0.D0
    else
       CQMVJ = 1.D0
    endif
-   
+
    !
    ! CONDITION INITIALE A L'AVAL
    ! ------------ Balayage d'AMONT EN AVAL DES ZONES FLUVIALES ---------------
@@ -922,7 +922,7 @@ subroutine PERMAT ( &
          endif
 
          !
-         ! Initialisation des valeurs de la fonctions aux bornes 
+         ! Initialisation des valeurs de la fonctions aux bornes
          !
          ZAM2 = ZAM21
          call RHSBP_S (                                         &
@@ -1259,9 +1259,6 @@ subroutine PERMAT ( &
 2030 format('Passage en torrentiel DETECTE a la section : ',i5,/,       &
      'Bief n0 ',i3,', Abscisse relative : ',g12.3,/,                    &
      'cote critique Zcrit = ',f8.3)
-2040 format('Passage en torrentiel NON DETECTE a la section : ',i5,/,   &
-     'bief n0 ',i3,', abscisse relative ',g12.3,/,                      &
-     'cote critique Zcrit = ',F8.3)
 2080 format('A la section : ',I5,', bief n0 ',i3,', abscisse relative = ',g12.3,/, &
      'perte de charge singuliere JS = ',f8.3)
 2090 format('<<CONSEIL>>',/,                                    &

@@ -102,6 +102,7 @@ function AKIVM1( &
    ! RECHERCHE DE L'INTERVALLE CONTENANT AKDES PAR DICHOTOMIE
    call DICHO( JG , JD , AKDES , AKGEO(NOEUD,:) , ERREUR )
    if( Erreur%Numero /= 0 ) then
+      AKIVM1 = 0.
       return
    endif
 

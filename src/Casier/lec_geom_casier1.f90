@@ -88,11 +88,9 @@ subroutine LEC_GEOM_CASIER1( &
    integer                                          :: ul                          ! Unite logique du fichier
    integer                                          :: retour                      ! Code de retour de la fonction read
    integer                                          :: icasier                     ! Compteur sur les casiers
-   integer                                          :: j                           ! Compteur
    integer                                          :: nb_casier                   ! Nombre de casiers lus dans le fichier
    integer                                          :: ipoint, nb_point            ! Compteur sur les points d'une loi
    character(30)                                    :: nom_casier                  ! Nom du bief
-   character(1)                                     :: label                       ! Lit auquel le point appartient bathy/topo
    character(LEN_CHAINE)                            :: chaine                      ! Chaine contenant une ligne du fichier
    !character(132):: arbredappel_old    ! Arbredappel initial
 

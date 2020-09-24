@@ -110,7 +110,7 @@ subroutine CALCFL( &
 
    !.. Variables locales ..
    !-----------------------
-   integer        :: NMAX,NOEUD,IBIEF,I
+   integer        :: NMAX,NOEUD,IBIEF
    real(DOUBLE)   :: CMAX
    real(DOUBLE)   :: CMA,COU,COUR,CNODE1,CNODE2
    integer        :: K,KMAX
@@ -251,8 +251,8 @@ subroutine CALCFL( &
    ! FORMATS D'IMPRESSION
    !---------------------
 
-1000 format(1X,'NOMBRE DE COURANT MAXIMAL : ',F5.2,' en X = ',F11.3,I5)
+1000 format(1X,'NOMBRE DE COURANT MAXIMAL : ',F6.2,' en X = ',F11.3,I5)
 1001 format(1X,'NOMBRE DE COURANT LOCAL : ')
-1002 format(1X,'                          ',F5.2,' en X = ',F11.3)
+!1002 format(1X,'                          ',F6.2,' en X = ',F11.3)
 
 end subroutine CALCFL

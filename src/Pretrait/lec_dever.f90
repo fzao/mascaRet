@@ -27,13 +27,13 @@ subroutine LEC_DEVER( &
       AbscRelExtDebBief , & ! Abscisse de l'extremite debut du bief
       AbscRelExtFinBief , & ! Abscisse de l'extremite debut du bief
            UniteListing , & ! Unite logique fichier listing
-               document , & ! Pointeur vers document XML
+               unitNum  , & ! Unite logique .xcas
                  Erreur & ! Erreur
                        )
 ! *********************************************************************
 ! PROGICIEL : MASCARET         A. LEBOSSE
 !                              S. MANDELKERN
-!                              F. ZAOUI                       
+!                              F. ZAOUI
 !
 ! VERSION : V8P2R0                EDF-CEREMA
 ! *********************************************************************
@@ -50,8 +50,8 @@ subroutine LEC_DEVER( &
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
    ! Arguments
    type(DEVERSOIR_T) , dimension(:), pointer       :: Deversoir
@@ -64,7 +64,7 @@ subroutine LEC_DEVER( &
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:), intent(in   ) :: AbscRelExtFinBief
    integer                         , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                             :: unitNum
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
    ! Variables locales
@@ -77,9 +77,10 @@ subroutine LEC_DEVER( &
    integer :: num_loi      ! numero de loi
    real(DOUBLE) :: abs_abs  ! abscisse absolue du deversoir
    real(DOUBLE) :: abs_fin  ! abscisse relative de fin du deversoir
-   type(Node), pointer :: champ1,champ2,champ3,champ4
    integer, allocatable :: itab1(:),itab2(:),itab3(:)
    real(DOUBLE), allocatable :: rtab1(:),rtab2(:),rtab3(:),rtab4(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -91,23 +92,15 @@ subroutine LEC_DEVER( &
    !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>LEC_DEVER'
    if (UniteListing >0) write(UniteListing,11000)
 
-   champ1 => item(getElementsByTagname(document, "parametresApportDeversoirs"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresApportDeversoirs"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "deversLate"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresApportDeversoirs/deversLate'
+   line = xcasReader(unitNum, pathNode)
+   !if(associated(champ2).eqv..false.) then
+   if(len(trim(line)).eq.0) then
        nb_deversoir = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nbDeversoirs"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => nbDeversoirs"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,nb_deversoir)
+       pathNode = 'parametresApportDeversoirs/deversLate/nbDeversoirs'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nb_deversoir
        if (nb_deversoir < 0) then
           Erreur%Numero = 306
           Erreur%ft     = err_306
@@ -186,77 +179,48 @@ subroutine LEC_DEVER( &
           call TRAITER_ERREUR( Erreur , 'rtab4' )
           return
       end if
-      
-       champ3 => item(getElementsByTagname(champ2, "type"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => type"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,itab1)
-       champ3 => item(getElementsByTagname(champ2, "numBranche"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => numBranche"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,itab2)
-       champ3 => item(getElementsByTagname(champ2, "numLoi"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => numLoi"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,itab3)
-       champ3 => item(getElementsByTagname(champ2, "abscisse"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => abscisse"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,rtab1)
-       champ3 => item(getElementsByTagname(champ2, "longueur"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => longueur"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,rtab2)
-       champ3 => item(getElementsByTagname(champ2, "coteCrete"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => coteCrete"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,rtab3)
-       champ3 => item(getElementsByTagname(champ2, "coeffDebit"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => coeffDebit"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,rtab4)
-       
-      
+
+       pathNode = 'parametresApportDeversoirs/deversLate/type'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) itab1
+
+       pathNode = 'parametresApportDeversoirs/deversLate/numBranche'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) itab2
+
+       pathNode = 'parametresApportDeversoirs/deversLate/numLoi'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) itab3
+
+       pathNode = 'parametresApportDeversoirs/deversLate/abscisse'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) rtab1
+
+       pathNode = 'parametresApportDeversoirs/deversLate/longueur'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) rtab2
+
+       pathNode = 'parametresApportDeversoirs/deversLate/coteCrete'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) rtab3
+
+       pathNode = 'parametresApportDeversoirs/deversLate/coeffDebit'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) rtab4
+
       do idev = 1 , nb_deversoir
           ! Initialisation des pointeurs pour l'API
           nullify(Deversoir(idev)%PtZ)
           nullify(Deversoir(idev)%PtQ)
 
-         champ3 => item(getElementsByTagname(champ2, "noms"), 0)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => noms"
-            call xerror(Erreur)
-            return
-         endif
-         champ4 => item(getElementsByTagname(champ3, "string"), idev-1)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => string"
-            call xerror(Erreur)
-            return
-         endif
-         Deversoir(idev)%Nom  = getTextContent(champ4)
-         
+         if(idev.eq.1) then
+           pathNode = 'parametresApportDeversoirs/deversLate/noms/string'
+           Deversoir(idev)%Nom = xcasReader(unitNum, pathNode)
+        else
+          pathNode = 'string'
+          Deversoir(idev)%Nom = xcasReader(unitNum, pathNode, 0)
+        endif
+
          Deversoir(idev)%Type = itab1(idev)
          if( Deversoir(idev)%Type /= DEVERSOIR_TYPE_CRETE_COEFF .and. Deversoir(idev)%Type /= DEVERSOIR_TYPE_LOI_Z_Q ) then
             Erreur%Numero = 340
@@ -437,7 +401,7 @@ subroutine LEC_DEVER( &
       deallocate(rtab2)
       deallocate(rtab3)
       deallocate(rtab4)
-      
+
    !--------------------
    ! Si pas de deversoir
    !--------------------
@@ -470,21 +434,21 @@ subroutine LEC_DEVER( &
    11090 format (2f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror      
-   
+
+   end subroutine xerror
+
 end subroutine LEC_DEVER

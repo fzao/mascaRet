@@ -27,7 +27,7 @@ MODULE M_APIMASCARET_STATIC
 
    ! Constantes
    integer,  PARAMETER :: NB_MAX_MASCARET           = 1000
-   integer,  PARAMETER :: NB_VAR_MASCARET           =  546
+   integer,  PARAMETER :: NB_VAR_MASCARET           =  548
    integer,  PARAMETER :: NB_MAX_ETAT_MASCARET_SAUV = 1000
 
    real(8), dimension(6,6,5), save :: ABAQUE

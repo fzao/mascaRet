@@ -33,7 +33,7 @@ subroutine CALETA( &
                ZNODE , &
                YNODE , &
               JGNODE , &
-              JDNODE , & 
+              JDNODE , &
                FROUD , &
                CNODE , &
                BETAN , &
@@ -67,7 +67,7 @@ subroutine CALETA( &
 ! !  S        !  R !  M ! SECTION MOUILLEE                             !
 ! !  Q        !  R !  M ! DEBIT                                        !
 ! !  U        !  R !  M ! VITESSE                                      !
-! !  FR       !  R !  M ! FROUDE                                       ! 
+! !  FR       !  R !  M ! FROUDE                                       !
 ! !  C        !  R !  M ! CELERITE                                     !
 ! !  H        !  R !  M ! TIRANT D'EAU                                 !
 ! !  Z        !  R !  M ! COTE SURFACE LIBRE                           !
@@ -85,7 +85,7 @@ subroutine CALETA( &
 ! !  COTR     ! TR !  D ! COTE DU RADIER                               !
 ! !  DZ       ! TR !  D ! PAS DE PLANIMETRAGE                          !
 ! !  DZD      ! TR !  D ! PAS DE PLANIMETRAGE AUX INTERFACES           !
-! !  SGEO     ! TR !  D ! SURFACES PLANIMETREES                        !    
+! !  SGEO     ! TR !  D ! SURFACES PLANIMETREES                        !
 ! !  ALGEO    ! TR !  D ! LARGEUR PLANIMETREE                          !
 ! !  SGEOD    ! TR !  D ! SURFACES PLANIMETREES(Maillage decale)       !
 ! !  PRGEOD   ! TR !  D ! PRESSION PLANIMETREE (MAILLAGE DECALE)       !
@@ -144,8 +144,8 @@ subroutine CALETA( &
 
    !.. Variables locales ..
    !-----------------------
-   integer        :: NINTER,JG,JD,JG1,JD1
-   Real(DOUBLE)   :: ALG,ALD,SG,SD,PRG,ALARG,Y
+   integer        :: NINTER,JG,JD
+   Real(DOUBLE)   :: ALG,ALD,SG,SD,PRG,ALARG
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
 
@@ -209,7 +209,7 @@ subroutine CALETA( &
 
       if( Erreur%Numero /= 0 ) then
          !arbredappel_old    = trim(!Erreur%arbredappel)
-         !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>CALETA' 
+         !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>CALETA'
          return
       endif
 

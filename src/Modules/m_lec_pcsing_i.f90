@@ -33,7 +33,7 @@ module M_LEC_PCSING_I
            AbscRelExtDebBief , & ! Abscisse de l'extremite debut du bief
            AbscRelExtFinBief , & ! Abscisse de l'extremite debut du bief
                        UlLst , & ! Unite logique fichier listing
-                    document , & ! Pointeur vers document XML
+                    unitNum  , & ! Unite logique .xcas
                       Erreur & ! Erreur
                           )
 
@@ -47,8 +47,8 @@ module M_LEC_PCSING_I
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    ! Arguments
@@ -60,8 +60,8 @@ module M_LEC_PCSING_I
    real(DOUBLE)      , dimension(:) , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:) , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document 
-   
+   integer, intent(in)                               :: unitNum
+
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
 

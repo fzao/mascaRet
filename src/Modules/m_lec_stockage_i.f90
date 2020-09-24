@@ -28,7 +28,7 @@ module M_LEC_STOCKAGE_I
                        Profil , &
          PresenceZoneStockage , & ! Flag d'existence de zones de stockage
                         UlLst , & ! Unite logique fichier listing
-                     document , & ! Pointeur vers document XML
+                     unitNum  , & ! Unite logique .xcas
                        Erreur & ! Erreur
                          )
 
@@ -40,7 +40,7 @@ module M_LEC_STOCKAGE_I
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -48,7 +48,7 @@ module M_LEC_STOCKAGE_I
    type(PROFIL_T)    , dimension(:)  , intent(inout) :: Profil
    logical                           , intent(  out) :: PresenceZoneStockage
    integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document      
+   integer, intent(in)                               :: unitNum    
    type(ERREUR_T)                    , intent(inout) :: Erreur
 
    end subroutine LEC_STOCKAGE

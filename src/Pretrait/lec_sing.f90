@@ -28,13 +28,13 @@ subroutine LEC_SING(    &
      AbscRelExtFinBief, & ! Abscisse rel de l'extremite debut du bief
      Noyau            , & ! Noyau de calcul utilise
      UlLst            , & ! Unite logique fichier listing
-     document         , & ! Pointeur vers document XML
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                      
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -51,7 +51,7 @@ subroutine LEC_SING(    &
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -67,7 +67,7 @@ subroutine LEC_SING(    &
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    integer                           , intent(in   ) :: Noyau
    integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document   
+   integer, intent(in)                               :: unitNum
    ! Variables locales
    real(DOUBLE) :: abs_abs     ! abscisse absolue de la singularite
    integer      :: num_branche ! numero de la branche
@@ -81,8 +81,9 @@ subroutine LEC_SING(    &
    integer      :: nb_point_q  ! nombre de points Q des lois
    integer      :: retour      ! Code de retour des fonctions intrinseques
    !character(132) :: !arbredappel_old
-   type(Node), pointer :: champ1,champ2,champ3,champ4
    real(double), allocatable :: rtab1(:),rtab2(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
 
@@ -98,19 +99,10 @@ subroutine LEC_SING(    &
    !-----------------------
    if (UlLst >0) write(UlLst,10000)
 
-   champ1 => item(getElementsByTagname(document, "parametresSingularite"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresSingularite"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "nbSeuils"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => nbSeuils"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,nb_sing)
+   pathNode = 'parametresSingularite/nbSeuils'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_sing
+
    if( nb_sing < 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -131,13 +123,9 @@ subroutine LEC_SING(    &
          return
       end if
 
-      champ2 => item(getElementsByTagname(champ1, "seuils"), 0)
-      if(associated(champ2).eqv..false.) then
-         print*,"Parse error => parametresGeometrieReseau"
-         call xerror(Erreur)
-         return
-      endif
-      
+      pathNode = 'parametresSingularite/seuils'
+      line = xcasReader(unitNum, pathNode)
+
       do ising = 1 , nb_sing
          ! Initialisation des pointeurs pour l'API
          nullify(Singularite(ising)%PtZ)
@@ -148,46 +136,423 @@ subroutine LEC_SING(    &
          nullify(Singularite(ising)%PtY)
 
          Singularite(ising)%EtatEfface      = .FALSE.
-         champ3 => item(getElementsByTagname(champ2, "structureParametresSeuil"), ising-1)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => structureParametresSeuil"
-            call xerror(Erreur)
-            return
-         endif
-         champ4 => item(getElementsByTagname(champ3, "nom"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => nom"
-            call xerror(Erreur)
-            return
-         endif
-         Singularite(ising)%Nom = getTextContent(champ4)
-         champ4 => item(getElementsByTagname(champ3, "type"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => type"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%Type)
-         champ4 => item(getElementsByTagname(champ3, "epaisseur"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => epaisseur"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%Epaisseur_Seuil)
 
+         pathNode = 'structureParametresSeuil/nom'
+         if(ising.eq.1) then
+           Singularite(ising)%Nom = xcasReader(unitNum, pathNode, 0)
+         else
+           Singularite(ising)%Nom = xcasReader(unitNum, pathNode, 1)
+         endif
+
+         pathNode = 'type'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%Type
+
+         pathNode = 'numBranche'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%NumBranche
+         num_branche = Singularite(ising)%NumBranche
+
+         pathNode = 'abscisse'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%AbscisseRel
+
+         if( Singularite(ising)%Type /= SINGULARITE_TYPE_PROFIL_CRETE ) then
+            pathNode = 'coteCrete'
+            line = xcasReader(unitNum, pathNode, 2)
+            read(unit=line, fmt=*) Singularite(ising)%CoteCrete
+            if( Singularite(ising)%CoteCrete < 0._DOUBLE ) then
+               Erreur%Numero = 326
+               Erreur%ft     = err_326
+               Erreur%ft_c   = err_326c
+               call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteCrete )
+               return
+            end if
+         else if( Singularite(ising)%Type == SINGULARITE_TYPE_PROFIL_CRETE ) then
+            pathNode = 'coteCreteMoy'
+            line = xcasReader(unitNum, pathNode, 2)
+            read(unit=line, fmt=*) Singularite(ising)%CoteCrete
+            if( Singularite(ising)%CoteCrete < 0._DOUBLE ) then
+               Erreur%Numero = 326
+               Erreur%ft     = err_326
+               Erreur%ft_c   = err_326c
+               call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteCrete )
+               return
+            end if
+         end if
+
+         pathNode = 'coteRupture'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%CoteRupture
+         if( Singularite(ising)%CoteRupture < Singularite(ising)%CoteCrete ) then
+            Erreur%Numero = 328
+            Erreur%ft     = err_328
+            Erreur%ft_c   = err_328c
+            call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteRupture )
+            return
+         end if
+
+         pathNode = 'coeffDebit'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%coeffDebit
+         if( Singularite(ising)%CoeffDebit < 0._DOUBLE .or. Singularite(ising)%CoeffDebit > 1._DOUBLE ) then
+            Erreur%Numero = 327
+            Erreur%ft     = err_327
+            Erreur%ft_c   = err_327c
+            call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoeffDebit )
+            return
+         end if
+
+         if( Singularite(ising)%Type == SINGULARITE_TYPE_VANNE ) then
+             pathNode = 'largVanne'
+             line = xcasReader(unitNum, pathNode, 2)
+             read(unit=line, fmt=*) Singularite(ising)%LargeurVanne
+             if( Singularite(ising)%LargeurVanne < 0._DOUBLE ) then
+                Erreur%Numero = 370
+                Erreur%ft     = err_370
+                Erreur%ft_c   = err_370c
+                call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%LargeurVanne )
+                return
+             end if
+         end if
+
+         if( Singularite(ising)%Type /= SINGULARITE_TYPE_PROFIL_CRETE ) then
+             pathNode = 'numLoi'
+             line = xcasReader(unitNum, pathNode, 2)
+             read(unit=line, fmt=*) Singularite(ising)%NumeroLoi
+             if( Singularite(ising)%Type /= SINGULARITE_TYPE_CRETE_COEFF ) then
+                if( Singularite(ising)%NumeroLoi <= 0 .or. Singularite(ising)%NumeroLoi > size(LoiHydrau) ) then
+                   Erreur%Numero = 329
+                   Erreur%ft     = err_329
+                   Erreur%ft_c   = err_329c
+                   call TRAITER_ERREUR( Erreur , ising , num_loi )
+                   return
+                end if
+             end if
+             num_loi = Singularite(ising)%NumeroLoi
+             if (UlLst >0) write(UlLst,10050) Singularite(ising)%NumeroLoi
+          endif
+
+          ! Implementation des loi de singularite
+          !--------------------------------------
+          select case( Singularite(ising)%Type )
+
+             case( SINGULARITE_TYPE_CRETE_COEFF )
+
+                ! Controle de coherence type de singularite / type de loi
+                !--------------------------------------------------------
+                if( num_loi /= 0 ) then
+                   if( LoiHydrau(num_loi)%Type /= LOI_TYPE_HYDROGRAMME ) then
+                      Erreur%Numero = 359
+                      Erreur%ft     = err_359
+                      Erreur%ft_c   = err_359c
+                      call TRAITER_ERREUR( Erreur, num_loi ,    &
+                                      LoiHydrau(num_loi)%Type , &
+                                      ising ,                   &
+                                      Singularite(ising)%Type)
+                      return
+                   endif
+                endif
+
+                if( num_loi /= 0 ) then
+                   Singularite(ising)%Debit = LoiHydrau(num_loi)%Debit(1)
+                else
+                   Singularite(ising)%Debit = 0._DOUBLE
+                end if
+
+                ! Impressions
+                if (UlLst >0) write (Ullst,10130)
+                if (UlLst >0) write(UlLst,10140) Singularite(ising)%Debit
+
+                if(.not.associated(Singularite(ising)%PtX)) allocate( Singularite(ising)%PtX(2) , STAT = retour )
+                if( retour /= 0 ) then
+                   Erreur%Numero = 5
+                   Erreur%ft     = err_5
+                   Erreur%ft_c   = err_5c
+                   call TRAITER_ERREUR( Erreur , 'Singularite%PtX' )
+                   return
+                end if
+
+                if(.not.associated(Singularite(ising)%PtY)) allocate( Singularite(ising)%PtY(2) , STAT = retour )
+                if( retour /= 0 ) then
+                   Erreur%Numero = 5
+                   Erreur%ft     = err_5
+                   Erreur%ft_c   = err_5c
+                   call TRAITER_ERREUR( Erreur , 'Singularite%PtY' )
+                   return
+                end if
+
+             case( SINGULARITE_TYPE_ZAMONT_ZAVAL_Q )
+                ! Controle de coherence type de singularite / type de loi
+                !--------------------------------------------------------
+                if( LoiHydrau(num_loi)%Type /= LOI_TYPE_ZAMONT_ZAVAL_Q ) then
+                   Erreur%Numero = 359
+                   Erreur%ft     = err_359
+                   Erreur%ft_c   = err_359c
+                   call TRAITER_ERREUR( Erreur , num_loi ,        &
+                                        LoiHydrau(num_loi)%Type , &
+                                        ising ,                   &
+                                        Singularite(ising)%Type)
+                   return
+                endif
+
+                ! Nombre de points des lois
+                !--------------------------
+                nb_point_z = size(LoiHydrau(num_loi)%CoteAval)
+                nb_point_q = size(LoiHydrau(num_loi)%Debit)
+
+                ! Allocations
+                !------------
+                if(.not.associated(Singularite(ising)%PtZaval)) allocate( Singularite(ising)%PtZaval(nb_point_z) , STAT = retour )
+                if( retour /= 0 ) then
+                   Erreur%Numero = 5
+                   Erreur%ft     = err_5
+                   Erreur%ft_c   = err_5c
+                   call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZaval' )
+                   return
+                end if
+
+                if(.not.associated(Singularite(ising)%PtZamont)) &
+                         allocate( Singularite(ising)%PtZamont(nb_point_q,nb_point_z) , STAT = retour )
+                if( retour /= 0 ) then
+                   Erreur%Numero = 5
+                   Erreur%ft     = err_5
+                   Erreur%ft_c   = err_5c
+                   call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZamont' )
+                   return
+                end if
+
+                if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point_q) , STAT = retour )
+                if( retour /= 0 ) then
+                   Erreur%Numero = 5
+                   Erreur%ft     = err_5
+                   Erreur%ft_c   = err_5c
+                   call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
+                   return
+                end if
+
+                if (UlLst >0) write(UlLst,10060) nb_point_z, nb_point_q
+                if (UlLst >0) write(UlLst,10080)
+
+                Singularite(ising)%PtQ(:)        = LoiHydrau(num_loi)%Debit(:)
+                Singularite(ising)%PtZaval(:)    = LoiHydrau(num_loi)%CoteAval(:)
+                Singularite(ising)%PtZamont(:,:) = LoiHydrau(num_loi)%CoteAmont(:,:)
+
+                ! Impressions
+                do ipoint = 1 , nb_point_q
+                   do jpoint = 1,nb_point_z
+                      if (UlLst >0) write(UlLst,10120) Singularite(ising)%PtQ(ipoint)     , &
+                                         Singularite(ising)%PtZaval(jpoint) , &
+                                         Singularite(ising)%PtZamont(ipoint,jpoint)
+                   end do
+                end do
+
+             case( SINGULARITE_TYPE_ZAMONT_Q )
+             !------------------------------
+
+             ! Controle de coherence type de singularite / type de loi
+             if( LoiHydrau(num_loi)%Type /= LOI_TYPE_TARAGE_Z_Q ) then
+                Erreur%Numero = 359
+                Erreur%ft     = err_359
+                Erreur%ft_c   = err_359c
+                call TRAITER_ERREUR( Erreur , num_loi ,        &
+                                     LoiHydrau(num_loi)%Type , &
+                                     ising ,                   &
+                                     Singularite(ising)%Type )
+                return
+             endif
+
+             ! Nombre de points des lois
+             !--------------------------
+             nb_point = size(LoiHydrau(num_loi)%Debit)
+
+             ! Allocations
+             if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZ' )
+                return
+             end if
+
+             if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft   = err_5
+                Erreur%ft_c = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
+                return
+             end if
+
+             if (UlLst >0) write(UlLst,10070)
+
+             Singularite(ising)%PtQ(:) = LoiHydrau(num_loi)%Debit(:)
+             Singularite(ising)%PtZ(:) = LoiHydrau(num_loi)%Cote (:)
+
+             do jpoint = 1 , nb_point
+               if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtQ(jpoint), &
+                                  Singularite(ising)%PtZ(jpoint)
+             end do
+
+          case( SINGULARITE_TYPE_Q_ZAMONT , SINGULARITE_TYPE_Q_ZAVAL )
+             !--------------------------------------------------------
+             ! Controle de coherence type de singularite / type de loi
+             if( LoiHydrau(num_loi)%Type /= LOI_TYPE_TARAGE_Q_Z ) then
+                Erreur%Numero = 359
+                Erreur%ft     = err_359
+                Erreur%ft_c   = err_359c
+                call TRAITER_ERREUR( Erreur, num_loi,         &
+                                     LoiHydrau(num_loi)%Type, &
+                                     ising,                   &
+                                     Singularite(ising)%Type)
+                return
+             endif
+
+             ! Nombre de points des lois
+             !--------------------------
+             nb_point = size(LoiHydrau(num_loi)%Debit)
+
+             ! Allocations
+             if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZ' )
+                return
+             end if
+
+             if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
+                return
+             end if
+
+             if (UlLst >0) write(UlLst,10090)
+
+             Singularite(ising)%PtQ(:) = LoiHydrau(num_loi)%Debit(:)
+             Singularite(ising)%PtZ(:) = LoiHydrau(num_loi)%Cote (:)
+
+             do jpoint = 1 , nb_point
+                if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtZ(jpoint), &
+                                   Singularite(ising)%PtQ(jpoint)
+             end do
+
+          case( SINGULARITE_TYPE_Z_T )
+             !-------------------------
+             ! Controle de coherence type de singularite / type de loi
+             if( LoiHydrau(num_loi)%Type /= LOI_TYPE_LIMNIGRAMME ) then
+                Erreur%Numero = 359
+                Erreur%ft     = err_359
+                Erreur%ft_c   = err_359c
+                call TRAITER_ERREUR( Erreur, num_loi,         &
+                                     LoiHydrau(num_loi)%Type, &
+                                     ising,                   &
+                                     Singularite(ising)%Type )
+                return
+             endif
+
+             ! Allocation du tableau PtZ de la singularite
+             if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(1) )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5
+                call TRAITER_ERREUR( Erreur , 'Singularite%PtZ' )
+                return
+             end if
+
+          case( SINGULARITE_TYPE_VANNE )
+             !---------------------------
+             ! Controle de coherence type de singularite / type de loi
+             if( LoiHydrau(num_loi)%Type /= LOI_TYPE_ZINF_ZSUP_T ) then
+                Erreur%Numero = 359
+                Erreur%ft     = err_359
+                Erreur%ft_c   = err_359c
+                call TRAITER_ERREUR( Erreur, num_loi,         &
+                                     LoiHydrau(num_loi)%Type, &
+                                     ising,                   &
+                                     Singularite(ising)%Type)
+                return
+             endif
+
+          case( SINGULARITE_TYPE_PROFIL_CRETE )
+             !----------------------------------
+             ! Allocations
+             pathNode = 'nbPtLoiSeuil'
+             line = xcasReader(unitNum, pathNode, 2)
+             read(unit=line, fmt=*) nb_point
+             if(.not.associated(Singularite(ising)%PtX)) allocate( Singularite(ising)%PtX(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtX' )
+                return
+             end if
+
+             if(.not.associated(Singularite(ising)%PtY)) allocate( Singularite(ising)%PtY(nb_point) , STAT = retour )
+             if( retour /= 0 ) then
+                Erreur%Numero = 5
+                Erreur%ft     = err_5
+                Erreur%ft_c   = err_5c
+                call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtY' )
+                return
+             end if
+
+              allocate( rtab1(nb_point) , STAT = retour )
+              if( retour /= 0 ) then
+                  Erreur%Numero = 5
+                  Erreur%ft     = err_5
+                  Erreur%ft_c   = err_5c
+                  call TRAITER_ERREUR( Erreur , 'rtab1' )
+                  return
+              end if
+              allocate( rtab2(nb_point) , STAT = retour )
+              if( retour /= 0 ) then
+                  Erreur%Numero = 5
+                  Erreur%ft     = err_5
+                  Erreur%ft_c   = err_5c
+                  call TRAITER_ERREUR( Erreur , 'rtab2' )
+                  return
+              end if
+
+             if (UlLst >0) write(UlLst,10100)
+
+             pathNode = 'abscTravCrete'
+             line = xcasReader(unitNum, pathNode, 2)
+             read(unit=line, fmt=*) rtab1
+
+             pathNode = 'cotesCrete'
+             line = xcasReader(unitNum, pathNode, 2)
+             read(unit=line, fmt=*) rtab2
+
+             do ipoint = 1 , nb_point
+                Singularite(ising)%PtX(ipoint) = rtab1(ipoint)
+                Singularite(ising)%PtY(ipoint) = rtab2(ipoint)
+
+                if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtX(ipoint) , Singularite(ising)%PtY(ipoint)
+             end do
+
+             deallocate(rtab1)
+             deallocate(rtab2)
+
+          end select
+
+         pathNode = 'epaisseur'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%Epaisseur_Seuil
          !
          !    Permet de traiter des ruptures non instantanees
          !
-         !
-         champ4 => item(getElementsByTagname(champ3, "gradient"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => gradient"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%Pente)
-         
+         pathNode = 'gradient'
+         line = xcasReader(unitNum, pathNode, 2)
+         read(unit=line, fmt=*) Singularite(ising)%Pente
+
          Singularite(ising)%debit  = 0
 
          if( Singularite(ising)%Type < 1 .or. &
@@ -235,14 +600,6 @@ subroutine LEC_SING(    &
          end if
 
          if (UlLst >0) write(UlLst,10020) ising , Singularite(ising)%Nom , Singularite(ising)%Type
-         champ4 => item(getElementsByTagname(champ3, "numBranche"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => numBranche"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%NumBranche)
-         num_branche = Singularite(ising)%NumBranche
 
          if( Singularite(ising)%NumBranche <= 0 .or. &
              Singularite(ising)%NumBranche > size(Connect%OrigineBief)) then
@@ -254,13 +611,6 @@ subroutine LEC_SING(    &
             return
          end if
 
-         champ4 => item(getElementsByTagname(champ3, "abscisse"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => abscisse"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%AbscisseRel)
          if( Singularite(ising)%AbscisseRel < AbscRelExtDebBief(num_branche) .or. &
              Singularite(ising)%AbscisseRel > AbscRelExtFinBief(num_branche)) then
             Erreur%Numero = 347
@@ -295,88 +645,6 @@ subroutine LEC_SING(    &
             return
          endif
 
-         if( Singularite(ising)%Type /= SINGULARITE_TYPE_PROFIL_CRETE ) then
-            champ4 => item(getElementsByTagname(champ3, "coteCrete"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => coteCrete"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,Singularite(ising)%CoteCrete)
-            if( Singularite(ising)%CoteCrete < 0._DOUBLE ) then
-               Erreur%Numero = 326
-               Erreur%ft     = err_326
-               Erreur%ft_c   = err_326c
-               call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteCrete )
-               return
-            end if
-
-         else if( Singularite(ising)%Type == SINGULARITE_TYPE_PROFIL_CRETE ) then
-            champ4 => item(getElementsByTagname(champ3, "coteCreteMoy"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => coteCreteMoy"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,Singularite(ising)%CoteCrete) 
-            if( Singularite(ising)%CoteCrete < 0._DOUBLE ) then
-               Erreur%Numero = 326
-               Erreur%ft     = err_326
-               Erreur%ft_c   = err_326c
-               call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteCrete )
-               return
-            end if
-         end if
-
-         champ4 => item(getElementsByTagname(champ3, "coeffDebit"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => coeffDebit"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%CoeffDebit) 
-         if( Singularite(ising)%CoeffDebit < 0._DOUBLE .or. Singularite(ising)%CoeffDebit > 1._DOUBLE ) then
-            Erreur%Numero = 327
-            Erreur%ft     = err_327
-            Erreur%ft_c   = err_327c
-            call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoeffDebit )
-            return
-         end if
-
-         if( Singularite(ising)%Type == SINGULARITE_TYPE_VANNE ) then
-
-            champ4 => item(getElementsByTagname(champ3, "largVanne"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => largVanne"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,Singularite(ising)%LargeurVanne)  
-            if( Singularite(ising)%LargeurVanne < 0._DOUBLE ) then
-               Erreur%Numero = 370
-               Erreur%ft     = err_370
-               Erreur%ft_c   = err_370c
-               call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%LargeurVanne )
-               return
-            end if
-
-         end if
-
-         champ4 => item(getElementsByTagname(champ3, "coteRupture"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => coteRupture"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Singularite(ising)%CoteRupture)  
-         if( Singularite(ising)%CoteRupture < Singularite(ising)%CoteCrete ) then
-            Erreur%Numero = 328
-            Erreur%ft     = err_328
-            Erreur%ft_c   = err_328c
-            call TRAITER_ERREUR( Erreur , ising , Singularite(ising)%CoteRupture )
-            return
-         end if
-
          if (UlLst >0) write(UlLst,10040) Singularite(ising)%CoteCrete, Singularite(ising)%CoeffDebit, &
                             Singularite(ising)%CoteRupture , Singularite(ising)%Pente
          if( Singularite(ising)%Epaisseur_Seuil == 1 ) then
@@ -384,350 +652,6 @@ subroutine LEC_SING(    &
          else
             if (UlLst >0) write (ULLST, *) ' Seuil de type mince'
          endif
-
-         if( Singularite(ising)%Type /= SINGULARITE_TYPE_PROFIL_CRETE ) then
-            champ4 => item(getElementsByTagname(champ3, "numLoi"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => numLoi"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,Singularite(ising)%NumeroLoi) 
-            if( Singularite(ising)%Type /= SINGULARITE_TYPE_CRETE_COEFF ) then
-               if( Singularite(ising)%NumeroLoi <= 0 .or. Singularite(ising)%NumeroLoi > size(LoiHydrau) ) then
-                  Erreur%Numero = 329
-                  Erreur%ft     = err_329
-                  Erreur%ft_c   = err_329c
-                  call TRAITER_ERREUR( Erreur , ising , num_loi )
-                  return
-               end if
-            end if
-
-            num_loi = Singularite(ising)%NumeroLoi
-            if (UlLst >0) write(UlLst,10050) Singularite(ising)%NumeroLoi
-
-         endif
-
-         ! Implementation des loi de singularite
-         !--------------------------------------
-         select case( Singularite(ising)%Type )
-
-            case( SINGULARITE_TYPE_CRETE_COEFF )
-
-               ! Controle de coherence type de singularite / type de loi
-               !--------------------------------------------------------
-               if( num_loi /= 0 ) then
-                  if( LoiHydrau(num_loi)%Type /= LOI_TYPE_HYDROGRAMME ) then
-                     Erreur%Numero = 359
-                     Erreur%ft     = err_359
-                     Erreur%ft_c   = err_359c
-                     call TRAITER_ERREUR( Erreur, num_loi ,    &
-                                     LoiHydrau(num_loi)%Type , &
-                                     ising ,                   &
-                                     Singularite(ising)%Type)
-                     return
-                  endif
-               endif
-
-               if( num_loi /= 0 ) then
-                  Singularite(ising)%Debit = LoiHydrau(num_loi)%Debit(1)
-               else
-                  Singularite(ising)%Debit = 0._DOUBLE
-               end if
-
-               ! Impressions
-               if (UlLst >0) write (Ullst,10130)
-               if (UlLst >0) write(UlLst,10140) Singularite(ising)%Debit
-
-               if(.not.associated(Singularite(ising)%PtX)) allocate( Singularite(ising)%PtX(2) , STAT = retour )
-               if( retour /= 0 ) then
-                  Erreur%Numero = 5
-                  Erreur%ft     = err_5
-                  Erreur%ft_c   = err_5c
-                  call TRAITER_ERREUR( Erreur , 'Singularite%PtX' )
-                  return
-               end if
-
-               if(.not.associated(Singularite(ising)%PtY)) allocate( Singularite(ising)%PtY(2) , STAT = retour )
-               if( retour /= 0 ) then
-                  Erreur%Numero = 5
-                  Erreur%ft     = err_5
-                  Erreur%ft_c   = err_5c
-                  call TRAITER_ERREUR( Erreur , 'Singularite%PtY' )
-                  return
-               end if
-
-            case( SINGULARITE_TYPE_ZAMONT_ZAVAL_Q )
-               ! Controle de coherence type de singularite / type de loi
-               !--------------------------------------------------------
-               if( LoiHydrau(num_loi)%Type /= LOI_TYPE_ZAMONT_ZAVAL_Q ) then
-                  Erreur%Numero = 359
-                  Erreur%ft     = err_359
-                  Erreur%ft_c   = err_359c
-                  call TRAITER_ERREUR( Erreur , num_loi ,        &
-                                       LoiHydrau(num_loi)%Type , &
-                                       ising ,                   &
-                                       Singularite(ising)%Type)
-                  return
-               endif
-
-               ! Nombre de points des lois
-               !--------------------------
-               nb_point_z = size(LoiHydrau(num_loi)%CoteAval)
-               nb_point_q = size(LoiHydrau(num_loi)%Debit)
-
-               ! Allocations
-               !------------
-               if(.not.associated(Singularite(ising)%PtZaval)) allocate( Singularite(ising)%PtZaval(nb_point_z) , STAT = retour )
-               if( retour /= 0 ) then
-                  Erreur%Numero = 5
-                  Erreur%ft     = err_5
-                  Erreur%ft_c   = err_5c
-                  call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZaval' )
-                  return
-               end if
-
-               if(.not.associated(Singularite(ising)%PtZamont)) &
-                        allocate( Singularite(ising)%PtZamont(nb_point_q,nb_point_z) , STAT = retour )
-               if( retour /= 0 ) then
-                  Erreur%Numero = 5
-                  Erreur%ft     = err_5
-                  Erreur%ft_c   = err_5c
-                  call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZamont' )
-                  return
-               end if
-
-               if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point_q) , STAT = retour )
-               if( retour /= 0 ) then
-                  Erreur%Numero = 5
-                  Erreur%ft     = err_5
-                  Erreur%ft_c   = err_5c
-                  call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
-                  return
-               end if
-
-               if (UlLst >0) write(UlLst,10060) nb_point_z, nb_point_q
-               if (UlLst >0) write(UlLst,10080)
-
-               Singularite(ising)%PtQ(:)        = LoiHydrau(num_loi)%Debit(:)
-               Singularite(ising)%PtZaval(:)    = LoiHydrau(num_loi)%CoteAval(:)
-               Singularite(ising)%PtZamont(:,:) = LoiHydrau(num_loi)%CoteAmont(:,:)
-
-               ! Impressions
-               do ipoint = 1 , nb_point_q
-                  do jpoint = 1,nb_point_z
-                     if (UlLst >0) write(UlLst,10120) Singularite(ising)%PtQ(ipoint)     , &
-                                        Singularite(ising)%PtZaval(jpoint) , &
-                                        Singularite(ising)%PtZamont(ipoint,jpoint)
-                  end do
-               end do
-
-            case( SINGULARITE_TYPE_ZAMONT_Q )
-            !------------------------------
-
-            ! Controle de coherence type de singularite / type de loi
-            if( LoiHydrau(num_loi)%Type /= LOI_TYPE_TARAGE_Z_Q ) then
-               Erreur%Numero = 359
-               Erreur%ft     = err_359
-               Erreur%ft_c   = err_359c
-               call TRAITER_ERREUR( Erreur , num_loi ,        &
-                                    LoiHydrau(num_loi)%Type , &
-                                    ising ,                   &
-                                    Singularite(ising)%Type )
-               return
-            endif
-
-            ! Nombre de points des lois
-            !--------------------------
-            nb_point = size(LoiHydrau(num_loi)%Debit)
-
-            ! Allocations
-            if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZ' )
-               return
-            end if
-
-            if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft   = err_5
-               Erreur%ft_c = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
-               return
-            end if
-
-            if (UlLst >0) write(UlLst,10070)
-
-            Singularite(ising)%PtQ(:) = LoiHydrau(num_loi)%Debit(:)
-            Singularite(ising)%PtZ(:) = LoiHydrau(num_loi)%Cote (:)
-
-            do jpoint = 1 , nb_point
-              if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtQ(jpoint), &
-                                 Singularite(ising)%PtZ(jpoint)
-            end do
-
-         case( SINGULARITE_TYPE_Q_ZAMONT , SINGULARITE_TYPE_Q_ZAVAL )
-            !--------------------------------------------------------
-            ! Controle de coherence type de singularite / type de loi
-            if( LoiHydrau(num_loi)%Type /= LOI_TYPE_TARAGE_Q_Z ) then
-               Erreur%Numero = 359
-               Erreur%ft     = err_359
-               Erreur%ft_c   = err_359c
-               call TRAITER_ERREUR( Erreur, num_loi,         &
-                                    LoiHydrau(num_loi)%Type, &
-                                    ising,                   &
-                                    Singularite(ising)%Type)
-               return
-            endif
-
-            ! Nombre de points des lois
-            !--------------------------
-            nb_point = size(LoiHydrau(num_loi)%Debit)
-
-            ! Allocations
-            if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtZ' )
-               return
-            end if
-
-            if(.not.associated(Singularite(ising)%PtQ)) allocate( Singularite(ising)%PtQ(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtQ' )
-               return
-            end if
-
-            if (UlLst >0) write(UlLst,10090)
-
-            Singularite(ising)%PtQ(:) = LoiHydrau(num_loi)%Debit(:)
-            Singularite(ising)%PtZ(:) = LoiHydrau(num_loi)%Cote (:)
-
-            do jpoint = 1 , nb_point
-               if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtZ(jpoint), &
-                                  Singularite(ising)%PtQ(jpoint)
-            end do
-
-         case( SINGULARITE_TYPE_Z_T )
-            !-------------------------
-            ! Controle de coherence type de singularite / type de loi
-            if( LoiHydrau(num_loi)%Type /= LOI_TYPE_LIMNIGRAMME ) then
-               Erreur%Numero = 359
-               Erreur%ft     = err_359
-               Erreur%ft_c   = err_359c
-               call TRAITER_ERREUR( Erreur, num_loi,         &
-                                    LoiHydrau(num_loi)%Type, &
-                                    ising,                   &
-                                    Singularite(ising)%Type )
-               return
-            endif
-
-            ! Allocation du tableau PtZ de la singularite
-            if(.not.associated(Singularite(ising)%PtZ)) allocate( Singularite(ising)%PtZ(1) )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5
-               call TRAITER_ERREUR( Erreur , 'Singularite%PtZ' )
-               return
-            end if
-
-         case( SINGULARITE_TYPE_VANNE )
-            !---------------------------
-            ! Controle de coherence type de singularite / type de loi
-            if( LoiHydrau(num_loi)%Type /= LOI_TYPE_ZINF_ZSUP_T ) then
-               Erreur%Numero = 359
-               Erreur%ft     = err_359
-               Erreur%ft_c   = err_359c
-               call TRAITER_ERREUR( Erreur, num_loi,         &
-                                    LoiHydrau(num_loi)%Type, &
-                                    ising,                   &
-                                    Singularite(ising)%Type)
-               return
-            endif
-
-         case( SINGULARITE_TYPE_PROFIL_CRETE )
-            !----------------------------------
-            ! Allocations
-            champ4 => item(getElementsByTagname(champ3, "nbPtLoiSeuil"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => nbPtLoiSeuil"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,nb_point)
-            if(.not.associated(Singularite(ising)%PtX)) allocate( Singularite(ising)%PtX(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtX' )
-               return
-            end if
-
-            if(.not.associated(Singularite(ising)%PtY)) allocate( Singularite(ising)%PtY(nb_point) , STAT = retour )
-            if( retour /= 0 ) then
-               Erreur%Numero = 5
-               Erreur%ft     = err_5
-               Erreur%ft_c   = err_5c
-               call TRAITER_ERREUR( Erreur , 'Singularite(ising)%PtY' )
-               return
-            end if
-
-             allocate( rtab1(nb_point) , STAT = retour )
-             if( retour /= 0 ) then
-                 Erreur%Numero = 5
-                 Erreur%ft     = err_5
-                 Erreur%ft_c   = err_5c
-                 call TRAITER_ERREUR( Erreur , 'rtab1' )
-                 return
-             end if
-             allocate( rtab2(nb_point) , STAT = retour )
-             if( retour /= 0 ) then
-                 Erreur%Numero = 5
-                 Erreur%ft     = err_5
-                 Erreur%ft_c   = err_5c
-                 call TRAITER_ERREUR( Erreur , 'rtab2' )
-                 return
-             end if
-            
-            if (UlLst >0) write(UlLst,10100)
-
-            champ4 => item(getElementsByTagname(champ3, "abscTravCrete"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => abscTravCrete"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,rtab1)
-            champ4 => item(getElementsByTagname(champ3, "cotesCrete"), 0)
-            if(associated(champ4).eqv..false.) then
-               print*,"Parse error => cotesCrete"
-               call xerror(Erreur)
-               return
-            endif
-            call extractDataContent(champ4,rtab2)
-            
-            do ipoint = 1 , nb_point
-               Singularite(ising)%PtX(ipoint) = rtab1(ipoint)
-               Singularite(ising)%PtY(ipoint) = rtab2(ipoint)
-               
-               if (UlLst >0) write(UlLst,10110) Singularite(ising)%PtX(ipoint) , Singularite(ising)%PtY(ipoint)
-            end do
-
-            deallocate(rtab1)
-            deallocate(rtab2)
-            
-         end select
 
       end do   ! boucle sur les singularites
 
@@ -774,21 +698,21 @@ subroutine LEC_SING(    &
   10140 format (f12.3)
 
   contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-  
+
+   end subroutine xerror
+
 end subroutine LEC_SING

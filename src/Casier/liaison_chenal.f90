@@ -98,7 +98,6 @@ subroutine  LIAISON_CHENAL       ( &
                            ! lorsque haval/hamont est superieur a la constante COEF
           dC_dzamont , &   ! variation de C par rapport a hamont
            dC_dzaval , &   ! variation de C par rapport a haval
-               X , Y , &   ! variables des fonctions
            coef_beta , &   ! valeur de la fonction BETA en hamont et haval
    LargeurEcoulement , &   ! largeur de l'ecoulement dans la liaison
  CoteAmont, CoteAval , &

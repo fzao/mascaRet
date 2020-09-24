@@ -62,13 +62,13 @@ subroutine  PLADEB( &
    use M_TRAITER_ERREUR_I ! Traitement des erreurs
    use M_COMPT_CHENAUX_I  ! Interface de sous-programme
 
-   !.. Implicit Declarations .. 
+   !.. Implicit Declarations ..
    implicit none
 
-   !.. Parameters .. 
+   !.. Parameters ..
    integer, parameter :: NB_MAX_CHENAUX = 100
 
-   !.. Formal Arguments .. 
+   !.. Formal Arguments ..
    real(DOUBLE), dimension(2), intent(  out) :: Section
    integer     , dimension(2), intent(in   ) :: LimiteInterne
    integer     , dimension(2), intent(in   ) :: LimiteExterne
@@ -78,7 +78,7 @@ subroutine  PLADEB( &
    logical                   , intent(in   ) :: ImpressionPlani
    integer                   , intent(in   ) :: UniteListing
    type(ERREUR_T)            , intent(inout) :: Erreur
-   !.. Local Scalars .. 
+   !.. Local Scalars ..
    integer :: rive       ! rive gauche ou droite de la riviere
    integer :: irive      ! compteur sur les rives d'un chenal
    integer :: ichenal    ! compteur sur les chenaux
@@ -88,16 +88,15 @@ subroutine  PLADEB( &
    real(DOUBLE) :: YI,YID,YIG,XI,XID
    real(DOUBLE) :: XIG
    real(DOUBLE) :: cote_debord ! Cote de debordement
-   integer :: i       ! rive gauche ou droite de la riviere
    !character(132) :: !arbredappel_old
-   !.. Local Arrays .. 
+   !.. Local Arrays ..
    integer     , dimension(2)                :: borne              ! Limites de calcul
    integer     , dimension(2,NB_MAX_CHENAUX) :: limite_chenal      ! Limites des chenaux
    real(DOUBLE), dimension(2,NB_MAX_CHENAUX) :: absc_limite_chenal ! Abscisse limite des chenaux
-   !.. Intrinsic Functions .. 
+   !.. Intrinsic Functions ..
    intrinsic DABS
 
-   !============================ Instructions ============================== 
+   !============================ Instructions ==============================
 
    ! INITIALISATIONS
    ! ---------------

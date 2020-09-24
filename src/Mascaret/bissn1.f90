@@ -64,8 +64,9 @@ SUBROUTINE BISSN1( &
    !     variables locales
    !
    Real(DOUBLE)                     :: FK(4) , EK(4) , IBD(4) , NORM
-   Real(DOUBLE)                     :: DET(4) , YD(4) , ZD(4) , XD(4) , IDET(4)
-   INTEGER                          :: KJ , KJM1 , KMJ
+   Real(DOUBLE)                     :: DET(4) , YD(4) , ZD(4) , IDET(4)
+   ! Array used for Memory optimization (from intel debug)
+   Real(DOUBLE)                     :: TMP1(4) , TMP2(4)
    Integer                          :: KM1 , K , J , KM2
 
    KM1 = KM - 1
@@ -95,10 +96,16 @@ SUBROUTINE BISSN1( &
    DO 30 K = 2 , KM1
 
       KM2 = K - 1
-      CALL INVMAT( IBD , B(1:,KM2) , 2 , K , Erreur )
+      TMP1 = B(1:,KM2)
+      CALL INVMAT( IBD , TMP1 , 2 , K , Erreur )
+      B(1:,KM2) = TMP1
       IF(Erreur%Numero.ne.0) RETURN
-      CALL PROMAT( EK , A(1:,K) , IBD , 2 )
-      CALL PROMAT( FK , EK , C(1:,K - 1) , 2 )
+      TMP1 = A(1:,K)
+      CALL PROMAT( EK , TMP1 , IBD , 2 )
+      A(1:,K) = TMP1
+      TMP1 = C(1:,K - 1)
+      CALL PROMAT( FK , EK , TMP1 , 2 )
+      C(1:,K - 1) = TMP1
 
       DO 31 J = 1 , 4
          B(J,K) = B(J,K) - FK(J)
@@ -106,15 +113,25 @@ SUBROUTINE BISSN1( &
 
       NORM = DSQRT( X(1,K)**2 + X(2,K)**2 )
 
-      CALL PROMVT( ZD , EK , X(1:,K - 1) , 2 )
+      TMP1(1:2) = X(1:,K - 1)
+      CALL PROMVT( ZD , EK , TMP1 , 2 )
+      X(1:,K - 1) = TMP1(1:2)
 
       X(1,K) = X(1,K) - ZD(1)
       X(2,K) = X(2,K) - ZD(2)
 
    30 CONTINUE
 
-   CALL PROMAT( EK , B(1:,KM - 1) , B(1:,KM) , 2 )
-   CALL PROMAT( FK , A(1:,KM) , C(1:,KM - 1) , 2 )
+   TMP1 = B(1:,KM - 1)
+   TMP2 = B(1:,KM)
+   CALL PROMAT( EK , TMP1 , TMP2 , 2 )
+   B(1:,KM - 1) = TMP1
+   B(1:,KM) = TMP2
+   TMP1 = A(1:,KM)
+   TMP2 = C(1:,KM - 1)
+   CALL PROMAT( FK , TMP1 , TMP2 , 2 )
+   A(1:,KM) = TMP1
+   C(1:,KM - 1) = TMP2
 
    DET(1) = FK(1) - EK(1)
    DET(2) = FK(2) - EK(2)
@@ -126,13 +143,23 @@ SUBROUTINE BISSN1( &
 
    IF( DABS( X(1,KM) ).LE.1.D-15 ) GOTO 40
 
-   CALL PROMVT( YD , A(1:,KM) , X(1:,KM1) , 2 )
-   CALL PROMVT( ZD , B(1:,KM - 1) , X(1:,KM) , 2 )
+   TMP1 = A(1:,KM)
+   TMP2(1:2) = X(1:,KM1)
+   CALL PROMVT( YD , TMP1 , TMP2 , 2 )
+   A(1:,KM) = TMP1
+   X(1:,KM1) = TMP2(1:2)
+   TMP1 = B(1:,KM - 1)
+   TMP2(1:2) = X(1:,KM)
+   CALL PROMVT( ZD , TMP1 , TMP2 , 2 )
+   B(1:,KM - 1) = TMP1
+   X(1:,KM) = TMP2(1:2)
 
    ZD(1) = YD(1) - ZD(1)
    ZD(2) = YD(2) - ZD(2)
 
-   CALL PROMVT( X(1:,KM) , IDET , ZD , 2 )
+   TMP1(1:2) = X(1:,KM)
+   CALL PROMVT( TMP1 , IDET , ZD , 2 )
+   X(1:,KM) = TMP1(1:2)
 
    40 K = KM
 
@@ -140,16 +167,22 @@ SUBROUTINE BISSN1( &
 
    NORM = DSQRT( X(1,K)**2 + X(2,K)**2 )
 
-   CALL INVMAT( IBD , B(1:,K) , 2 , K , Erreur )
+   TMP1 = B(1:,K)
+   CALL INVMAT( IBD , TMP1 , 2 , K , ERREUR )
+   B(1:,K) = TMP1
    IF(Erreur%Numero.ne.0) RETURN
-   CALL PROMVT( YD , C(1:,K) , X(1:,K + 1) , 2 )
+   TMP1 = C(1:,K)
+   TMP2(1:2) = X(1:,K + 1)
+   CALL PROMVT( YD , TMP1 , TMP2 , 2 )
+   C(1:,K) = TMP1
+   X(1:,K + 1) = TMP2(1:2)
 
    ZD(1) = X(1,K) - YD(1)
    ZD(2) = X(2,K) - YD(2)
 
-   CALL PROMVT( X(1:,K) , IBD , ZD , 2 )
-
-   60 CONTINUE
+   TMP1(1:2) = X(1:,K)
+   CALL PROMVT( TMP1 , IBD , ZD , 2 )
+   X(1:,K) = TMP1(1:2)
 
    IF( K.GT.1 ) GO TO 50
 

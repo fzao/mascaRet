@@ -25,13 +25,13 @@ subroutine LEC_PCSING( &
     AbscRelExtDebBief, & ! Abscisse rel de l'extremite debut du bief
     AbscRelExtFinBief, & ! Abscisse rel de l'extremite debut du bief
      UlLst           , & ! Unite logique fichier listing
-     document        , & ! Pointeur vers document XML
+     unitNum         , & ! Unite logique .xcas
      Erreur            & ! Erreur
                      )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                     
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -46,8 +46,8 @@ subroutine LEC_PCSING( &
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    ! Arguments
@@ -58,8 +58,8 @@ subroutine LEC_PCSING( &
    integer           , dimension(:) , intent(in   ) :: ProfFinBief
    real(DOUBLE)      , dimension(:) , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:) , intent(in   ) :: AbscRelExtFinBief
-   integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document    
+   integer                          , intent(in   ) :: UlLst
+   integer, intent(in)                              :: unitNum
    ! Variables locales
    integer        :: nb_pc_sing   ! nombre de pertes
    real(DOUBLE)   :: abs_abs
@@ -70,11 +70,12 @@ subroutine LEC_PCSING( &
    integer        :: indice       ! Indice de section de calcul
    integer        :: retour       ! Code de retour des fonctions intrinseques
    !character(132) :: !arbredappel_old
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:)
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
 
    !========================= Instructions ===========================
    ! INITIALISATION
@@ -87,23 +88,14 @@ subroutine LEC_PCSING( &
 
    ! Nombre de pertes de charge singulieres
    !---------------------------------------
-   champ1 => item(getElementsByTagname(document, "parametresSingularite"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresSingularite"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "pertesCharges"), 0)
-   if(associated(champ2).eqv..false.) then
+   pathNode = 'parametresSingularite/pertesCharges'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).eq.0) then
        nb_pc_sing = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nbPerteCharge"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => nbPerteCharge"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,nb_pc_sing)
+       pathNode = 'parametresSingularite/pertesCharges/nbPerteCharge'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nb_pc_sing
        if( nb_pc_sing < 0 ) then
           Erreur%Numero = 306
           Erreur%ft     = err_306
@@ -137,7 +129,7 @@ subroutine LEC_PCSING( &
           Erreur%ft_c   = err_5c
           call TRAITER_ERREUR( Erreur , 'itab' )
           return
-      end if 
+      end if
       allocate( rtab1(nb_pc_sing) , STAT = retour )
       if( retour /= 0 ) then
           Erreur%Numero = 5
@@ -153,33 +145,23 @@ subroutine LEC_PCSING( &
           Erreur%ft_c   = err_5c
           call TRAITER_ERREUR( Erreur , 'rtab2' )
           return
-      end if 
+      end if
 
-      champ3 => item(getElementsByTagname(champ2, "numBranche"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => numBranche"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,itab)
-      champ3 => item(getElementsByTagname(champ2, "abscisses"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => abscisses"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab1)
-      champ3 => item(getElementsByTagname(champ2, "coefficients"), 0)
-      if(associated(champ3).eqv..false.) then
-         print*,"Parse error => coefficients"
-         call xerror(Erreur)
-         return
-      endif
-      call extractDataContent(champ3,rtab2)
-       
+      pathNode = 'parametresSingularite/pertesCharges/numBranche'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) itab
+
+      pathNode = 'parametresSingularite/pertesCharges/abscisses'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab1
+
+      pathNode = 'parametresSingularite/pertesCharges/coefficients'
+      line = xcasReader(unitNum, pathNode)
+      read(unit=line, fmt=*) rtab2
+
       do k = 1 , nb_pc_sing
 
-         num_branche  = itab(k) 
+         num_branche  = itab(k)
          if( num_branche <= 0 .or. num_branche > size(AbscRelExtDebBief) ) then
             Erreur%Numero = 332
             Erreur%ft     = err_332
@@ -239,7 +221,7 @@ subroutine LEC_PCSING( &
       deallocate(itab)
       deallocate(rtab1)
       deallocate(rtab2)
-      
+
    endif   ! de if (nb_pc_sing > 0)
 
    !Erreur%Arbredappel = !arbredappel_old
@@ -253,21 +235,21 @@ subroutine LEC_PCSING( &
    10020 format ('No ',i3,' Branche ',i3,' Abscisse = ',f12.3,' Coeff = ',f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-   
+
+   end subroutine xerror
+
 end subroutine LEC_PCSING

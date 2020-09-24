@@ -395,10 +395,8 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
   DOUBLE PRECISION :: charge_amontd, charge_avald
   DOUBLE PRECISION :: charge
   DOUBLE PRECISION :: largeur_seuil
-  DOUBLE PRECISION :: largeur_seuild
   DOUBLE PRECISION :: q1, q2
   DOUBLE PRECISION :: qamont
-  DOUBLE PRECISION :: qamontd
   DOUBLE PRECISION :: rh
   DOUBLE PRECISION :: zam1, zam2
   DOUBLE PRECISION :: zam1d, zam2d
@@ -443,8 +441,8 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
 !Erreur%Arbredappel = trim(!Erreur%arbredappel)//'=>PSING'
 ! CALCUL SUIVANT LE TYPE DE LA SINGULARITE
 ! ----------------------------------------
-  SELECT CASE  (singularite%type) 
-  CASE (singularite_type_zamont_zaval_q) 
+  SELECT CASE  (singularite%type)
+  CASE (singularite_type_zamont_zaval_q)
 ! RECHERCHE DES DEBITS ENCADRANT LE DEBIT AMONT
     q1 = singularite%ptq(1)
     q2 = singularite%ptq(SIZE(singularite%ptq))
@@ -490,7 +488,7 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
         END IF
       END IF
     END IF
-  CASE (singularite_type_zamont_q) 
+  CASE (singularite_type_zamont_q)
 ! COTE AMONT EN REGIME DENOYE
     dummyzerodiffd1 = 0.D0
     CALL INTERPOLATION_S_D(zam, zamd, qam, qamd, &
@@ -582,7 +580,7 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
         END IF
       END IF
     END IF
-  CASE (singularite_type_profil_crete) 
+  CASE (singularite_type_profil_crete)
     largeur_seuil = singularite%ptx(SIZE(singularite%ptx)) - singularite&
 &     %ptx(1)
     IF (0._DOUBLE .LT. zav - singularite%cotecrete) THEN
@@ -700,7 +698,7 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
     CALL TRAITER_ERREUR(erreur, singularite%numero, singularite%type, &
 &                 temps)
     RETURN
-  CASE (singularite_type_crete_coeff) 
+  CASE (singularite_type_crete_coeff)
     CALL RHSBP_SECTION_S(largeur_seuil, zref, singularite%cotecrete, idt&
 &                  (section), xdt(section), profil, b1plan, erreur)
     IF (0._DOUBLE .LT. zav - singularite%cotecrete) THEN
@@ -813,10 +811,10 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
     CALL TRAITER_ERREUR(erreur, singularite%numero, singularite%type, &
 &                 temps)
     RETURN
-  CASE (singularite_type_z_t) 
+  CASE (singularite_type_z_t)
     zam = singularite%ptz(1)
     zamd = 0.D0
-  CASE (singularite_type_q_zamont) 
+  CASE (singularite_type_q_zamont)
     dummyzerodiffd2 = 0.D0
     CALL INTERPOLATION_S_D(zam, zamd, qam, qamd, &
 &                    premier_ordre_interpolation, singularite%ptq(:), &
@@ -1145,14 +1143,13 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
   INTEGER, PARAMETER :: itmax1=20
 !.. Variables locales ..
 !-----------------------
-  INTEGER, DIMENSION(:) :: idebtor(nbsect), ifintor(nbsect), kpass(&
-& nbsect)
+  INTEGER, DIMENSION(:) :: idebtor(nbsect), kpass(nbsect)
   DOUBLE PRECISION, DIMENSION(:) :: zc(nbsect), fimp(nbsect)
   DOUBLE PRECISION :: zcd(nbsect)
   INTEGER :: izone, nb_zone
   DOUBLE PRECISION :: jav, js, javam, javc, jam
   DOUBLE PRECISION :: javd, jsd, javamd
-  DOUBLE PRECISION :: zam1, zam2, zav, zav1, zav2, zam, yp1, yp2, zam3, &
+  DOUBLE PRECISION :: zam1, zam2, zav, zam, yp2, zam3, &
 & zam22, zam21, zmil
   DOUBLE PRECISION :: zam1d, zam2d, zavd, zam22d, zam21d, zmild
   DOUBLE PRECISION :: dx, dq, ypmil, yp22, yp21, dz
@@ -1182,14 +1179,11 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
   DOUBLE PRECISION :: epsil
   DOUBLE PRECISION :: sc
   DOUBLE PRECISION :: debc
-  DOUBLE PRECISION :: debcd
   DOUBLE PRECISION :: hc
   DOUBLE PRECISION :: zcrit
   DOUBLE PRECISION :: zcritd
   DOUBLE PRECISION :: betac
-  DOUBLE PRECISION :: betacd
   DOUBLE PRECISION :: vc
-  DOUBLE PRECISION :: vcd
   DOUBLE PRECISION :: vc2
   DOUBLE PRECISION :: dxbeta
   DOUBLE PRECISION :: dxbetad
@@ -1227,7 +1221,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 ! Compteur sur les singularites
   INTEGER :: ising
   INTEGER :: num_bief
-  DOUBLE PRECISION :: absc_rel, toto1, toto2
+  DOUBLE PRECISION :: absc_rel
   CHARACTER(len=132) :: arbredappel_old
   INTRINSIC TRIM
   INTRINSIC SIGN
@@ -1253,7 +1247,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
   fin_bief = connect%finbief(numbief)
 !
 !  Prise compte des apports de debit dans la qte de mvt
-! 
+!
   IF (cqmv .EQ. 0) THEN
     cqmvj = 0.d0
   ELSE
@@ -1896,7 +1890,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
             zam21d = 0.D0
           END IF
 !
-! Initialisation des valeurs de la fonctions aux bornes 
+! Initialisation des valeurs de la fonctions aux bornes
 !
           zam2 = zam21
           CALL RHSBP_S(b1, b2, bstock, p1, p2, sm1, sm2, rh1, rh2, j + 1&
@@ -2162,9 +2156,6 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
  2030 FORMAT('Passage en torrentiel DETECTE a la section : ',i5,/, &
 &        'Bief n0 ',i3,', Abscisse relative : ',g12.3,/, &
 &        'cote critique Zcrit = ',f8.3)
- 2040 FORMAT('Passage en torrentiel NON DETECTE a la section : ',i5,/, &
-&        'bief n0 ',i3,', abscisse relative ',g12.3,/, &
-&        'cote critique Zcrit = ',f8.3)
  2080 FORMAT('A la section : ',i5,', bief n0 ',i3,&
 &        ', abscisse relative = ',g12.3,/, &
 &        'perte de charge singuliere JS = ',f8.3)
@@ -2243,7 +2234,7 @@ SUBROUTINE CALC_PC_CONFLU_D(pcsing, pcsingd, z, zd, q, qd, x, zref, &
   INTEGER, PARAMETER :: abaque_c=3
 ! Variables locales
   TYPE CONF_T
-      SEQUENCE 
+      SEQUENCE
       INTEGER, DIMENSION(3) :: section
       DOUBLE PRECISION, DIMENSION(3) :: debit
       DOUBLE PRECISION, DIMENSION(3) :: largeur
@@ -2251,7 +2242,7 @@ SUBROUTINE CALC_PC_CONFLU_D(pcsing, pcsingd, z, zd, q, qd, x, zref, &
       INTEGER, DIMENSION(3) :: nature
   END TYPE CONF_T
   TYPE CONF_T_D
-      SEQUENCE 
+      SEQUENCE
       DOUBLE PRECISION, DIMENSION(3) :: debit
       DOUBLE PRECISION, DIMENSION(3) :: largeur
   END TYPE CONF_T_D
@@ -2271,20 +2262,17 @@ SUBROUTINE CALC_PC_CONFLU_D(pcsing, pcsingd, z, zd, q, qd, x, zref, &
   DOUBLE PRECISION :: c6abc(3)
   DOUBLE PRECISION :: c6abcd(3)
   DOUBLE PRECISION :: alpha_c6(6), qc6(5)
-  DOUBLE PRECISION :: alpha_c6d(6)
   DOUBLE PRECISION :: c6qinf(6), c6qsup(6)
   DOUBLE PRECISION :: c6qinfd(6), c6qsupd(6)
   DOUBLE PRECISION :: c6(2), c6a, c6b, c6c
   DOUBLE PRECISION :: c6d(2), c6ad, c6bd, c6cd
   DOUBLE PRECISION :: angle_conf
-  DOUBLE PRECISION :: angle_confd
   DOUBLE PRECISION :: lf, ll, lp, llp, qp, ql, qpl
   DOUBLE PRECISION :: lfd, lld, lpd, llpd, qpd, qld, qpld
 ! elargissement branche amont princ / branche aval
   DOUBLE PRECISION :: elargissement
   DOUBLE PRECISION :: elargissementd
   DOUBLE PRECISION :: qinf, qsup, c6_inf, c6_sup
-  DOUBLE PRECISION :: c6_infd, c6_supd
   DOUBLE PRECISION :: rapport
   DOUBLE PRECISION :: rapportd
   DOUBLE PRECISION :: q_max
@@ -2504,7 +2492,7 @@ label_ext:DO iext=1,SIZE(connect%numbiefconfluence(inoeu, :))
 ! TEST DOMAINE
 !-------------
       IF (qpl .GT. 5._DOUBLE) THEN
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10000) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10000)
       END IF
 ! Calcul de Llp=Ll/Lp
 ! -------------------
@@ -2529,18 +2517,18 @@ label_ext:DO iext=1,SIZE(connect%numbiefconfluence(inoeu, :))
 ! TEST DOMAINE
 !-------------
       IF (llp .LT. 0.25_DOUBLE) THEN
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10010) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10010)
       END IF
       IF (llp .GT. 0.625_DOUBLE) THEN
-        IF (unitelisting .GT. 0) WRITE(unitelisting, 10020) 
+        IF (unitelisting .GT. 0) WRITE(unitelisting, 10020)
       END IF
 ! Prise en compte de l'angle (il est en radians dans Confluent)
 ! -------------------------------------------------------------
       DO iext=1,nb_ext
         IF (conf%nature(iext) .EQ. branche_princ_amont) angle1 = &
-&           confluent(inoeu)%angleafflu(iext)
-        IF (conf%nature(iext) .EQ. branche_laterale) angle2 = confluent(&
-&           inoeu)%angleafflu(iext)
+&           real(confluent(inoeu)%angleafflu(iext))
+        IF (conf%nature(iext) .EQ. branche_laterale) angle2 = real(confluent(&
+&           inoeu)%angleafflu(iext))
       END DO
       IF (angle1 - angle2 .GE. 0.) THEN
         angle_conf = angle1 - angle2
@@ -3514,8 +3502,8 @@ label_ia:DO WHILE (ia .LT. nappel)
         icompt = icompt + 1
         isub = INT(algorithme(ia)/100)
         noeud_bief = algorithme(ia) - 100*isub
-        SELECT CASE  (isub) 
-        CASE (appel_qbief) 
+        SELECT CASE  (isub)
+        CASE (appel_qbief)
 ! Connect%OrigineBief(noeud_bief) : NUMERO DE LA SECTION ORIGINE DU BIEF
 ! On cherche l'extremite libre qui correspond
 ! a la section Connect%OrigineBief(noeud_bief)
@@ -3538,7 +3526,7 @@ label_ia:DO WHILE (ia .LT. nappel)
             qd(isec) = qd(isec-1)
             q(isec) = q(isec-1) + qinjec(isec)
           END DO
-        CASE (appel_permat) 
+        CASE (appel_permat)
 ! Calcul des pertes de charge automatique aux confluences
           IF (pertechargeconfluent) THEN
             CALL CALC_PC_CONFLU_D(pcsing, pcsingd, z, zd, q, qd, x, zref&
@@ -3577,21 +3565,21 @@ label_ia:DO WHILE (ia .LT. nappel)
 &                 unitelisting, temps, loifrottement, cqmv, erreur)
 !Erreur
           IF (erreur%numero .NE. 0) GOTO 210
-        CASE (appel_qnode_1er_pass) 
+        CASE (appel_qnode_1er_pass)
           numpassage = 1
 !/DONNEES MODIFIEES/
 !/DONNEES NON MODIFIEES/
           CALL QNODE_D(q, qd, z, zd, noeud_bief, numpassage, connect, &
 &                erreur)
           IF (erreur%numero .NE. 0) GOTO 190
-        CASE (appel_qnode_2nd_pass) 
+        CASE (appel_qnode_2nd_pass)
           numpassage = 2
 !/DONNEES MODIFIEES/
 !/DONNEES NON MODIFIEES/
           CALL QNODE_D(q, qd, z, zd, noeud_bief, numpassage, connect, &
 &                erreur)
           IF (erreur%numero .NE. 0) GOTO 180
-        CASE (appel_qrepar_1er_pass) 
+        CASE (appel_qrepar_1er_pass)
           numpassage = 1
 !/RESULTATS/
 !/DONNEES MODIFIEES/
@@ -3602,7 +3590,7 @@ label_ia:DO WHILE (ia .LT. nappel)
 &                 connect, modelelit, epsil, dzprev, unitelisting, &
 &                 loifrottement, erreur)
           IF (erreur%numero .NE. 0) GOTO 170
-        CASE (appel_qrepar_2nd_pass) 
+        CASE (appel_qrepar_2nd_pass)
           numpassage = 2
 !/RESULTATS/
 !/DONNEES MODIFIEES/
@@ -3787,9 +3775,7 @@ SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, b2d, bs&
   TYPE(DEVERSOIR_T), DIMENSION(:), INTENT(IN) :: deversoir
 !.. Local Scalars ..
   DOUBLE PRECISION :: vmoy
-  DOUBLE PRECISION :: vmoyd
   DOUBLE PRECISION :: deb
-  DOUBLE PRECISION :: debd
 ! Compteur sur les debits d'apport
   INTEGER :: iinj
 ! Compteur sur les sections
@@ -3914,7 +3900,7 @@ SUBROUTINE DIFF_Z_CF12_FWD_SARAP(diff_z_fwd, dcf1_fwd, dcf2_fwd)
   USE M_NUM_BIEF_S
   USE M_FROUDE_S
   USE M_SARAP_I_D
-  USE M_SHARE_VAR        
+  USE M_SHARE_VAR
   IMPLICIT NONE
 
   DOUBLE PRECISION, DIMENSION(size(x)) :: diff_z_fwd

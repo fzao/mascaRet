@@ -407,27 +407,27 @@ contains
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.File.Listing.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.Result.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.Result2.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.GeoStoArea.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.ResultStoArea.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.ResultLink.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.Tracer.Result.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.ListingStoArea.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.ListingLink.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.Tracer.Listing.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else if ( index(NomVar, 'Model.File.Tracer.IniConc.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:255)
       else
          SET_STRING_FICHIER = 1
          MessageErreur         = "SET_STRING_FICHIER - Unknown variable name"
@@ -447,10 +447,6 @@ contains
       type(FICHIER_T),        intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_FICHIER = 0
       MessageErreur          = ""
 
@@ -467,10 +463,6 @@ contains
       type(FICHIER_T),        intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_FICHIER = 0
       MessageErreur          = ""
 

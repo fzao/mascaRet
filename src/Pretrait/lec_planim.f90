@@ -19,13 +19,13 @@
 subroutine LEC_PLANIM    ( &
      Profil              , & ! Profils geometriques
      UlLst               , & ! Unite logique fichier listing
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcas
      Erreur                & ! Erreur
                          )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                         
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -38,13 +38,13 @@ subroutine LEC_PLANIM    ( &
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
    ! Arguments
    type(PROFIL_T)    , dimension(:)  , intent(inout) :: Profil
    integer                           , intent(in   ) :: UlLst
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer      :: iprof               ! compteur sur les profils
@@ -58,10 +58,11 @@ subroutine LEC_PLANIM    ( &
    integer      :: branche_zone_prec
    integer      :: proffin_zone_planim_prec
    integer      :: branche_zone
-   type(Node), pointer :: champ1,champ2,champ3
    real(double), allocatable :: rtab(:)
    integer, allocatable :: itabdeb(:),itabfin(:)
    integer :: retour              ! code de retour des fonctions intrinseques
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -75,25 +76,10 @@ subroutine LEC_PLANIM    ( &
 
    ! Nombre de pas de planimetrage
    !------------------------------
-   champ1 => item(getElementsByTagname(document, "parametresPlanimetrageMaillage"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresPlanimetrageMaillage"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "planim"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => planim"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nbPas"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbPas"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nb_pas_planim)
+   pathNode = 'parametresPlanimetrageMaillage/planim/nbPas'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_pas_planim
+
    if( nb_pas_planim <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -108,13 +94,9 @@ subroutine LEC_PLANIM    ( &
 
    ! Nombre de zones de planimetrage
    !--------------------------------
-   champ3 => item(getElementsByTagname(champ2, "nbZones"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbZones"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nb_zone_planim)
+   pathNode = 'parametresPlanimetrageMaillage/planim/nbZones'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_zone_planim
 
    if( nb_zone_planim <= 0 ) then
       Erreur%Numero = 306
@@ -154,29 +136,19 @@ subroutine LEC_PLANIM    ( &
        call TRAITER_ERREUR( Erreur , 'itabfin' )
        return
    end if
-   
-   champ3 => item(getElementsByTagname(champ2, "valeursPas"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => valeurPas"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,rtab)
-   champ3 => item(getElementsByTagname(champ2, "num1erProf"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => num1erProf"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itabdeb)
-   champ3 => item(getElementsByTagname(champ2, "numDerProf"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => numDerProf"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,itabfin)
-   
+
+   pathNode = 'parametresPlanimetrageMaillage/planim/valeursPas'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab
+
+   pathNode = 'parametresPlanimetrageMaillage/planim/num1erProf'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itabdeb
+
+   pathNode = 'parametresPlanimetrageMaillage/planim/numDerProf'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itabfin
+
    do izone = 1 , nb_zone_planim
 
       pas_planim = rtab(izone)
@@ -250,7 +222,7 @@ subroutine LEC_PLANIM    ( &
    deallocate(rtab)
    deallocate(itabdeb)
    deallocate(itabfin)
-   
+
    return
 
    ! Formats
@@ -261,21 +233,21 @@ subroutine LEC_PLANIM    ( &
    10030 format ('Zone : ',i3,' Profil debut : ',i5,' Profil fin : ',i5,' Pas : ',f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-   
+
+   end subroutine xerror
+
 end subroutine LEC_PLANIM

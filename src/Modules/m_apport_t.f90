@@ -131,7 +131,7 @@ module M_APPORT_T
     end function GET_TYPE_VAR_APPORT
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -193,7 +193,7 @@ module M_APPORT_T
    end function GET_TAILLE_VAR_APPORT
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -214,7 +214,7 @@ module M_APPORT_T
    end function SET_TAILLE_VAR_APPORT
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -380,7 +380,7 @@ module M_APPORT_T
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.Inflow.Name') > 0) then
-         Instance%Nom = valeur
+         Instance%Nom = valeur(1:30)
       else
          SET_STRING_APPORT = 1
          MessageErreur         = "SET_STRING_APPORT - Unknown variable name"
@@ -400,10 +400,6 @@ module M_APPORT_T
       type(APPORT_T),         intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_APPORT = 0
       MessageErreur          = ""
 
@@ -420,10 +416,6 @@ module M_APPORT_T
       type(APPORT_T),         intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_APPORT = 0
       MessageErreur          = ""
 

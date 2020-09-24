@@ -62,7 +62,6 @@ subroutine LEC_MAILLAGE( &
    integer :: retour              ! code de retour des fonctions
                                   ! intrinseques
    integer :: k                   ! compteur sur les mailles
-   integer :: imail               ! compteur sur les mailles
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================

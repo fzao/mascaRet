@@ -205,9 +205,7 @@ c
       double precision zero, pi
       parameter (zero = 0.d0, one = 1.d0, pi = 3.1415927d+0)
 c
- 1001 format (" n2qn1: termine par voeu de l'utilisateur")
- 1002 format (" >>> n2qn1: appel incoherent")
- 1024 format (1x)
+! 1024 format (1x)
 c
 c --- initialisation
 c
@@ -450,7 +448,7 @@ c
      &        (9x,"| ",5(i5,": ",i2," |")))
           write(lp,'()')
       endif
-  410 dnr=dsqrt(dble(float(nr)))
+      dnr=dsqrt(dble(float(nr)))
       acc1=acc*dnr
       if (iprint.eq.3) write(lp,1111,advance="no")
  1111 format (1x,79("-"))
@@ -466,7 +464,7 @@ c     write (6,'(a,1pd12.5,2x,d12.5)')  "x    = ", (x(i),i=1,2)
       if (itr.ne.1)df=fa-f
       fa=f
       indic1=0
-  501 if (itr.le.niter) go to 502
+      if (itr.le.niter) go to 502
       mode=4
       go to 900
   502 continue
@@ -894,7 +892,7 @@ c           calcul de la precision obtenue
       endif
       niter=itr
       nsim=nfun
-  999 return
+      return
       end
 c
 c========0=========0=========0=========0=========0=========0=========0==
@@ -1025,7 +1023,6 @@ c
 c --- local variables
 c
       integer i, k, n1, nr1
-      double precision u
 c
 c --- initialization
 c
@@ -1089,7 +1086,6 @@ c
 c --- local variables
 c
       integer i, k, n1, nr1
-      double precision u
 c
 c --- initialization
 c
@@ -1594,7 +1590,6 @@ c
  1004 format (5x,"nlis0",37x,1pd10.3," indic=",i3)
  1005 format (5x,"nlis0",14x,1pd18.8,d18.8,d11.3)
  1006 format (5x,"nlis0",14x,1pd18.8,"      indic=",i3)
- 1008 format (/5x,"nlis0",10x,"appel incoherent")
 c
 c --- check the arguments
 c

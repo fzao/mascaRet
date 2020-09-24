@@ -41,7 +41,7 @@
      real(DOUBLE)       v
      integer ind1,taille1,taille2,taille3
 
-     ind1   = 0
+     ind1   = index1
      Erreur = 0
      valeur = -99999.99999
 
@@ -125,7 +125,7 @@
      end if
    end subroutine GET_INT_MASCARET
 
-   subroutine GET_BOOL_MASCARET(Erreur, Identifiant, NomVar, index1, index2, index3, valeur, trueref)
+   subroutine GET_BOOL_MASCARET(Erreur, Identifiant, NomVar, index1, index2, index3, valeur)
      use M_APIMASCARET_STATIC
      use M_MASCARET_T
       implicit none
@@ -136,8 +136,7 @@
       integer,                intent(in) :: index2                     ! valeur du 2e  indice
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       logical,                intent(out):: valeur                     ! valeur du boolean de l'instance pour les indexes specifies
-      logical, optional,      intent(out):: trueref                    ! valeur du boolean true
-      
+
      ! Variables locales
      character(LEN=256) MessageErreur
      character(LEN=40)  NomVarTrim
@@ -176,10 +175,6 @@
        valeur = v
      end if
 
-     if (present(trueref)) then
-        trueref = .TRUE.
-     end if
-     
    end subroutine GET_BOOL_MASCARET
 
    subroutine GET_STRING_MASCARET(Erreur, Identifiant, NomVar, index1, index2, index3, valeur)

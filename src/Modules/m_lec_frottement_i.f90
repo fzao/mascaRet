@@ -28,7 +28,7 @@ module M_LEC_FROTTEMENT_I
                              CF1 , & ! Coefficient de frottement Mineur
                              CF2 , & ! Coefficient de frottement Majeur
                                X , & ! Abscisse des sections de calcul
-                         ZoneFrot, & ! limite des zones de frottement 
+                         ZoneFrot, & ! limite des zones de frottement
                              XDT , &
                           Profil , & ! Profils geometriques
                      ProfDebBief , & ! Premiers profils des biefs
@@ -37,7 +37,7 @@ module M_LEC_FROTTEMENT_I
                AbscRelExtFinBief , & ! Abscisse de l'extremite debut du bief
              InterpLinCoeffFrott , &
                     UniteListing , & ! Unite logique fichier listing
-                        document , & ! Pointeur vers document XML
+                        unitNum  , & ! Unite logique .xcas
                           Erreur & ! Erreur
                                )
 
@@ -46,13 +46,13 @@ module M_LEC_FROTTEMENT_I
    use M_ERREUR_T            ! Type ERREUR_T
    use M_PARAMETRE_C
    use M_PROFIL_T            ! Type  PROFIL_T
-   use M_ZONE_FROT_T         ! Type Zone frottement 
+   use M_ZONE_FROT_T         ! Type Zone frottement
    use M_MESSAGE_C           ! Messages d'erreur
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -69,7 +69,7 @@ module M_LEC_FROTTEMENT_I
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    logical                           , intent(in   ) :: InterpLinCoeffFrott
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer      :: izone              ! compteur sur les zones de frottement
@@ -90,10 +90,10 @@ module M_LEC_FROTTEMENT_I
    logical      :: chevauchement
    integer      :: retour              ! code de retour des fonctions
                                       ! intrinseques
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:),rtab3(:),rtab4(:)
-
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    end subroutine LEC_FROTTEMENT

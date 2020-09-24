@@ -89,7 +89,6 @@ subroutine LEC_GEOM_CASIER2( &
    integer                              :: ul                            ! Unite logique du fichier
    integer                              :: retour                        ! Code de retour de la fonction read
    integer                              :: icasier                       ! Compteur sur les casiers
-   integer                              :: j                             ! Compteur
    integer                              :: nb_casier                     ! Nombre de casiers lus dans le fichier
    integer                              :: ipoint_front , nb_point_front ! Compteur sur les points frontieres
    integer                              :: ipoint_int , nb_point_int     ! Compteur sur les points interieurs

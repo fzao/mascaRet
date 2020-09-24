@@ -1,45 +1,45 @@
 Subroutine LimiteDepot (  &
 
-	LimiteDepotG	   ,  & ! numéro du point au delà duquel il peut y a voir dépôt ou érosion (1er pt immergé)
-	LimiteDepotD	   ,  & ! numéro du dernier pt pour lequel il peut y a voir dépôt ou érosion (dernier pt immergé)
-	Zsurf			   ,  & ! Cote de la surface libre
-	ProfilCourlis      ,  & ! Profils sedimentaires
+  LimiteDepotG     ,  & ! numéro du point au delà duquel il peut y a voir dépôt ou érosion (1er pt immergé)
+  LimiteDepotD     ,  & ! numéro du dernier pt pour lequel il peut y a voir dépôt ou érosion (dernier pt immergé)
+  Zsurf         ,  & ! Cote de la surface libre
+  ProfilCourlis      ,  & ! Profils sedimentaires
     NbProfils          ,  & ! Nombre de profils
-	Erreur			   )
+  Erreur         )
 
-!************************************************************************* 
+!*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
 !
-!  VERSION : 4.0       07/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       07/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !  Fonction
 !  --------
-!		Calcul les indices des bornes RG et RD (LimitedepotG et LimiteDepotD)
+!    Calcul les indices des bornes RG et RD (LimitedepotG et LimiteDepotD)
 !   de la partie immergée de chaque profil.
-!	Il ne peut y avoir depot - erosion qu'entre ces points.
+!  Il ne peut y avoir depot - erosion qu'entre ces points.
 !
 !  Sous-programme appelant : Courlis
 !  -----------------------
 !
-!  Sous-programme appele :	
+!  Sous-programme appele :
 !  ---------------------
 !=========================================================================
 
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_PROFIL_COURLIS_T		! Definition du type PROFIL_COURLIS
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 !=========================================================================
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Variables d'entree
@@ -73,17 +73,17 @@ use M_TRAITER_ERREUR_I		! Traitement de l'errreur
 
   Do i = 1, NbProfils
      LimiteDepotG(i) = 1
-	 LimiteDepotD(i) = ProfilCourlis(i)%NbPoint
-	Do j = 1, ProfilCourlis(i)%NbPoint - 1
-	  If ((ProfilCourlis(i)%Z(1,j) < Zsurf(i)) .and. (ProfilCourlis(i)%Z(1,j+1)) >= Zsurf(i)) Then
-	    !mjcor LimiteDepotD = j
+   LimiteDepotD(i) = ProfilCourlis(i)%NbPoint
+  Do j = 1, ProfilCourlis(i)%NbPoint - 1
+    If ((ProfilCourlis(i)%Z(1,j) < Zsurf(i)) .and. (ProfilCourlis(i)%Z(1,j+1)) >= Zsurf(i)) Then
+      !mjcor LimiteDepotD = j
         LimiteDepotD(i) = j
-	  Endif
-	  If ((ProfilCourlis(i)%Z(1,j) >= Zsurf(i)) .and. (ProfilCourlis(i)%Z(1,j+1)) < Zsurf(i)) Then
-	    !mjcor LimiteDepotG = j + 1
+    Endif
+    If ((ProfilCourlis(i)%Z(1,j) >= Zsurf(i)) .and. (ProfilCourlis(i)%Z(1,j+1)) < Zsurf(i)) Then
+      !mjcor LimiteDepotG = j + 1
         LimiteDepotG(i) = j + 1
-	  Endif
-	Enddo
+    Endif
+  Enddo
      ! PU2017
 !     If (LimiteDepotG(i).eq.LimiteDepotD(i)) then
 !       print *,"Lim G = Lim D"

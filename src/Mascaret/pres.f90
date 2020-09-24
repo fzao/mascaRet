@@ -45,10 +45,10 @@ function PRES( &
 ! !  PRGEO    ! TR !  D ! PRESSION PLANIMETRE AUX INTERFACES           !
 ! !  SGEO     ! TR !  D ! SURFACE MOUILLE PLANIMETREE AUX INTERFACES   !
 ! !  NMLARG   !  I !  D !                                              !
-! !___________!____!____!______________________________________________!  
+! !___________!____!____!______________________________________________!
 !
 !                             VARIABLES LOCALES
-! .___________.____.____.______________________________________________.  
+! .___________.____.____.______________________________________________.
 ! !  JG       !  I !  R ! BORNE GAUCHE DE L'INTERVALLE CONTENANT SURF  !
 ! !  JD       !  I !  R ! BORNE DROITE DE L'INTERVALLE CONTENANT SURF  !
 ! !  SG       !  R !  A ! SURFACE MOUILLE POUR LA BORNE GAUCHE         !
@@ -91,7 +91,7 @@ function PRES( &
    !.. Variables locales ..
    !-----------------------
 
-   integer        :: JG,JD 
+   integer        :: JG,JD
    real(DOUBLE)   :: SG,SD,PRG
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
@@ -106,6 +106,7 @@ function PRES( &
    ! RECHERCHE DE L'INTERVALLE CONTENANT SURF PAR DICHOTOMIE
    call DICHO( JG , JD , SURF , SGEO(Noeud,:) , ERREUR )
    if( Erreur%Numero /= 0 ) then
+      PRES = 0.
       return
    endif
 

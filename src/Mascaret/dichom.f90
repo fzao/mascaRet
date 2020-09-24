@@ -91,7 +91,7 @@ subroutine DICHOM( &
 
    !.. Variables locales ..
    !-----------------------
-   integer      :: JM,JMIL,NMAX,NT,JGP1,NMLARG1
+   integer      :: JMIL,NMAX,NT,JGP1,NMLARG1
    real(DOUBLE) :: SG
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
@@ -112,7 +112,7 @@ subroutine DICHOM( &
       If( NT == 1 ) then
          JMIL = IDEB + 3
          if( JMIL >= NMLARG ) JMIL = ( NMLARG + 1 ) / 2
-      else 
+      else
          JMIL = ( JG + JD ) / 2
       endif
       SG = SGEO(NOEUD,JMIL)

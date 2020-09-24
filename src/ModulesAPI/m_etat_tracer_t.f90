@@ -165,7 +165,7 @@ contains
     end function GET_TYPE_VAR_ETAT_TRACER
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -247,7 +247,7 @@ contains
    end function GET_TAILLE_VAR_ETAT_TRACER
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -545,12 +545,12 @@ contains
          SET_TAILLE_VAR_ETAT_TRACER = 1
          MessageErreur         = "SET_TAILLE_VAR_ETAT_TRACER - Unknown variable name"
       end if
-      
-      
+
+
    end function SET_TAILLE_VAR_ETAT_TRACER
-     
+
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -846,9 +846,6 @@ contains
       integer                            :: NULLIFIER_ETAT_TRACER      ! different de 0 si erreur
       type(ETAT_TRACER_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-
-      integer                            :: taille
-      integer                            :: err
 
       NULLIFIER_ETAT_TRACER = 0
       MessageErreur          = ""

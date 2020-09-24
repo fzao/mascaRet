@@ -63,10 +63,10 @@ Type ETAT_MASCARET_T
     real(DOUBLE), dimension(:), pointer        :: Y        => null() ! Hauteur d'eau
     real(DOUBLE), dimension(:), pointer        :: VOL      => null() ! Volume du lit actif
     real(DOUBLE), dimension(:), pointer        :: VOLS     => null() ! Volume de stockage
-    real(DOUBLE)                               :: tempsPrecedent !
-    integer                                    :: numPasTps ! num_pas : numero de pas de temps
+    real(DOUBLE)                               :: tempsPrecedent = 0.
+    integer                                    :: numPasTps = 0 ! num_pas : numero de pas de temps
     integer                                    :: phaseSimulation !
-    real(DOUBLE)                               :: DT ! pas te temps
+    real(DOUBLE)                               :: DT = 0. ! pas te temps
     real(DOUBLE), dimension(:), pointer        :: Q        => null()
     real(DOUBLE), dimension(:), pointer        :: Z        => null()
     type(ETAT_LIAISON_T),     dimension(:), pointer :: Liaisons => null()
@@ -77,9 +77,9 @@ Type ETAT_MASCARET_T
     integer     , dimension(:), pointer        :: IFIGE     => null() ! indice de planimetrage Fige
     real(DOUBLE), dimension(:,:), pointer      :: FLUX      => null() ! Flux pour le solveur de Roe
     real(DOUBLE), dimension(:)  , pointer      :: DebitFlux => null() ! Flux de masse
-    real(DOUBLE)                               :: DTRezo      ! Pas de temps REZO
+    real(DOUBLE)                               :: DTRezo = 0.     ! Pas de temps REZO
     type(REZOMAT_T)                            :: MatriceRezo ! Matrice du reseau
-    integer                                    :: NBARAD    ! NBARAD
+    integer                                    :: NBARAD   = 0  ! NBARAD
     integer     , dimension(:), pointer        :: IDEB  => null() ! LIMITE DE DEBUT DE LA ZONE DE CALCUL PAR BIEF
     integer     , dimension(:), pointer        :: IFIN  => null() ! LIMITE DE FIN DE LA ZONE DE CALCUL PAR BIEF
     integer     , dimension(:), pointer        :: ITEM0 => null() ! ITEM0
@@ -444,7 +444,7 @@ contains
     end function GET_TYPE_VAR_ETAT_MASCARET
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -820,7 +820,7 @@ contains
             taille1 = 0
          endif
          if (taille1 > 0) then
-             GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_LIAISON(Instance%Liaisons(1),& 
+             GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_LIAISON(Instance%Liaisons(1),&
                                                    NomVar, taille2, taille3, bidon1, MessageErreur)
          else
              taille2 = 0
@@ -833,20 +833,20 @@ contains
             taille1 = 0
          endif
          if (taille1 > 0) then
-             GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_CASIER(Instance%Casiers(1),& 
+             GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_CASIER(Instance%Casiers(1),&
                                                    NomVar, taille2, taille3, bidon1, MessageErreur)
          else
              taille2 = 0
              taille3 = 0
          end if
       else if (INDEX(NomVar,'State.Tracer.') > 0) then
-         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_TRACER(Instance%Tracer,& 
+         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_ETAT_TRACER(Instance%Tracer,&
                                                NomVar, taille1, taille2, taille3, MessageErreur)
       else if (INDEX(NomVar,'State.Rezomat.') > 0) then
-         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_REZOMAT(Instance%MatriceRezo,& 
+         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_REZOMAT(Instance%MatriceRezo,&
                                                NomVar, taille1, taille2, taille3, MessageErreur)
       else if (INDEX(NomVar,'State.Save.') > 0) then
-         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_SAUVE(Instance%Sauve,& 
+         GET_TAILLE_VAR_ETAT_MASCARET = GET_TAILLE_VAR_SAUVE(Instance%Sauve,&
                                                NomVar, taille1, taille2, taille3, MessageErreur)
       else
          GET_TAILLE_VAR_ETAT_MASCARET = 1
@@ -858,7 +858,7 @@ contains
    end function GET_TAILLE_VAR_ETAT_MASCARET
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -1827,7 +1827,7 @@ contains
    end function SET_TAILLE_VAR_ETAT_MASCARET
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -1922,19 +1922,19 @@ contains
       else if ( index(NomVar,'State.Flow') > 0) then
          valeur = Instance%DebitFlux(index1)
       else if (INDEX(NomVar,'State.Link.') > 0) then
-           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_LIAISON(instance%Liaisons(index1), NomVar, index2,& 
+           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_LIAISON(instance%Liaisons(index1), NomVar, index2,&
                                          index3, bidon1, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.StoArea.') > 0) then
-           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_CASIER(instance%Casiers(index1), NomVar, index2,& 
+           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_CASIER(instance%Casiers(index1), NomVar, index2,&
                                          index3, bidon1, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Tracer.') > 0) then
-           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_TRACER(instance%Tracer, NomVar, index1,& 
+           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_ETAT_TRACER(instance%Tracer, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Rezomat.') > 0) then
-           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_REZOMAT(instance%MatriceRezo, NomVar, index1,& 
+           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_REZOMAT(instance%MatriceRezo, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Save.') > 0) then
-           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_SAUVE(instance%Sauve, NomVar, index1,& 
+           GET_DOUBLE_ETAT_MASCARET = GET_DOUBLE_SAUVE(instance%Sauve, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else
          GET_DOUBLE_ETAT_MASCARET = 1
@@ -1954,7 +1954,6 @@ contains
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       integer,                intent(out):: valeur                     ! valeur du integer de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-      integer                            :: bidon1                         ! variable locale non utilise
 
       GET_INT_ETAT_MASCARET = 0
       valeur                = -9999
@@ -1979,7 +1978,7 @@ contains
       else if ( index(NomVar,'State.ITEM0') > 0) then
          valeur = Instance%ITEM0(index1)
       else if (INDEX(NomVar,'State.Rezomat.') > 0) then
-           GET_INT_ETAT_MASCARET = GET_INT_REZOMAT(instance%MatriceRezo, NomVar, index1,& 
+           GET_INT_ETAT_MASCARET = GET_INT_REZOMAT(instance%MatriceRezo, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else
          GET_INT_ETAT_MASCARET = 1
@@ -2085,19 +2084,19 @@ contains
       else if ( index(NomVar,'State.Flow') > 0) then
          Instance%DebitFlux(index1) = valeur
       else if (INDEX(NomVar,'State.Link.') > 0) then
-           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_LIAISON(instance%Liaisons(index1), NomVar, index2,& 
+           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_LIAISON(instance%Liaisons(index1), NomVar, index2,&
                                          index3, bidon1, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.StoArea.') > 0) then
-           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_CASIER(instance%Casiers(index1), NomVar, index2,& 
+           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_CASIER(instance%Casiers(index1), NomVar, index2,&
                                          index3, bidon1, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Tracer.') > 0) then
-           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_TRACER(instance%Tracer, NomVar, index1,& 
+           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_ETAT_TRACER(instance%Tracer, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Rezomat.') > 0) then
-           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_REZOMAT(instance%MatriceRezo, NomVar, index1,& 
+           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_REZOMAT(instance%MatriceRezo, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'State.Save.') > 0) then
-           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_SAUVE(instance%Sauve, NomVar, index1,& 
+           SET_DOUBLE_ETAT_MASCARET = SET_DOUBLE_SAUVE(instance%Sauve, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else
          SET_DOUBLE_ETAT_MASCARET = 1
@@ -2116,7 +2115,6 @@ contains
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       integer,                intent(in) :: valeur                     ! valeur du integer de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-      integer                            :: bidon1                         ! variable locale non utilise
 
       SET_INT_ETAT_MASCARET = 0
       MessageErreur          = ""
@@ -2140,7 +2138,7 @@ contains
       else if ( index(NomVar,'State.ITEM0') > 0) then
          Instance%ITEM0(index1) = valeur
       else if (INDEX(NomVar,'State.Rezomat.') > 0) then
-           SET_INT_ETAT_MASCARET = SET_INT_REZOMAT(instance%MatriceRezo, NomVar, index1,& 
+           SET_INT_ETAT_MASCARET = SET_INT_REZOMAT(instance%MatriceRezo, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else
          SET_INT_ETAT_MASCARET = 1
@@ -2725,9 +2723,7 @@ contains
       type(ETAT_MASCARET_T),  intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
       integer                            :: err
-      integer                            :: i
       character(LEN=256)                 :: MessageErreurType
       NULLIFIER_ETAT_MASCARET = 0
       MessageErreur          = ""

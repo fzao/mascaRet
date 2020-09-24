@@ -153,7 +153,7 @@ SUBROUTINE CALCS_EUTRO( RNU , S , &
    REAL(DOUBLE) RP , FP , DTP , K320 , FN , DTN , K620 , M1 , M2 , WLOR , K120 , K520
    REAL(DOUBLE) F , N , BEN , K2 , RS , CORR2 , CORR3 , CORR4 , DZ , TEMP , I0
    REAL(DOUBLE) CORR1T , CORR2T , CORR3T , CORR4T , CORRBEN , CS
-   INTEGER I , J , K , KP1 , FORMK2 , FORMCS , FORMRS , NBSEUI
+   INTEGER I , K , KP1 , FORMK2 , FORMCS , FORMRS , NBSEUI
    INTEGER :: IF1 = 0
    !
    !  FONCTIONS
@@ -656,7 +656,7 @@ end function GET_TYPE_VAR_CALCS_EUTRO
 
 function GET_TAILLE_VAR_CALCS_EUTRO(ParQual_Eau, NomVar, taille1, MessageErreur)
 
-   use M_PRECISION 
+   use M_PRECISION
 
    implicit none
 
@@ -738,11 +738,11 @@ function GET_TAILLE_VAR_CALCS_EUTRO(ParQual_Eau, NomVar, taille1, MessageErreur)
    else if ( NomVar == 'Model.Tracer.ParPhy.EUTRO.NBSEUI') then
       taille1 = 0
    elseif ( NomVar == 'Model.Tracer.ParPhy.EUTRO.ARS') then
-      taille1 = ParQual_Eau(33)
+      taille1 = int(ParQual_Eau(33))
    elseif ( NomVar == 'Model.Tracer.ParPhy.EUTRO.BRS') then
-      taille1 = ParQual_Eau(33)
+      taille1 = int(ParQual_Eau(33))
    elseif ( NomVar == 'Model.Tracer.ParPhy.EUTRO.NUMSEUI') then
-      taille1 = ParQual_Eau(33)
+      taille1 = int(ParQual_Eau(33))
    else
       GET_TAILLE_VAR_CALCS_EUTRO = 1
       taille1                 = 0
@@ -754,7 +754,7 @@ end function GET_TAILLE_VAR_CALCS_EUTRO
 function GET_DOUBLE_CALCS_EUTRO(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_DOUBLE_CALCS_EUTRO    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -839,7 +839,7 @@ end function GET_DOUBLE_CALCS_EUTRO
 function GET_INT_CALCS_EUTRO(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: GET_INT_CALCS_EUTRO    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -872,7 +872,7 @@ end function GET_INT_CALCS_EUTRO
 function SET_DOUBLE_CALCS_EUTRO(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_DOUBLE_CALCS_EUTRO    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
@@ -955,7 +955,7 @@ end function SET_DOUBLE_CALCS_EUTRO
 function SET_INT_CALCS_EUTRO(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
    use M_PRECISION
-   
+
    implicit none
    integer                            :: SET_INT_CALCS_EUTRO    ! different de 0 si erreur
    real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur

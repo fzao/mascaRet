@@ -321,6 +321,12 @@ subroutine INIT_ETAT_MASCARET(Erreur, Identifiant, NomFichier, Impression)
        nullify(Etat%ZINIT)
    endif
 
+   Etat%tempsPrecedent = 0.
+   Etat%numPasTps = 0
+   Etat%DT = 0.
+   Etat%DTRezo = 0.
+   Etat%NBARAD = 0
+
    FichierLigne%Unite = 19
    FichierLigne%Nom = NomFichier
 

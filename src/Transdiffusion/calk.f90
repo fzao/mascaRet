@@ -58,15 +58,17 @@ SUBROUTINE CALK( RK , RKC , &
    use M_PARAMETRE_C
    !
    ! * DECLARATION DES ARGUMENTS *
-   real (DOUBLE) , dimension(Nbsect) , intent(inout) :: RK 
+   real (DOUBLE) , dimension(Nbsect) , intent(inout) :: RK
    real (DOUBLE) , dimension(2)      , intent(inout) :: RKC
    real (DOUBLE) , dimension(Nbsect) , intent(in   ) :: U , ST, B , H
    integer Nbsect , NOPTK
    !
    ! * DECLARATION DES VARIABLES LOCALES *
    integer I
-   real(DOUBLE) :: Ueff , EPST
+   real(DOUBLE) :: Ueff , EPST, UNSURSIX
 
+   ! Sinon **(1/6) -> **(0)
+   UNSURSIX = 1.0/6
    !
    ! --------------------------------------------------------------------
    !
@@ -86,7 +88,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 2 ) THEN
       do I = 1 , Nbsect
-         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          RK(I) = 5.93d0 * H(I) * Ueff
       enddo
    endif
@@ -96,7 +98,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 3 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.000001d0 )THEN
@@ -111,7 +113,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 4 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.000001d0 )THEN
@@ -126,7 +128,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 5 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.000001d0 )THEN
@@ -141,7 +143,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 6 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          RK(I)= 0.058d0 * U(I) * Ueff**(2) / GPES
       enddo
    endif
@@ -152,7 +154,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK==7 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.d0) THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.d0) THEN
@@ -176,7 +178,7 @@ SUBROUTINE CALK( RK , RKC , &
          IF( U(I).LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( U(I).GT.0.000001d0 )THEN
-            Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+            Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
             RK(I)= 75.86d0 * H(I) * U(I) *( Ueff / ( 0.4d0 *U(I)))**(1.632d0)
          ENDIF
       enddo
@@ -187,7 +189,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 9 ) THEN
       do I = 1 , Nbsect
-         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          RK(I) = 0.6d0 * H(I) * Ueff * ( B(I) / H(I) )**(2)
       enddo
    endif
@@ -196,7 +198,7 @@ SUBROUTINE CALK( RK , RKC , &
    !FORMULE DE Seo et Cheong (1998)
    if( NOPTK == 10 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.000001d0 )THEN
@@ -209,7 +211,7 @@ SUBROUTINE CALK( RK , RKC , &
    !FORMULE de Deng et al. (2001)
    if( NOPTK == 11 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(1/6) )
+         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
          IF( Ueff.LE.0.000001d0 )THEN
             RK(I) = 0.d0
          ELSEIF( Ueff.GT.0.000001d0 )THEN

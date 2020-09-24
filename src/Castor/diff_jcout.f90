@@ -71,9 +71,8 @@ SUBROUTINE DIFF_JCOUT(grmin, grmaj, z, q, qinjec, &
 !
 ! VARIABLES LOCALES
 !
-  INTEGER :: l, isec, iext, num_bief, k, i
+  INTEGER :: l, isec, iext, num_bief, k
   LOGICAL :: limite_libre
-  DOUBLE PRECISION :: fcout
   DOUBLE PRECISION, DIMENSION(:), POINTER :: zcout
   DOUBLE PRECISION, DIMENSION(:), POINTER :: zdtemp
   INTEGER :: j

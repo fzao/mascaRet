@@ -44,7 +44,7 @@ subroutine LEC_CONC_INI_TRACER_INTERFACE( &
 !----------------------------------------------------------------------------
 !
 !   FICHIERS ENTREE/SORTIE :       - Fichier listing (UniteListing)
-!   ----------------------         
+!   ----------------------
 !
 !   SOUS-PROGRAMME(S) APPELANT(S) :  - PRETRAIT_TRACER
 !   -----------------------------
@@ -67,7 +67,7 @@ subroutine LEC_CONC_INI_TRACER_INTERFACE( &
    use M_INTERPOLATION_S       ! Interface du sous programme INTERPOLATION_S
    use M_ABS_ABS_S             ! Calcul de l'abscisse absolue
    use M_TRAITER_ERREUR_I      ! Traitement des erreurs
-   
+
    !.. Declarations explicites ..
    implicit none
 
@@ -86,20 +86,15 @@ subroutine LEC_CONC_INI_TRACER_INTERFACE( &
    ! Variables locales
    real(DOUBLE)    , dimension(:)  , pointer :: x_ini    ! maillage lu
    real(DOUBLE)    , dimension(:,:), pointer :: c_ini    ! concentration lue
-   integer      :: branche              ! numero de branche
-   real(DOUBLE) :: x_prec, x_ini_rel    ! abscisses
-   integer      :: branche_prec         ! numero de branche
    integer      :: i,j,nb_prof,nb_bief
    integer      , dimension(size(Connect%OrigineBief))   :: ProfDebBief
    integer      , dimension(size(Connect%OrigineBief))   :: ProfFinBief
-   character(132) :: arbredappel_old
-   integer      :: TypeEntreeConcInit
-   integer      :: nb_sect              ! nombre de sections de calculs 
+   integer      :: nb_sect              ! nombre de sections de calculs
    logical      :: interpoler           ! test necessite interpolatione
    integer      :: RETOUR               ! code de retour des fonctions intrinseques
    real(DOUBLE) :: sigma
-   
-   !============================ Instructions ============================== 
+
+   !============================ Instructions ==============================
    ! INITIALISATION
    ! --------------
    Erreur%Numero      = 0
@@ -258,5 +253,5 @@ subroutine LEC_CONC_INI_TRACER_INTERFACE( &
    2003 FORMAT( 'Concentration du traceur no ',I1,'( C(I) , I=1,nb_sect ) :'/)
 
    return
-   
+
 end subroutine LEC_CONC_INI_TRACER_INTERFACE

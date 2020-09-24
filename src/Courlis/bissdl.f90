@@ -55,7 +55,6 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
 ! Traitement des erreurs
   type(ERREUR_T), intent(inout) :: Erreur
-  integer      :: retour   ! Code de retour de la fonction read, allocate
   character(132)    :: arbredappel_old ! Ancien arbre d'appel
 
 !=========================================================================

@@ -68,6 +68,7 @@ module M_NUM_BIEF_S
       Erreur%ft = err_84
       Erreur%ft_c = err_84c
       call TRAITER_ERREUR (Erreur, Section)
+      NUM_BIEF_S = -1
       return
    endif
 

@@ -32,7 +32,7 @@ module M_LEC_LIAISON_I
                       Profil , &
                  ProfDebBief , &
                  ProfFinBief , &
-                    document , &  ! Pointeur vers document XML    
+                    unitNum  , & ! unite logique du fichier .xcas
                       Erreur )    ! erreur
 
    ! ******************************************************************
@@ -55,7 +55,8 @@ module M_LEC_LIAISON_I
    use M_CONSTANTES_CASIER_C      ! constantes de calcul propres a CASIER
    use M_TRAITER_ERREUR_CASIER_I  ! traitement des erreurs
    use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
-   use Fox_dom                    ! parser XML Fortran
+   use M_XINDIC_S
+   use M_XCAS_S
 
    implicit none
 
@@ -63,7 +64,7 @@ module M_LEC_LIAISON_I
    type(LIAISON_T), dimension(:), pointer :: Liaison
    type(ERREUR_T)               , intent(inout) :: Erreur
    integer , dimension(:,:)   ,   intent(inout) :: Connect
-   type(Node), pointer, intent(in)              :: document 
+   integer, intent(in)                          :: unitNum
    real(DOUBLE), dimension(:),    intent(in   ) :: X
    type(PROFIL_T), dimension(:) , pointer       :: Profil
    integer       , dimension(:) , pointer       :: ProfDebBief

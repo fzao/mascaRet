@@ -129,6 +129,8 @@ Type MODELE_MASCARET_T
     integer                                    :: FormatGeom
     integer                                    :: LoiFrottement
     integer                                    :: NbPasTemps
+    real(DOUBLE)                               :: Cote_max_controle
+    integer                                    :: Section_controle
     integer                                    :: CritereArret
     integer                                    :: Regime
     integer                                    :: ModeleLit
@@ -330,6 +332,9 @@ contains
         tabNomVar(i)         ="Model.MaxCompTime"
         tabDescriptionVar(i) ="Maximal computation time (s)"
         i=i+1
+        tabNomVar(i)         ="Model.MaxControlZ"
+        tabDescriptionVar(i) ="Maximal control water level (m)"
+        i=i+1
         tabNomVar(i)         ="Model.InitTime"
         tabDescriptionVar(i) ="Initial time of the computation (s)"
         i=i+1
@@ -380,6 +385,9 @@ contains
         i=i+1
         tabNomVar(i)         ="Model.MaxNbTimeStep"
         tabDescriptionVar(i) ="Maximal number of time steps"
+        i=i+1
+        tabNomVar(i)         ="Model.ControlSection"
+        tabDescriptionVar(i) ="Control section number"
         i=i+1
         tabNomVar(i)         ="Model.StopCriteria"
         tabDescriptionVar(i) ="Criteria for stopping calculations"
@@ -561,6 +569,9 @@ contains
        else if ( index(NomVar, 'Model.MaxCompTime') > 0) then
           TypeVar = 'DOUBLE'
           dimVar                = 0
+       else if ( index(NomVar, 'Model.MaxControlZ') > 0) then
+          TypeVar = 'DOUBLE'
+          dimVar                = 0
        else if ( index(NomVar, 'Model.InitTime') > 0) then
           TypeVar = 'DOUBLE'
           dimVar                = 0
@@ -610,6 +621,9 @@ contains
           TypeVar = 'INT'
           dimVar                = 0
        else if ( index(NomVar, 'Model.MaxNbTimeStep') > 0) then
+          TypeVar = 'INT'
+          dimVar                = 0
+       else if ( index(NomVar, 'Model.ControlSection') > 0) then
           TypeVar = 'INT'
           dimVar                = 0
        else if ( index(NomVar, 'Model.StopCriteria') > 0) then
@@ -937,6 +951,10 @@ contains
          taille1 = 0
          taille2 = 0
          taille3 = 0
+      else if ( index(NomVar, 'Model.MaxControlZ') > 0) then
+         taille1 = 0
+         taille2 = 0
+         taille3 = 0
       else if ( index(NomVar, 'Model.InitTime') > 0) then
          taille1 = 0
          taille2 = 0
@@ -1014,6 +1032,10 @@ contains
          taille2 = 0
          taille3 = 0
       else if ( index(NomVar, 'Model.MaxNbTimeStep') > 0) then
+         taille1 = 0
+         taille2 = 0
+         taille3 = 0
+      else if ( index(NomVar, 'Model.ControlSection') > 0) then
          taille1 = 0
          taille2 = 0
          taille3 = 0
@@ -2564,6 +2586,8 @@ contains
          valeur = Instance%CourantObj
       else if ( index(NomVar, 'Model.MaxCompTime') > 0) then
          valeur = Instance%TempsMaximum
+      else if ( index(NomVar, 'Model.MaxControlZ') > 0) then
+         valeur = Instance%Cote_max_controle
       else if ( index(NomVar, 'Model.InitTime') > 0) then
          valeur = Instance%TempsInitial
       else if ( index(NomVar, 'Model.DT') > 0) then
@@ -2674,6 +2698,8 @@ contains
          valeur = Instance%LoiFrottement
       else if ( index(NomVar, 'Model.MaxNbTimeStep') > 0) then
          valeur = Instance%NbPasTemps
+      else if ( index(NomVar, 'Model.ControlSection') > 0) then
+         valeur = Instance%Section_controle
       else if ( index(NomVar, 'Model.StopCriteria') > 0) then
          valeur = Instance%CritereArret
       else if ( index(NomVar, 'Model.Regime') > 0) then
@@ -2984,6 +3010,8 @@ contains
          Instance%CourantObj = valeur
       else if ( index(NomVar,'Model.MaxCompTime') > 0) then
          Instance%TempsMaximum = valeur
+      else if ( index(NomVar,'Model.MaxControlZ') > 0) then
+         Instance%Cote_max_controle = valeur
       else if ( index(NomVar,'Model.InitTime') > 0) then
          Instance%TempsInitial = valeur
       else if ( index(NomVar,'Model.DT') > 0) then
@@ -3092,6 +3120,8 @@ contains
          Instance%LoiFrottement = valeur
       else if ( index(NomVar,'Model.MaxNbTimeStep') > 0) then
          Instance%NbPasTemps = valeur
+      else if ( index(NomVar,'Model.ControlSection') > 0) then
+         Instance%Section_controle = valeur
       else if ( index(NomVar,'Model.StopCriteria') > 0) then
          Instance%CritereArret = valeur
       else if ( index(NomVar,'Model.Regime') > 0) then
@@ -3283,7 +3313,7 @@ contains
       MessageErreur          = ""
 
       if ( index(NomVar, 'Model.Title') > 0) then
-         Instance%TitreCas = valeur
+         Instance%TitreCas = valeur(1:255)
       else if (INDEX(NomVar,'Model.CrossSection.') > 0) then
            SET_STRING_MODELE_MASCARET = SET_STRING_PROFIL(instance%Profils(index1), NomVar, index2,&
                                          index3, bidon1, valeur, MessageErreur)
@@ -3916,9 +3946,7 @@ contains
       type(MODELE_MASCARET_T),intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
       integer                            :: err
-      integer                            :: i
       character(LEN=256)                 :: MessageErreurType
       NULLIFIER_MODELE_MASCARET = 0
       MessageErreur          = ""

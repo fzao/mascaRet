@@ -360,8 +360,8 @@ subroutine CALC_PC_CONFLU ( &
       ! Prise en compte de l'angle (il est en radians dans Confluent)
       ! -------------------------------------------------------------
       do iext = 1 , nb_ext
-         if( conf%Nature(iext) == BRANCHE_PRINC_AMONT ) angle1 = Confluent(inoeu)%AngleAfflu(iext)
-         if( conf%Nature(iext) == BRANCHE_LATERALE )    angle2 = Confluent(inoeu)%AngleAfflu(iext)
+         if( conf%Nature(iext) == BRANCHE_PRINC_AMONT ) angle1 = real(Confluent(inoeu)%AngleAfflu(iext))
+         if( conf%Nature(iext) == BRANCHE_LATERALE )    angle2 = real(Confluent(inoeu)%AngleAfflu(iext))
       end do
 
       angle_conf = abs( angle1 - angle2 )

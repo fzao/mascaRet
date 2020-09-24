@@ -21,14 +21,14 @@ subroutine LEC_CONFLUENT( &
                     Connect , & ! Table de connectivite du reseau
                UniteListing , & ! Unite logique fichier listing
                       Noyau , & ! Noyau de calcul
-                   document , & ! Pointeur vers document XML
+                   unitNum  , & ! Unite logique .xcas
                      Erreur   & ! Erreur
                            )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET         A. LEBOSSE
 !                              S. MANDELKERN
-!                              F. ZAOUI                           
+!                              F. ZAOUI
 !
 ! VERSION : V8P2R0                EDF-CEREMA
 ! *********************************************************************
@@ -43,7 +43,7 @@ subroutine LEC_CONFLUENT( &
    use M_PARAMETRE_C        ! Parametres
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -52,7 +52,7 @@ subroutine LEC_CONFLUENT( &
    type(CONNECT_T  )                 , intent(in   ) :: Connect
    integer                           , intent(in   ) :: UniteListing
    integer                           , intent(in   ) :: Noyau
-   type(Node), pointer, intent(in)                   :: document 
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer :: nb_confluent ! Nombre de confluents 2D
@@ -63,8 +63,9 @@ subroutine LEC_CONFLUENT( &
    integer :: ip, is,if
    integer :: retour       ! code de retour des fonctions intrinseques
    real(DOUBLE) ::  xproj,yproj,delta1,delta2,ordo,theta
-   type(Node), pointer :: champ1,champ2,champ3,champ4
    real(double), allocatable :: rtab1(:),rtab2(:),rtab3(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -75,20 +76,9 @@ subroutine LEC_CONFLUENT( &
    !arbredappel_old = trim(!Erreur%arbredappel)
    !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>LEC_CONFLUENT'
 
-   if (UniteListing >0) write(UniteListing,11100)
-   champ1 => item(getElementsByTagname(document, "parametresConfluents"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresConfluents"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "nbConfluents"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => nbConfluents"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,nb_confluent)
+   pathNode = 'parametresConfluents/nbConfluents'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_confluent
 
    if( nb_confluent < 0 ) then
       Erreur%Numero = 306
@@ -97,7 +87,8 @@ subroutine LEC_CONFLUENT( &
       call TRAITER_ERREUR( Erreur , 'Nombre de confluents' )
       return
    end if
-
+  
+   if (UniteListing >0) write(UniteListing,11100)
    if (UniteListing >0) write(UniteListing,11110) nb_confluent
 
    if( nb_confluent > 0 ) then
@@ -111,39 +102,25 @@ subroutine LEC_CONFLUENT( &
          return
       end if
 
-       champ2 => item(getElementsByTagname(champ1, "confluents"), 0)
-       if(associated(champ2).eqv..false.) then
-          print*,"Parse error => confluents"
-          call xerror(Erreur)
-          return
-       endif
+       pathNode = 'parametresConfluents/confluents'
+       line = xcasReader(unitNum, pathNode)
 
        DO iconf = 1 , nb_confluent
 
-         champ3 => item(getElementsByTagname(champ2, "structureParametresConfluent"), iconf-1)
-         if(associated(champ3).eqv..false.) then
-            print*,"Parse error => structureParametresConfluent"
-            call xerror(Erreur)
-            return
+         pathNode = 'structureParametresConfluent/nbAffluent'
+         if(iconf.eq.1) then
+           line = xcasReader(unitNum, pathNode, 0)
+         else
+           line = xcasReader(unitNum, pathNode, 1)
          endif
-         champ4 => item(getElementsByTagname(champ3, "nom"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => nom"
-            call xerror(Erreur)
-            return
-         endif
-         Confluent(iconf)%Nom = getTextContent(champ4)
-         champ4 => item(getElementsByTagname(champ3, "nbAffluent"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => nbAffluent"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,Confluent(iconf)%NbAffluent)
-         
-         if (UniteListing >0) write(UniteListing,11120) iconf, Confluent(iconf)%Nom, Confluent(iconf)%NbAffluent
+         read(unit=line, fmt=*) Confluent(iconf)%NbAffluent
 
          nb_affluent = Confluent(iconf)%NbAffluent
+
+         pathNode = 'nom'
+         Confluent(iconf)%Nom = xcasReader(unitNum, pathNode, 0)
+
+         if (UniteListing >0) write(UniteListing,11120) iconf, Confluent(iconf)%Nom, Confluent(iconf)%NbAffluent
 
          allocate( rtab1(nb_affluent) , STAT = retour )
          if( retour /= 0 ) then
@@ -169,7 +146,7 @@ subroutine LEC_CONFLUENT( &
              call TRAITER_ERREUR( Erreur , 'rtab3' )
              return
          end if
-      
+
          if(.not.associated(Confluent(iconf)%AbscisseAfflu)) &
                         allocate( Confluent(iconf)%AbscisseAfflu(nb_affluent) , STAT = retour )
          if( retour /= 0 ) then
@@ -230,31 +207,21 @@ subroutine LEC_CONFLUENT( &
             return
          end if
 
-         champ4 => item(getElementsByTagname(champ3, "abscisses"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => abscisses"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,rtab1)
-         champ4 => item(getElementsByTagname(champ3, "ordonnees"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => ordonnees"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,rtab2)
-         champ4 => item(getElementsByTagname(champ3, "angles"), 0)
-         if(associated(champ4).eqv..false.) then
-            print*,"Parse error => angles"
-            call xerror(Erreur)
-            return
-         endif
-         call extractDataContent(champ4,rtab3)
-         
+         pathNode = 'abscisses'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab1
+
+         pathNode = 'ordonnees'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab2
+
+         pathNode = 'angles'
+         line = xcasReader(unitNum, pathNode, 0)
+         read(unit=line, fmt=*) rtab3
+
          do iafflu = 1 , nb_affluent
 
-            Confluent(iconf)%AbscisseAfflu(iafflu) = rtab1(iafflu) 
+            Confluent(iconf)%AbscisseAfflu(iafflu) = rtab1(iafflu)
             Confluent(iconf)%OrdonneeAfflu(iafflu) = rtab2(iafflu)
             Confluent(iconf)%AngleAfflu(iafflu) = rtab3(iafflu)
 
@@ -328,11 +295,11 @@ subroutine LEC_CONFLUENT( &
                end do ! boucle sur les affluents
             endif
          end if ! du noyau
-         
+
          deallocate(rtab1)
-         deallocate(rtab2)  
+         deallocate(rtab2)
          deallocate(rtab3)
-      
+
       end do   ! boucle sur les confluents
 
    !--------------------
@@ -363,21 +330,21 @@ subroutine LEC_CONFLUENT( &
    11130 format ('Affluent ',i3,' Abscisse = ',f12.3,' Ordonnee = ',     &
                 f12.3,' Angle = ',f12.3)
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror      
+
+   end subroutine xerror
 
 end subroutine LEC_CONFLUENT

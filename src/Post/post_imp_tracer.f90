@@ -74,12 +74,11 @@ subroutine POST_IMP_TRACER( &
    ! attention : tableaux dimensionnes a Nbtracmax
    real (DOUBLE) , dimension (10), save :: Qtte_entr , Qtte_sort , Qtte_src
    integer ult , itrac , isect , ibief , nbbief , iext , nb_ext , n_sect_deb , n_sect_fin
-   character(132) :: arbredappel_old
    character(132) :: fmt_ligne
    character(2) , dimension(10) :: i_in_letter
    data i_in_letter / '1','2','3','4','5','6','7','8','9','10'/
 
-   !============================ Instructions ============================== 
+   !============================ Instructions ==============================
    !
    ! INITIALISATION
    ! ==============
@@ -195,7 +194,7 @@ subroutine POST_IMP_TRACER( &
          ! Calcul des quantites de traceur entree / sortie / issue des sources depuis le temps initial
          Qtte_entr(itrac) = Qtte_entr(itrac) + Entrees(itrac)
          Qtte_sort(itrac) = Qtte_sort(itrac) + Sorties(itrac)
-         Qtte_src(itrac)  = Qtte_src(itrac)  + Appsrc(itrac)   
+         Qtte_src(itrac)  = Qtte_src(itrac)  + Appsrc(itrac)
          write(ult,"(A,f20.8)") "Masse entree dans le domaine depuis t0           = " , Qtte_entr(itrac)
          write(ult,"(A,f20.8)") "Masse sortie du domaine depuis t0                = " , Qtte_sort(itrac)
          write(ult,"(A,f20.8)") "Masse apportee par les sources depuis t0         = " , Qtte_src(itrac)

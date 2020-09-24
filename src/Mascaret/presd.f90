@@ -86,11 +86,11 @@ function PRESD ( &
    real(DOUBLE), dimension(:)    , intent(in)    :: DZD
    real(DOUBLE), dimension(:,:)  , intent(in)    :: PRGEOD,SGEOD
    integer     ,                   intent(in)    :: NMLARG
-   Type (ERREUR_T)               , intent(inout) :: ERREUR 
+   Type (ERREUR_T)               , intent(inout) :: ERREUR
 
    !.. Variables locales ..
    !-----------------------
-   integer        :: JG,JD 
+   integer        :: JG,JD
    real(DOUBLE)   :: SG,SD,PRG
    !character(132) :: !arbredappel_old ! arbre d'appel precedent
 
@@ -105,6 +105,7 @@ function PRESD ( &
    if( Erreur%Numero /= 0 ) then
       ! !arbredappel_old    = trim(!Erreur%arbredappel)
       ! !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>PRESD'
+      PRESD = 0.
       return
    endif
 

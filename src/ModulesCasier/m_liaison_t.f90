@@ -365,7 +365,7 @@ module M_LIAISON_T
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer i, bidon, err
+      integer err
       character(LEN=256)                 :: MessageErreurType
 
       SET_TAILLE_VAR_LIAISON = 0
@@ -614,9 +614,7 @@ module M_LIAISON_T
       type(LIAISON_T),        intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
       integer                            :: err
-      integer                            :: i
       character(LEN=256)                 :: MessageErreurType
       DESALLOUE_LIAISON = 0
       MessageErreur          = ""
@@ -650,9 +648,7 @@ module M_LIAISON_T
       type(LIAISON_T),        intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
       integer                            :: err
-      integer                            :: i
       character(LEN=256)                 :: MessageErreurType
       NULLIFIER_LIAISON = 0
       MessageErreur          = ""

@@ -227,22 +227,17 @@ subroutine  REZO_INTERFACE    ( &
    real(DOUBLE)   :: Celerite
    real(DOUBLE)   :: dt_lim
    real(DOUBLE)   :: HI, VI, v_amont_sing
-   character(132) :: arbredappel_old   ! Arbre d'appel precedent l'entree du sous programme
    real(DOUBLE)   :: v_moyen           ! Vitesse moyenne
    real(DOUBLE)   :: debitance         ! Debitance
    integer        :: num_bief          ! Numero de bief
    real(DOUBLE)   :: abs_rel           ! abscisse relative sur un bief
    integer        :: retour            ! Code de retour des fonctions intrinseques
    integer        :: dim               ! Dimension des tableaux ASING...
-   integer        :: num_erreur
-   character(len=255) :: nomFichier
    ! Integration des casiers :
    integer      :: dimLiaison
    integer      :: NumLiai, Appel_Kliaison
    real(DOUBLE) :: ZAM, ZAV, ZfAM, ZfAV
    real(DOUBLE)         , dimension(:)  , allocatable   :: Aliai, Bliai, Cliai, Dliai, Qliai
-   real(DOUBLE) :: DiffDebit
-   real(DOUBLE) :: Factor
    ! Save
    ! Save DT
    ! Save Matrice
@@ -269,17 +264,17 @@ subroutine  REZO_INTERFACE    ( &
       !---------------------------------------------------
       DT       = 0._DOUBLE
       Tinitial = Temps
-      
+
       ! Quel solveur prendre?
       !----------------------
       if(size(Connect%ORIGINEBIEF).gt.1) then
          Matrice%SOLV = 2
       elseif(OptionCasier.eqv..true.) then
-	     Matrice%SOLV = 2
-	  else
+       Matrice%SOLV = 2
+    else
          Matrice%SOLV = 1
       endif
-      
+
       ! Allocations
       !------------
 !      allocate( DPDZ1(size(X(:))) , stat = retour )
@@ -346,7 +341,7 @@ subroutine  REZO_INTERFACE    ( &
       endif
       if( associated( Matrice%headConflu ) ) deallocate( Matrice%headConflu )
       if( associated( Matrice%nextSecConflu ) ) deallocate( Matrice%nextSecConflu )
-      
+
       return
    else
 
@@ -456,7 +451,7 @@ subroutine  REZO_INTERFACE    ( &
         dimLiaison = 1
     else
         dimLiaison = size(liaison)
-    endif    
+    endif
 
    allocate( Aliai(dimLiaison) , stat = retour )
    if( RETOUR /= 0 ) then
@@ -497,7 +492,7 @@ subroutine  REZO_INTERFACE    ( &
       return
    end if
    Dliai(:) = 0._DOUBLE
-   
+
    allocate( Qliai(dimLiaison) , stat = retour )
    if( RETOUR /= 0 ) then
       Erreur%Numero = 5
@@ -508,7 +503,7 @@ subroutine  REZO_INTERFACE    ( &
    end if
    Qliai(:) = 0._DOUBLE
 
-   
+
    ! CALCUL DES CONDITIONS AUX LIMITES
    ! ---------------------------------
    call CCL                    ( &
@@ -589,12 +584,12 @@ subroutine  REZO_INTERFACE    ( &
 
       end do boucle1
 
-	  ! CARACTERISTIQUES DES LIAISONS
+    ! CARACTERISTIQUES DES LIAISONS
       !------------------------------
       if( OptionCasier ) then
           boucleLiaison : do iLiai = 1 , size(Liaison)
 
-             NumLiai        = iLiai  
+             NumLiai        = iLiai
              appel_KLIAISON = 1
 
              if ( Liaison(iLiai)%NatureLiaison == LIAISON_TYPE_RIVIERE_CASIER ) then
@@ -623,15 +618,15 @@ subroutine  REZO_INTERFACE    ( &
                      Impression_sing                             , &
                      UniteListing                                , &
                      Erreur                                        &
-                                                                )         
+                                                                )
 
              if( Erreur%Numero /= 0 ) then
                 return
-             end if                     
+             end if
 
           end do boucleLiaison
       endif
-	  
+
       ! CALCUL DES DERIVEES DES PERIMETRES MOUILLES
       ! --------------------------------------------------------
       do ibief = 1 , size(Connect%OrigineBief)
@@ -979,7 +974,7 @@ subroutine  REZO_INTERFACE    ( &
       call TRAITER_ERREUR( Erreur , 'QLIAI' )
       return
    end if
-   
+
    ! Fin des traitements
    ! -------------------
 

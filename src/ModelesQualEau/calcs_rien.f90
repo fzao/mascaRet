@@ -56,7 +56,6 @@ SUBROUTINE CALCS_RIEN( RNU , S , &
 !  RESULTATS------------------------------------------------------------
 ! !  RNUV     ! TR ! D  ! TERMES SOURCES VOLUMIQUES IMPLICITES         !
 ! !  RNUS     ! TR ! D  ! TERME SOURCE SURFACIQUE IMPLICITES           !
-! !  SV       ! TR ! D  ! TERMES SOURCES  EXPLICITES                   !
 ! !           !                                                        !
 ! !___________!____!____!______________________________________________!
 !                               COMMON
@@ -89,7 +88,6 @@ SUBROUTINE CALCS_RIEN( RNU , S , &
    !
    ! VARIABLES LOCALES
    !
-   REAL(DOUBLE), Dimension (Nbsect,nbtra) :: RNUS , SS , SSA , SV
    INTEGER I, K
 
    DO K = 1 , Nbtra

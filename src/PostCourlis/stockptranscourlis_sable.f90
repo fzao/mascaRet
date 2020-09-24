@@ -1,45 +1,45 @@
-Subroutine  StockPTransCourlis	( &
+Subroutine  StockPTransCourlis  ( &
 
-	FicStockPTransCourlis		, & ! Unite logique fichier listing
-    PhaseStockPTransCourlis		, & ! Phase de la simulation (init, calcul, ??)
-	Temps						, & ! Temps courant
-    NbProfil					, & ! Nombre de profils
-	NbInterface					, & ! Nombre d'interfaces
-    ProfilCourlis				, & ! Profils sedimentaires
-	Zsurf						, & ! Cote de la surface libre
-	TauH						, & ! Contrainte hydr. loc. (depend du tirant d'eau local)
-	TauE						, & ! Contrainte hydr. eff. (depend du rayon hydr.)
-	Ceq							, & ! Conc. d'equilibre des sables 
-	Erreur						)
+  FicStockPTransCourlis    , & ! Unite logique fichier listing
+    PhaseStockPTransCourlis    , & ! Phase de la simulation (init, calcul, ??)
+  Temps            , & ! Temps courant
+    NbProfil          , & ! Nombre de profils
+  NbInterface          , & ! Nombre d'interfaces
+    ProfilCourlis        , & ! Profils sedimentaires
+  Zsurf            , & ! Cote de la surface libre
+  TauH            , & ! Contrainte hydr. loc. (depend du tirant d'eau local)
+  TauE            , & ! Contrainte hydr. eff. (depend du rayon hydr.)
+  Ceq              , & ! Conc. d'equilibre des sables
+  Erreur            )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
 !
-!  VERSION : 4.0       05/2003		Copyright EDF-CETMEF
+!  VERSION : 4.0       05/2003    Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !
-!  Fonction :	Ecriture du fichier resultat de Courlis pour POSTCOURLIS
-!  --------		- trace des profils en travers
+!  Fonction :  Ecriture du fichier resultat de Courlis pour POSTCOURLIS
+!  --------    - trace des profils en travers
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
 !
-!  Sous-programme appele :	SurfaceLibre
-!  ---------------------	
-!		
+!  Sous-programme appele :  SurfaceLibre
+!  ---------------------
+!
 !=========================================================================
 
-use M_PRECISION				! Definition de la precision DOUBLE ou SIMPLE
-use M_CONSTANTES_CALCUL_C	! Constantes num, phys et info
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
 
-use M_FICHIER_T				! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T		! Definition du type PROFIL_COURLIS
+use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T				! Type ERREUR_T
-use M_MESSAGE_C				! Messages d'erreur
-use M_TRAITER_ERREUR_I		! Traitement de l'errreur
+use M_ERREUR_T        ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
 
@@ -48,7 +48,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 !
@@ -76,7 +76,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
   ! Noms de variables
   character(10) :: C_ProfAbs , C_Zdur , C_TauH , C_TauE , C_Ceq
   character(10) :: Cu_ProfAbs, Cu_Zref, Cu_TauH, Cu_TauE, Cu_Ceq
-  character(4), dimension(7) :: C_Zref
+  character(5), dimension(7) :: C_Zref
 
 ! Traitement des erreurs
 !-----------------------
@@ -96,7 +96,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
   Erreur%arbredappel = trim(Erreur%arbredappel)//'=>StockPTransCourlis'
 
   NbVar  = min(NbInterface+4,10)
- 
+
   NbCouche = NbInterface - 1
 
   Unite = FicStockPTransCourlis%Unite
@@ -129,20 +129,20 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
 
   If ((PhaseStockPTransCourlis == PHASE_INITIALISATION) .AND. &
       (NbVar < NbInterface+1)) Then
-	Erreur%Numero = 409
-	Erreur%ft   = err_409
-	Erreur%ft_c = err_409c
-	call TRAITER_ERREUR (Erreur, 'Visualisation des profils : ', &
-			'Seules les 7 premieres couches seront prises en compte.') 
+  Erreur%Numero = 409
+  Erreur%ft   = err_409
+  Erreur%ft_c = err_409c
+  call TRAITER_ERREUR (Erreur, 'Visualisation des profils : ', &
+      'Seules les 7 premieres couches seront prises en compte.')
   End If
 
-  call SurfaceLibre			( &
-			NbProfil        , & 
-            PtRiveG         , & 
-            PtRiveD         , & 
-	        ProfilCourlis   , & 
-	        Zsurf           , & 
-            Erreur			)
+  call SurfaceLibre      ( &
+      NbProfil        , &
+            PtRiveG         , &
+            PtRiveD         , &
+          ProfilCourlis   , &
+          Zsurf           , &
+            Erreur      )
 
 !=========================================================================
 ! ECRITURE DE L'EN TETE
@@ -166,7 +166,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
     write(Unite,1010) NbProfil
     Do i = 1, NbProfil
       write(Unite,1020) i, ProfilCourlis(i)%NbPoint !!!!!!!!!!!!!!!cette fonction devra etre adaptee pour POSTCOURLIS
-    End do 
+    End do
     write(Unite,1030) NbVar
 
     write(Unite,1040) C_ProfAbs, Cu_ProfAbs
@@ -178,7 +178,7 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
     write(Unite,1040) C_Zdur, Cu_Zref
     write(Unite,1040) C_TauH, Cu_TauH
     write(Unite,1040) C_TauE, Cu_TauE
-    write(Unite,1040) C_Ceq , Cu_Ceq 
+    write(Unite,1040) C_Ceq , Cu_Ceq
 
   End if
 
@@ -194,9 +194,9 @@ use M_SurfaceLibre_I        ! Interface du sous-programme SurfaceLibre
     write(Unite,1080) PtRiveG(i), PtRiveD(i)
 
     Do j = 1, ProfilCourlis(i)%NbPoint
-      write(Unite,1090) ProfilCourlis(i)%X(j),						&
-						(ProfilCourlis(i)%Z(k,j), k=1,NbInterface),	&
-						TauH(j,i), TauE(j,i), Ceq(j,i)
+      write(Unite,1090) ProfilCourlis(i)%X(j),            &
+            (ProfilCourlis(i)%Z(k,j), k=1,NbInterface),  &
+            TauH(j,i), TauE(j,i), Ceq(j,i)
     End do
   End do
 

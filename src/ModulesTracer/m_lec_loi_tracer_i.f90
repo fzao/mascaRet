@@ -31,7 +31,7 @@ module M_LEC_LOI_TRACER_I
                  impression , & ! Flag d'impression des lois
                UniteListing , & ! Unite logique fichier listing
                TempsMaximum , & ! Temps maximum du calcul
-                   document , & ! Pointeur vers document XML  
+                    unitNum , & ! Unite logique du fichier .xcas
                      Erreur   & ! Erreur
                            )
 
@@ -52,12 +52,12 @@ module M_LEC_LOI_TRACER_I
    use M_FICHIER_T             ! UniteListing
    use M_LOI_TRACER_T          ! Types LOI_TRACER_T
    use M_MESSAGE_C             ! Messages d'erreur
-   use M_MESSAGE_TRACER_C 
+   use M_MESSAGE_TRACER_C
    use M_CONSTANTES_CALCUL_C   ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I      ! Traitement de l'errreur
    use M_LEC_FIC_LOI_TRACER_I  ! Interface de sous-programme
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    ! Arguments
@@ -67,7 +67,7 @@ module M_LEC_LOI_TRACER_I
    integer                      , intent(in   )      :: Nbtrac
    integer                      , intent(in   )      :: UniteListing
    real(DOUBLE)                 , intent(in   )      :: TempsMaximum
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
 
    end subroutine LEC_LOI_TRACER

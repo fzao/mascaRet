@@ -18,7 +18,7 @@
 
 subroutine QCL_TRACER( &
                        ! Resultats : Objets dont l'etat est mis a jour
-            Cond_Lim , & ! Conditions limites amont 
+            Cond_Lim , & ! Conditions limites amont
        Source_Tracer , & ! Tableau des sources
                        ! Donnees
            Extremite , & ! Tableau des extremites libres
@@ -64,7 +64,7 @@ subroutine QCL_TRACER( &
    !.. Declaration Implicite ..
    implicit none
 
-   !.. Arguments .. 
+   !.. Arguments ..
    type(SOURCE_TRACER_T)  , dimension(:), intent(inout)  :: Source_Tracer
    type(COND_LIM_TRACER_T), dimension(:), pointer        :: Cond_lim
    type(EXTREMITE_T)       , dimension(:), pointer       :: Extremite
@@ -83,11 +83,7 @@ subroutine QCL_TRACER( &
    integer  :: is, itrac ,iext   ! Compteur sur les sources
    integer  :: num_loi           ! Numero de la loi utilisee
    integer  :: nb_points
-   integer  :: num_sect
    integer  :: retour
-   logical  :: debut_bief         ! position de l'extremite
-   logical  :: amont_bief         ! idem par rapport a l'ecoulmt
-   character(132) :: arbredappel_old ! Ancien arbre d'appel
 
    !==============================================================
    !           Initialisations
@@ -97,10 +93,10 @@ subroutine QCL_TRACER( &
    !Erreur%arbredappel = trim(Erreur%arbredappel)//'=>QCL_TRACER'
 
    nb_loi_tracer = size(LoiTracer)
-   nb_extremite  = size(Extremite) 
+   nb_extremite  = size(Extremite)
 
    !==============================================================
-   !           Calcul de la source de traceur au temps T 
+   !           Calcul de la source de traceur au temps T
    !==============================================================
    nb_source = size(Source_Tracer)
 

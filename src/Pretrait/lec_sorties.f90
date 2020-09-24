@@ -19,13 +19,13 @@
 subroutine LEC_SORTIES( &
      VarSto              , &
      VarCalc             , &
-     document            , & ! Pointeur vers document XML
+     unitNum             , & ! Unite logique .xcasL
      Erreur                & ! Erreur
                       )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
-!                            F. ZAOUI                      
+!                            F. ZAOUI
 !
 ! VERSION : V8P2R0              EDF-CEREMA
 ! *********************************************************************
@@ -37,21 +37,22 @@ subroutine LEC_SORTIES( &
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_INDEX_VARIABLE_C    ! Numeros des variables a sortir
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
    ! Arguments
    logical           , dimension(:)   , intent(  out) :: VarCalc
    logical           , dimension(:)   , intent(  out) :: VarSto
-   type(Node), pointer, intent(in)                    :: document 
+   integer, intent(in)                                :: unitNum
    type(ERREUR_T)                     , intent(inout) :: Erreur
    ! Variables locales
    integer :: retour       ! code de retour des fonctions intrinseques
    logical :: reponse_logique
    integer :: nb_deversoir
-   type(Node), pointer :: champ1,champ2,champ3
    logical, allocatable :: ltab1(:),ltab2(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -62,7 +63,7 @@ subroutine LEC_SORTIES( &
    !Erreur%arbredappel = trim(!Erreur%arbredappel)//'=>LEC_SORTIES'
    VarSto(:) = .false.
    VarCalc(:) = .false.
-   
+
     allocate( ltab1(42) , STAT = retour )
     if( retour /= 0 ) then
         Erreur%Numero = 5
@@ -71,6 +72,7 @@ subroutine LEC_SORTIES( &
         call TRAITER_ERREUR( Erreur , 'ltab1' )
         return
     end if
+    ltab1(:) = .false.
     allocate( ltab2(15) , STAT = retour )
     if( retour /= 0 ) then
         Erreur%Numero = 5
@@ -79,37 +81,19 @@ subroutine LEC_SORTIES( &
         call TRAITER_ERREUR( Erreur , 'ltab1' )
         return
     end if
-   
-   champ1 => item(getElementsByTagname(document, "parametresVariablesStockees"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresVariablesStockees"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "variablesStockees"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => variablesStockees"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,ltab1)
-   champ1 => item(getElementsByTagname(document, "parametresVariablesCalculees"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresVariablesCalculees"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "variablesCalculees"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => variablesCalculees"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,ltab2)
-    
+    ltab2(:) = .false.
+
+   pathNode = 'parametresVariablesStockees/variablesStockees'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).ne.0) read(unit=line, fmt=*) ltab1
+
+   pathNode = 'parametresVariablesStockees/variablesCalculees'
+   line = xcasReader(unitNum, pathNode)
+   if(len(trim(line)).ne.0) read(unit=line, fmt=*) ltab2
+
    ! Variables stockees
    VarSto(VAR_X)    = .true.
-   
+
    VarSto(VAR_ZREF) = ltab1(1)
    VarSto(VAR_RGC)  = ltab1(2)
    VarSto(VAR_RDC)  = ltab1(3)
@@ -152,45 +136,26 @@ subroutine LEC_SORTIES( &
    VarSto(VAR_QMAX) = ltab1(40)
    VarSto(VAR_TQMAX)= ltab1(41)
    VarSto(VAR_EMAX) = ltab1(42)
-   
-   
+
+
    VarSto(VAR_QDEV) = .true.
    VarSto(VAR_Q)    = .true.
    VarSto(VAR_Debi) = .false.
    VarSto(VAR_YVRAI) = .false.
    VarSto(VAR_QVRAI) = .false.
 
-   champ1 => item(getElementsByTagName(document, "parametresGeneraux"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresGeneraux"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "validationCode"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => validationCode"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,reponse_logique)
+   pathNode = 'parametresGeneraux/validationCode'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) reponse_logique
+
    if(reponse_logique) then
        VarSto(VAR_YVRAI) = .true.
        VarSto(VAR_QVRAI) = .true.
    endif
 
-   champ1 => item(getElementsByTagName(document, "parametresNumeriques"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresNumeriques"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "calcOndeSubmersion"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => calcOndeSubmersion"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,reponse_logique)
+   pathNode = 'parametresGeneraux/calcOndeSubmersion'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) reponse_logique
 
    if(reponse_logique) then
       VarSto(VAR_ZMAX)  = .true.
@@ -201,23 +166,16 @@ subroutine LEC_SORTIES( &
       VarSto(VAR_V1MAX) = .true.
    Endif
    If( VarSto(VAR_VZMAX) ) VarSto(Var_V1) = .true.
-   champ1 => item(getElementsByTagname(document, "parametresApportDeversoirs"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresApportDeversoirs"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "deversLate"), 0)
-   if(associated(champ2).eqv..false.) then
+
+   pathNode = 'parametresApportDeversoirs/deversLate'
+   line = xcasReader(unitNum, pathNode)
+
+   if(len(trim(line)).eq.0) then
        nb_deversoir = 0
    else
-       champ3 => item(getElementsByTagname(champ2, "nbDeversoirs"), 0)
-       if(associated(champ3).eqv..false.) then
-          print*,"Parse error => nbDeversoirs"
-          call xerror(Erreur)
-          return
-       endif
-       call extractDataContent(champ3,nb_deversoir)
+       pathNode = 'parametresApportDeversoirs/deversLate/nbDeversoirs'
+       line = xcasReader(unitNum, pathNode)
+       read(unit=line, fmt=*) nb_deversoir
    endif
    If( Nb_deversoir == 0 ) then
       VarSto(VAR_QDEV) = .false.
@@ -335,32 +293,32 @@ subroutine LEC_SORTIES( &
    if (VarCalc(VAR_QMAX)) then
       VarCalc(VAR_TQMAX) = .TRUE.
    endif
-   
+
    ! Fin des traitements
 
    deallocate(ltab1)
    deallocate(ltab2)
-   
+
    !Erreur%arbredappel = !arbredappel_old
 
    return
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror         
-  
+
+   end subroutine xerror
+
 end subroutine LEC_SORTIES

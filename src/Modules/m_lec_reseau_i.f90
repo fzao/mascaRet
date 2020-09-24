@@ -45,7 +45,7 @@ module M_LEC_RESEAU_I
                 ProfDebBief , & ! Premiers profils des biefs
                 ProfFinBief , & ! Derniers profils des biefs
                       Noyau , & ! Noyau de calcul
-                   document , & ! Pointeur vers document XML
+                   unitNum  , & ! Unite logique .xcas
                      Erreur & ! Erreur
                          )
 
@@ -60,8 +60,8 @@ module M_LEC_RESEAU_I
    use M_PARAMETRE_C        ! parametres de calcul
    use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
    implicit none
 
    ! Arguments
@@ -85,7 +85,7 @@ module M_LEC_RESEAU_I
    integer           , dimension(:)  , intent(in   ) :: ProfDebBief
    integer           , dimension(:)  , intent(in   ) :: ProfFinBief
    integer                           , intent(in   ) :: Noyau
-   type(Node), pointer, intent(in)                   :: document
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
 
    end subroutine LEC_RESEAU

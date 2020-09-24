@@ -162,7 +162,6 @@ subroutine SARAP ( &
    !.. Local Scalars ..
    real(DOUBLE) :: VMOY
    real(DOUBLE) :: DEB
-   integer      :: iinj      ! Compteur sur les debits d'apport
    integer      :: isec      ! Compteur sur les sections
    integer      :: num_bief  ! Numero du bief
    real(DOUBLE) :: absc_rel  ! abscisse relative d'une section

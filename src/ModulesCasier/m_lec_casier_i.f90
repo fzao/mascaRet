@@ -27,7 +27,7 @@ module M_LEC_CASIER_I
    subroutine LEC_CASIER( &
                      Casier , & ! tableau des casiers
           FichierGeomCasier , &
-                   document , & ! Pointeur vers document XML                     
+                   unitNum  , & ! unite logique du fichier .xcas
                      Erreur )   ! erreur
 
    ! ******************************************************************
@@ -52,16 +52,15 @@ module M_LEC_CASIER_I
    use M_TRAITER_ERREUR_I         ! Traitement de l'errreur
    use M_LEC_GEOM_CASIER2_I
    use M_LEC_GEOM_CASIER1_I
-   use Fox_dom                    ! parser XML Fortran
-   
+
    implicit none
 
    !.. Arguments ..
    type(CASIER_T), dimension(:), pointer       :: Casier
    type(ERREUR_T)              , intent(inout) :: Erreur
    type(FICHIER_T)             , intent(inout) :: FichierGeomCasier
-   type(Node), pointer, intent(in)             :: document 
-   
+   integer, intent(in)                         :: unitNum
+
    end subroutine LEC_CASIER
 
    end interface

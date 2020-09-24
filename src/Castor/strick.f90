@@ -44,8 +44,6 @@ SUBROUTINE STRICK()
    integer      :: isect              ! compteur sur les sections
    integer      :: indice             ! indice de debut de zone
    integer      :: indice2            ! indice de fin de zone
-   integer      :: indice2_prec       ! indice de fin de zone precedente 
-   integer      :: retour              ! code de retour des fonctions
                                       ! intrinseques
    !character(132) :: !arbredappel_old
 

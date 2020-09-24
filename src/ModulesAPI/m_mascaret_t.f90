@@ -64,7 +64,7 @@ contains
       GET_TYPE_VAR_MASC     = 0
       TypeVar               = ""
       Categorie             = ""
-      Modifiable            = .FALSE.
+      Modifiable            = .TRUE.
       dimVar                = 0
       MessageErreur         = ""
 
@@ -142,11 +142,11 @@ contains
 
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      GET_DOUBLE_MASC = GET_DOUBLE_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_DOUBLE_MASC = GET_DOUBLE_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else if ( INDEX(NomVar,'State.') > 0) then
- 		      GET_DOUBLE_MASC = GET_DOUBLE_ETAT_MASCARET(instance%EtatMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_DOUBLE_MASC = GET_DOUBLE_ETAT_MASCARET(instance%EtatMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
          GET_DOUBLE_MASC = 1
          valeur                = -9999999.9999
@@ -171,11 +171,11 @@ contains
       MessageErreur    = ""
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      GET_INT_MASC = GET_INT_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_INT_MASC = GET_INT_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
        else if ( INDEX(NomVar,'State.') > 0) then
- 		      GET_INT_MASC = GET_INT_ETAT_MASCARET(instance%EtatMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_INT_MASC = GET_INT_ETAT_MASCARET(instance%EtatMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
          GET_INT_MASC = 1
          valeur           = -9999
@@ -199,8 +199,8 @@ contains
       MessageErreur     = ""
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      GET_BOOL_MASC = GET_BOOL_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_BOOL_MASC = GET_BOOL_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
          GET_BOOL_MASC = 1
          valeur           = .FALSE.
@@ -224,8 +224,8 @@ contains
       MessageErreur       = ""
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      GET_STRING_MASC = GET_STRING_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          GET_STRING_MASC = GET_STRING_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
          GET_STRING_MASC = 1
          valeur           = ""
@@ -337,8 +337,8 @@ contains
       MessageErreur     = ""
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      SET_BOOL_MASC = SET_BOOL_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          SET_BOOL_MASC = SET_BOOL_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
           SET_BOOL_MASC = 1
           MessageErreur    = "SET_BOOL_MASC - Unknown variable name"
@@ -360,8 +360,8 @@ contains
       MessageErreur     = ""
 
       if (INDEX(NomVar,'Model.') > 0) then
- 		      SET_STRING_MASC = SET_STRING_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
- 		                                index1, index2, index3, valeur, MessageErreur)
+          SET_STRING_MASC = SET_STRING_MODELE_MASCARET(instance%ModeleMascaret, NomVar, &
+                                    index1, index2, index3, valeur, MessageErreur)
       else
          SET_STRING_MASC = 1
          MessageErreur    = "SET_STRING_MASC - Unknown variable name"

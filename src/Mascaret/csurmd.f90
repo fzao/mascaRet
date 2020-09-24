@@ -44,10 +44,10 @@ function CSURMD( &
 ! !   SGEOD   ! TR ! D  ! SURFACE MOUILLEE PLANIMETREE                 !
 ! !   NMLARG  !    ! D  !                                              !
 ! !   ICRE    !  I ! R  ! Code de retour                               !
-! !___________!____!____!______________________________________________!  
+! !___________!____!____!______________________________________________!
 !
 !                             VARIABLES LOCALES
-! .___________.____.____.______________________________________________.  
+! .___________.____.____.______________________________________________.
 ! !   JG      !  I ! A  ! BORNE GAUCHE DE L'INTERVALLE CONTENANT SURF  !
 ! !   JD      !  I ! A  ! BORNE DROITE DE L'INTERVALLE CONTENANT SURF  !
 ! !   SG      !  R ! A  ! SURFACE MOUILLE POUR LA BORNE GAUCHE         !
@@ -104,6 +104,7 @@ function CSURMD( &
    call DICHOD( JG , JD , SURF , NOEUD , SGEOD , NMLARG , Erreur )
 
    if( Erreur%Numero /= 0 ) then
+      CSURMD = 0.
       return
    endif
 

@@ -192,7 +192,7 @@ subroutine PRECAL( &
 
    !.. Variables locales ..
    !-----------------------
-   integer      :: NOEUD,IBIEF,I,INOEU,IEL,IFONC,IS
+   integer      :: NOEUD,IBIEF,INOEU,IEL,IFONC,IS
    integer      :: NELMIN(12,2),NFRELM(18)
    integer      :: NSEGP,NSEGR
    integer      :: ICONF
@@ -281,7 +281,7 @@ subroutine PRECAL( &
                        )
 
          if( Erreur%Numero /= 0 ) then
-            !Print *,'erreur minmaj' 
+            !Print *,'erreur minmaj'
             return
          endif
 
@@ -289,7 +289,7 @@ subroutine PRECAL( &
          if( STOCKAGE ) then
             VOLS(NOEUD) = CSUR( NOEUD , YNODE(NOEUD) , DZ , SSGEO , NMLARG , ERREUR )
             if( Erreur%Numero /= 0 ) then
-            !print *,'erreur stockage' 
+            !print *,'erreur stockage'
                return
             endif
          endif
@@ -367,7 +367,7 @@ subroutine PRECAL( &
                           )
 
       if( Erreur%Numero /= 0 ) then
-         !print *,'erreur inigeo' 
+         !print *,'erreur inigeo'
          return
       endif
 

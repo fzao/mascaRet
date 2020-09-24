@@ -20,7 +20,7 @@ subroutine LEC_FROTTEMENT ( &
                           CF1 , & ! Coefficient de frottement Mineur
                           CF2 , & ! Coefficient de frottement Majeur
                             X , & ! Abscisse des sections de calcul
-                      ZoneFrot, & ! Zone de frottement 
+                      ZoneFrot, & ! Zone de frottement
                           XDT , &
                        Profil , & ! Profils geometriques
                   ProfDebBief , & ! Premiers profils des biefs
@@ -29,13 +29,13 @@ subroutine LEC_FROTTEMENT ( &
             AbscRelExtFinBief , & ! Abscisse de l'extremite debut du bief
           InterpLinCoeffFrott , &
                  UniteListing , & ! Unite logique fichier listing
-                     document , & ! Pointeur vers document XML
+                      unitNum , & ! Pointeur vers document XML
                        Erreur & ! Erreur
                              )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET        S. MANDELKERN
-!                             F. ZAOUI                             
+!                             F. ZAOUI
 !
 ! VERSION : V8P2R0                EDF-CEREMA
 ! *********************************************************************
@@ -45,13 +45,13 @@ subroutine LEC_FROTTEMENT ( &
    use M_ERREUR_T            ! Type ERREUR_T
    use M_PARAMETRE_C
    use M_PROFIL_T            ! Type  PROFIL_T
-   use M_ZONE_FROT_T         ! Type Zone frottement 
+   use M_ZONE_FROT_T         ! Type Zone frottement
    use M_MESSAGE_C           ! Messages d'erreur
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_XINDIC_S            ! Calc de l'indice corresp a une absc
    use M_ABS_ABS_S           ! Calcul de l'abscisse absolue
-   use Fox_dom               ! parser XML Fortran
+   use M_XCAS_S
 
    implicit none
 
@@ -61,14 +61,14 @@ subroutine LEC_FROTTEMENT ( &
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: X
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: XDT
    type(PROFIL_T)    , dimension(:)  , intent(in   ) :: Profil
-   type(ZONE_FROT_T) , dimension(:)  , pointer       :: ZoneFrot 
+   type(ZONE_FROT_T) , dimension(:)  , pointer       :: ZoneFrot
    integer           , dimension(:)  , intent(in   ) :: ProfDebBief
    integer           , dimension(:)  , intent(in   ) :: ProfFinBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtDebBief
    real(DOUBLE)      , dimension(:)  , intent(in   ) :: AbscRelExtFinBief
    logical                           , intent(in   ) :: InterpLinCoeffFrott
    integer                           , intent(in   ) :: UniteListing
-   type(Node), pointer, intent(in)                   :: document   
+   integer, intent(in)                               :: unitNum
    type(ERREUR_T)                    , intent(inout) :: Erreur
    ! Variables locales
    integer      :: izone              ! compteur sur les zones de frottement
@@ -89,9 +89,10 @@ subroutine LEC_FROTTEMENT ( &
    logical      :: chevauchement
    integer      :: retour              ! code de retour des fonctions
                                        ! intrinseques
-   type(Node), pointer :: champ1,champ2,champ3
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:),rtab3(:),rtab4(:)
+   character(len=256)  :: pathNode
+   character(len=1024) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -125,25 +126,10 @@ subroutine LEC_FROTTEMENT ( &
 
    ! Nombre de zones de frottement
    !-----------------------------
-   champ1 => item(getElementsByTagname(document, "parametresCalage"), 0)
-   if(associated(champ1).eqv..false.) then
-      print*,"Parse error => parametresCalage"
-      call xerror(Erreur)
-      return
-   endif
-   champ2 => item(getElementsByTagname(champ1, "frottement"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => frottement"
-      call xerror(Erreur)
-      return
-   endif
-   champ3 => item(getElementsByTagname(champ2, "nbZone"), 0)
-   if(associated(champ3).eqv..false.) then
-      print*,"Parse error => nbZones"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ3,nb_zone_frottement)
+   pathNode = 'parametresCalage/frottement/nbZone'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) nb_zone_frottement
+
    if( nb_zone_frottement <= 0 ) then
       Erreur%Numero = 306
       Erreur%ft     = err_306
@@ -209,44 +195,26 @@ subroutine LEC_FROTTEMENT ( &
    branche_zone_frott_prec = 0
    abscfin_zone_frott_prec = 0._DOUBLE
 
-   champ2 => item(getElementsByTagname(champ1, "numBranche"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => numBranche"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,itab)
-   champ2 => item(getElementsByTagname(champ1, "coefLitMin"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => coefLitMin"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,rtab1)
-   champ2 => item(getElementsByTagname(champ1, "coefLitMaj"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => coefLitMaj"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,rtab2)
+   pathNode = 'parametresCalage/numBranche'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) itab
 
-   champ2 => item(getElementsByTagname(champ1, "absDebZone"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => absDebZone"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,rtab3)
-   champ2 => item(getElementsByTagname(champ1, "absFinZone"), 0)
-   if(associated(champ2).eqv..false.) then
-      print*,"Parse error => absFinZone"
-      call xerror(Erreur)
-      return
-   endif
-   call extractDataContent(champ2,rtab4)
+   pathNode = 'parametresCalage/coefLitMin'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab1
 
-   
+   pathNode = 'parametresCalage/coefLitMaj'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab2
+
+   pathNode = 'parametresCalage/absDebZone'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab3
+
+   pathNode = 'parametresCalage/absFinZone'
+   line = xcasReader(unitNum, pathNode)
+   read(unit=line, fmt=*) rtab4
+
    do izone = 1 , nb_zone_frottement
       valeur_coeff_min   =  rtab1(izone)
       if( valeur_coeff_min <= 0 ) then
@@ -346,14 +314,12 @@ subroutine LEC_FROTTEMENT ( &
       if( Erreur%Numero /= 0 ) then
          return
       endif
-     ! Modif NG 
-      ZoneFrot(izone)%Sectiondeb = indice 
+      ZoneFrot(izone)%Sectiondeb = indice
 
       call XINDIC_S( indice2 , abscfin_zone_frott , X , Erreur )
       if( Erreur%Numero /= 0 ) then
          return
       endif
-     ! modif NG 
       ZoneFrot(izone)%Sectionfin= indice2
 
       do isect = indice , indice2
@@ -387,7 +353,7 @@ subroutine LEC_FROTTEMENT ( &
    deallocate(rtab2)
    deallocate(rtab3)
    deallocate(rtab4)
-   
+
    return
 
    10020 format (/,'FROTTEMENT',/, &
@@ -398,21 +364,21 @@ subroutine LEC_FROTTEMENT ( &
                 'Coefficient mineur : ',f12.3,' Coefficient majeur : ',f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror      
-                
+
+   end subroutine xerror
+
 end subroutine LEC_FROTTEMENT

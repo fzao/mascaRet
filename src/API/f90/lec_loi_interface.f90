@@ -30,7 +30,7 @@ subroutine LEC_LOI_INTERFACE    ( &
      UniteListing     , & ! Unite logique fichier listing
      CritereArret     , & ! Critere d'arret du calcul
      TempsMaximum     , & ! Temps maximum du calcul
-     document         , &  ! Pointeur vers document XML
+     unitNum          , & ! Unite logique .xcas
      Erreur             & ! Erreur
                       )
 ! *********************************************************************
@@ -48,8 +48,8 @@ subroutine LEC_LOI_INTERFACE    ( &
    use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
    use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
    use M_LEC_HYDRAU_I        ! Interface de sous-programme
-   use Fox_dom               ! parser XML Fortran
-   
+   use M_XCAS_S
+
   implicit none
 
 ! Arguments
@@ -60,23 +60,21 @@ subroutine LEC_LOI_INTERFACE    ( &
   integer                      , intent(in   ) :: UniteListing
   integer                      , intent(in   ) :: CritereArret
   real(DOUBLE)                 , intent(in   ) :: TempsMaximum
-  type(Node), pointer, intent(in)                   :: document
+  integer, intent(in)                          :: unitNum
 ! Variables locales
 
   integer :: nb_loi   ! nombre de lois
   integer :: nb_point ! nombre de points
-  integer :: nb_point_z,nb_point_q ! nombre de points
   integer :: iloi     ! compteur sur les lois
   integer :: iFichiersloi ! compteur sur les lois
 
   integer :: i        ! compteur sur les points
-  integer :: j ,k       ! compteur sur les points
   integer :: retour   ! code de retour des fonctions intrinseques
   integer :: mode_entree_loi ! type d'entree clavier/fichier
   integer :: unite_temps     ! unite de temps des lois entres par clavier
-  type(Node), pointer :: champ1,champ2,champ3,champ4,champ5
   character(132) :: arbredappel_old
-
+  character(len=256)  :: pathNode
+  character(len=1024) :: line
 ! Traitement des erreurs
 
   type(ERREUR_T), intent(inout) :: Erreur
@@ -95,17 +93,9 @@ subroutine LEC_LOI_INTERFACE    ( &
 ! Nombre de lois
 !---------------
 
-  champ1 => item(getElementsByTagname(document, "parametresLoisHydrauliques"), 0)
-  if(associated(champ1).eqv..false.) then
-      call xerror(Erreur)
-      return
-  endif
-  champ2 => item(getElementsByTagname(champ1, "nb"), 0)
-  if(associated(champ2).eqv..false.) then
-      call xerror(Erreur)
-      return
-  endif
-  call extractDataContent(champ2,nb_loi)
+  pathNode = 'parametresLoisHydrauliques/nb'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) nb_loi
   if (nb_loi < 2) then
     Erreur%Numero = 305
     Erreur%ft   = err_305
@@ -132,13 +122,14 @@ subroutine LEC_LOI_INTERFACE    ( &
   end if
 
   iFichiersloi = 1
-  
-  champ2 => item(getElementsByTagname(champ1, "lois"), 0)
-  if(associated(champ2).eqv..false.) then
+
+  pathNode = 'parametresLoisHydrauliques/lois'
+  line = xcasReader(unitNum, pathNode)
+  if(len(trim(line)).eq.0) then
      call xerror(Erreur)
      return
   endif
-  
+
   do iloi = 1, nb_loi
 
 
@@ -150,24 +141,22 @@ subroutine LEC_LOI_INTERFACE    ( &
     nullify(LoiHydrau(iloi)%CoteAval)
     nullify(LoiHydrau(iloi)%CoteAmont)
 
-    champ3 => item(getElementsByTagname(champ2, "structureParametresLoi"), iloi-1)
-    if(associated(champ3).eqv..false.) then
-      call xerror(Erreur)
-      return
+    if(iloi.eq.1) then
+      pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/nom'
+      LoiHydrau(iloi)%Nom = xcasReader(unitNum, pathNode)
+    else
+      pathNode = 'structureParametresLoi/nom'
+      LoiHydrau(iloi)%Nom = xcasReader(unitNum, pathNode, 1)
     endif
-    champ4 => item(getElementsByTagname(champ3, "nom"), 0)
-    if(associated(champ4).eqv..false.) then
-      call xerror(Erreur)
-      return
+
+    if(iloi.eq.1) then
+      pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/type'
+      line = xcasReader(unitNum, pathNode)
+    else
+      pathNode = 'type'
+      line = xcasReader(unitNum, pathNode, 0)
     endif
-    LoiHydrau(iloi)%Nom  = getTextContent(champ4)
-      
-    champ4 => item(getElementsByTagname(champ3, "type"), 0)
-    if(associated(champ4).eqv..false.) then
-      call xerror(Erreur)
-      return
-    endif
-    call extractDataContent(champ4,LoiHydrau(iloi)%Type)
+    read(unit=line, fmt=*) LoiHydrau(iloi)%Type
 
     if (LoiHydrau(iloi)%Type < 1 .or. LoiHydrau(iloi)%Type > LOI_TYPE_NB_MAX) then
       Erreur%Numero = 317
@@ -177,17 +166,14 @@ subroutine LEC_LOI_INTERFACE    ( &
       return
     end if
 
-    champ4 => item(getElementsByTagname(champ3, "donnees"), 0)
-    if(associated(champ4).eqv..false.) then
-      call xerror(Erreur)
-      return
+    if(iloi.eq.1) then
+      pathNode = 'parametresLoisHydrauliques/lois/structureParametresLoi/donnees/modeEntree'
+      line = xcasReader(unitNum, pathNode)
+    else
+      pathNode = 'donnees/modeEntree'
+      line = xcasReader(unitNum, pathNode, 0)
     endif
-    champ5 => item(getElementsByTagname(champ4, "modeEntree"), 0)
-    if(associated(champ5).eqv..false.) then
-      call xerror(Erreur)
-      return
-    endif
-    call extractDataContent(champ5,mode_entree_loi)
+    read(unit=line, fmt=*) mode_entree_loi
 
     if (mode_entree_loi /= SAISIE_PAR_FICHIER .and. &
         mode_entree_loi /= SAISIE_PAR_CLAVIER) then
@@ -682,30 +668,23 @@ subroutine LEC_LOI_INTERFACE    ( &
   10010 format ('Nombre de lois = ',i3)
   10020 format (/,'Loi ',i3,' : Nom = ',A,' Type =',i2)
   10030 format ('Mode d''entree      = ',A,' Nom du fichier = ',A)
-  10040 format ('Mode d''entree      = ',A)
-  10045 format ('Unite de temps     = ',A)
-  10050 format ('Nombre de points   = ',i3)
-  10060 format (A)
-  10070 format (i5,2f12.3)
-  10080 format (i5,3f12.3)
-  10090 format (f12.3)
 
    contains
-   
+
    subroutine xerror(Erreur)
-       
+
        use M_MESSAGE_C
        use M_ERREUR_T            ! Type ERREUR_T
-       
+
        type(ERREUR_T)                   , intent(inout) :: Erreur
-       
+
        Erreur%Numero = 704
        Erreur%ft     = err_704
        Erreur%ft_c   = err_704c
        call TRAITER_ERREUR( Erreur )
-       
+
        return
-        
-   end subroutine xerror      
-  
+
+   end subroutine xerror
+
   end subroutine LEC_LOI_INTERFACE

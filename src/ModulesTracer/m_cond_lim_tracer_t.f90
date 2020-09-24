@@ -50,7 +50,7 @@ contains
         tabNomVar(i)         ="Model.Tracer.BoundaryCond.Concentration"
         tabDescriptionVar(i) ="Concentration values for the BC"
         i=i+1
-        
+
         return
 
      end subroutine GET_TAB_VAR_COND_LIM_TRACER
@@ -95,7 +95,7 @@ contains
     end function GET_TYPE_VAR_COND_LIM_TRACER
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -136,7 +136,7 @@ contains
    end function GET_TAILLE_VAR_COND_LIM_TRACER
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -150,7 +150,7 @@ contains
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer t1, t2, t3, err
+      integer t1, err
       SET_TAILLE_VAR_COND_LIM_TRACER = 0
       MessageErreur          = ""
       !------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ contains
 
     end function SET_TAILLE_VAR_COND_LIM_TRACER
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -224,7 +224,7 @@ contains
       integer,                intent(in) :: index3                     ! valeur du 3e  indice
       integer,                intent(out):: valeur                     ! valeur du integer de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
-      
+
       GET_INT_COND_LIM_TRACER = 0
       valeur                = -9999
       MessageErreur          = ""
@@ -289,7 +289,7 @@ contains
          MessageErreur         = "SET_INT_COND_LIM_TRACER - Unknown variable name"
       end if
    end function SET_INT_COND_LIM_TRACER
-   
+
 ! .................................................................................................................................
 ! Desalloue tous les pointeurs et fait appel aux desalloues des membres
 !                     -- Generer automatiquement --
@@ -303,8 +303,6 @@ contains
 
       integer                            :: taille
       integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_COND_LIM_TRACER = 0
       MessageErreur          = ""
 
@@ -340,10 +338,6 @@ contains
       type(COND_LIM_TRACER_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_COND_LIM_TRACER = 0
       MessageErreur          = ""
 

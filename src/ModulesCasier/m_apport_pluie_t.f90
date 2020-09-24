@@ -96,7 +96,7 @@ module M_APPORT_PLUIE_T
     end function GET_TYPE_VAR_APPORT_PLUIE
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -138,7 +138,7 @@ module M_APPORT_PLUIE_T
    end function GET_TAILLE_VAR_APPORT_PLUIE
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -159,7 +159,7 @@ module M_APPORT_PLUIE_T
    end function SET_TAILLE_VAR_APPORT_PLUIE
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -281,10 +281,6 @@ module M_APPORT_PLUIE_T
       type(APPORT_PLUIE_T),   intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       DESALLOUE_APPORT_PLUIE = 0
       MessageErreur          = ""
 
@@ -301,10 +297,6 @@ module M_APPORT_PLUIE_T
       type(APPORT_PLUIE_T),   intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
-      integer                            :: err
-      integer                            :: i
-      character(LEN=256)                 :: MessageErreurType
       NULLIFIER_APPORT_PLUIE = 0
       MessageErreur          = ""
 

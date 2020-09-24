@@ -117,6 +117,7 @@ function QSING( &
    LDEV = ALARG( IPOS , HG , DZ , ALGEO , NMLARG , ERREUR )
    R1   = ZD - ZDEV
    if( Erreur%Numero /= 0 ) then
+       QSING = 0.
       return
    endif
 

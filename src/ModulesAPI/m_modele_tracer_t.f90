@@ -31,12 +31,12 @@ module M_MODELE_TRACER_T
    use M_INDEX_VARIABLE_TRACER_C    ! Index des variables : definit la constante NB_TOT_VARTR
    use M_NODE_TRACER_T              ! Connectivite tracer
    use M_CONSTANTES_CALCUL_TRACER_C
-   
+
 TYPE MODELE_TRACER_T
 
     sequence
 
-    integer                                          :: Nbtrac !     
+    integer                                          :: Nbtrac !
     integer                                          :: FreqCouplage !
     real(DOUBLE)                                     :: DT_trac  ! pas de temps Tracer
     integer                                          :: Modele_Qual_Eau !
@@ -56,7 +56,7 @@ TYPE MODELE_TRACER_T
     type (SOURCE_TRACER_T)    ,dimension(:), pointer :: Sources_Tracer => null() !
     type (COND_LIM_TRACER_T)  ,dimension(:), pointer :: CondLimTrac => null() !
     type (LOI_TRACER_T)       ,dimension(:), pointer :: LoiTracer => null() !
-    
+
 END TYPE MODELE_TRACER_T
 
 contains
@@ -109,7 +109,7 @@ contains
         tabNomVar(i)         ="Model.Tracer.globalResults"
         tabDescriptionVar(i) ="Print the global results"
         i=i+1
-        
+
         ! --- PARAMETRES_QUALITE_EAU_T ---
         call GET_TAB_VAR_PARAMETRES_QUALITE_EAU(i, tabNomVar, tabDescriptionVar)
 
@@ -231,7 +231,7 @@ contains
     end function GET_TYPE_VAR_MODELE_TRACER
 
 ! .................................................................................................................................
-! Permet d'acceder a la taille des valeurs des differents champs du type 
+! Permet d'acceder a la taille des valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -246,7 +246,7 @@ contains
       integer,                intent(out):: taille3                        ! valeur max du 3e  indice
       character(LEN=256),     intent(out):: MessageErreur                  ! Message d'erreur
       integer                            :: bidon1                         ! variable locale non utilise
-      
+
       GET_TAILLE_VAR_MODELE_TRACER = 0
       taille1                = 0
       taille2                = 0
@@ -397,7 +397,7 @@ contains
    end function GET_TAILLE_VAR_MODELE_TRACER
 
 ! .................................................................................................................................
-! Permet de modifier la taille les variables de type pointeurs fortran 
+! Permet de modifier la taille les variables de type pointeurs fortran
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -411,7 +411,7 @@ contains
       integer,                intent(in)    :: NewT3                          ! Nouvelle valeur max du 3e  indice
       character(LEN=256),     intent(out)   :: MessageErreur                  ! Message d'erreur
 
-      integer t1, t2, t3, err
+      integer t1, err
       integer i, bidon
       character(LEN=256)                 :: MessageErreurType
 
@@ -507,7 +507,7 @@ contains
             endif
          else  ! Instance%ConsTrac pas 'associated'
             ALLOCATE(Instance%ConsTrac(NewT1), STAT=err)
-         endif         
+         endif
       else if (INDEX(NomVar,'Model.Tracer.Sources.') > 0) then
          if (ASSOCIATED(Instance%Sources_Tracer)) then
             t1 = SIZE(Instance%Sources_Tracer)
@@ -555,7 +555,7 @@ contains
                 MessageErreur = 'Unable to change the size of Instance%Sources_Tracer'
                 return
             endif
-         enddo         
+         enddo
       else if (INDEX(NomVar,'Model.Tracer.BoundaryCond.') > 0) then
          if (ASSOCIATED(Instance%CondLimTrac)) then
             t1 = SIZE(Instance%CondLimTrac)
@@ -603,7 +603,7 @@ contains
                 MessageErreur = 'Unable to change the size of Instance%CondLimTrac'
                 return
             endif
-         enddo         
+         enddo
       else if (INDEX(NomVar,'Model.Tracer.Graph.') > 0) then
          if (ASSOCIATED(Instance%LoiTracer)) then
             t1 = SIZE(Instance%LoiTracer)
@@ -651,7 +651,7 @@ contains
                 MessageErreur = 'Unable to change the size of Instance%LoiTracer'
                 return
             endif
-         enddo         
+         enddo
       !--------------------------------------------------------------------------------
       ! Fin des appels aux fonctions SET_TAILLE_VAR_XXXX des membres de type derive
       !--------------------------------------------------------------------------------
@@ -663,7 +663,7 @@ contains
     end function SET_TAILLE_VAR_MODELE_TRACER
 
 ! .................................................................................................................................
-! Accesseurs permettant d'acceder aux valeurs des differents champs du type 
+! Accesseurs permettant d'acceder aux valeurs des differents champs du type
 !                     -- Generer automatiquement --
 ! .................................................................................................................................
 
@@ -721,7 +721,7 @@ contains
       integer,                intent(out):: valeur                     ! valeur du integer de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
       integer                            :: bidon1                     ! variable locale non utilise
-      
+
       GET_INT_MODELE_TRACER = 0
       valeur                = -9999
       MessageErreur          = ""
@@ -776,7 +776,7 @@ contains
       logical,                intent(out):: valeur                     ! valeur du logical de l'instance pour les indexes specifies
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
       integer                            :: bidon1                     ! variable locale non utilise
-      
+
       GET_BOOL_MODELE_TRACER = 0
       valeur                = .FALSE.
       MessageErreur          = ""
@@ -847,7 +847,7 @@ contains
       end if
    end function GET_STRING_MODELE_TRACER
 
-   
+
 ! .................................................................................................................................
 ! Mutateurs permettant de modifier les differents champs du type
 !                     -- Generer automatiquement --
@@ -1161,9 +1161,7 @@ contains
       type(MODELE_TRACER_T),    intent(inout) :: Instance                   ! Instance du type derive dont on souhaite desalloue
       character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
-      integer                            :: taille
       integer                            :: err
-      integer                            :: i
       character(LEN=256)                 :: MessageErreurType
       NULLIFIER_MODELE_TRACER = 0
       MessageErreur          = ""

@@ -90,7 +90,6 @@ Subroutine Diffu_tracer( &
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
    integer :: retour ! Code de retour de la fonction read, allocate
-   character(132) :: arbredappel_old ! Ancien arbre d'appel
 
 
    !=========================================================================
