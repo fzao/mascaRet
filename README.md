@@ -1,10 +1,12 @@
-R package of the 1D shallow water code (http://opentelemac.org)
-===============================================================
+R package of the 1D shallow water code
+======================================
 
-Using mascaRet as a library of functions with R.
+This package is a fork of the Fortran source files available at http://opentelemac.org
+
+Purpose: using mascaRet as a library of functions in R.
 
 <p align="center">
-  <img src="./inst/img/assim1D.gih" width="800"/>
+  <img src="./inst/img/assim1D.gif" width="800"/>
 </p>
 <p align="center">
    <b>Data assimilation with mascaRet and R (Rhône river in France)</b>
