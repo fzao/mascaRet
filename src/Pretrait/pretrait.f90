@@ -2426,6 +2426,11 @@ subroutine  PRETRAIT                                       ( &
       if( Erreur%Numero /= 0 ) then
          return
       end if
+   else
+     ! Fausse allocation pour pouvoir passer les pointeurs en argument
+     allocate(Casier(1))
+     allocate(Liaison(1))
+     allocate(ApportPluie(1))
    end if
 
    close(unitNum)
@@ -2513,49 +2518,6 @@ subroutine  PRETRAIT                                       ( &
    !========================================================
    !                 SOUS-PROGRAMMES UTILITAIRES
    !========================================================
-   subroutine projeter  ( &
-                     Y2 , &
-                     Y1 , &
-                     X2 , &
-                     X1 )
-
-   !==================== Declarations ===========================
-   use M_PRECISION
-
-   implicit none
-
-   real(DOUBLE), dimension(:), intent(  out) :: Y2
-   real(DOUBLE), dimension(:), intent(in   ) :: Y1
-   real(DOUBLE), dimension(:), intent(in   ) :: X2
-   real(DOUBLE), dimension(:), intent(in   ) :: X1
-   real(DOUBLE) :: dx
-   real(DOUBLE) :: alpha
-   integer :: N1
-   integer :: N2
-   integer :: i ! Compteur
-   integer :: j ! Compteur
-
-   !==================== Instructions ===========================
-   N1 = size(X1)
-   N2 = size(X2)
-
-   boucle_1 : do i = 1 , N2
-
-      boucle_2 : do j = 1 , N1
-         if( X1(j) >= X2(i) ) then
-            exit boucle_2
-         endif
-      end do boucle_2
-
-      dx    = X1(j) - X1(j-1)
-      alpha = (X2(i) - X1(j-1)) / dx
-      Y2(i) = Y1(j-1) * (1-alpha) + Y1(j) * alpha
-
-   end do boucle_1
-
-   return
-
-   end subroutine projeter
 
    subroutine xerror(Erreur)
 

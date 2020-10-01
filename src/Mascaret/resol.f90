@@ -139,12 +139,13 @@ subroutine RESOL( &
    !---------------
    ! 1ere dimension IM
    real(DOUBLE), dimension(:)    , intent(inout) :: SNODE,QNODE
-   real(DOUBLE), dimension(:)    , intent(in)    :: UNODE
-   real(DOUBLE), dimension(:)    , intent(in)    :: ZNODE,YNODE,FROUD
-   real(DOUBLE), dimension(:)    , intent(in)    :: CNODE,DTI
-   integer     , dimension(:)    , intent(in)    :: JGNODE,JDNODE,IFIGE
+   real(DOUBLE), dimension(:)    , intent(inout) :: UNODE
+   real(DOUBLE), dimension(:)    , intent(inout) :: ZNODE,YNODE,FROUD
+   real(DOUBLE), dimension(:)    , intent(inout) :: CNODE
+   real(DOUBLE), dimension(:)    , intent(in)    :: DTI
+   integer     , dimension(:)    , intent(inout) :: JGNODE,JDNODE,IFIGE
    real(DOUBLE), dimension(:)    , intent(inout) :: SPREC,QPREC
-   real(DOUBLE), dimension(:)    , intent(in)    :: BETA
+   real(DOUBLE), dimension(:)    , intent(inout) :: BETA
    real(DOUBLE),                   intent(in)    :: SDROIT,QDROIT,SGAUCH,QGAUCH
    ! 1ere dimension IM
    real(DOUBLE), dimension(:)    , intent(in)    :: QIN

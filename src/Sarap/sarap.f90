@@ -138,7 +138,7 @@ subroutine SARAP ( &
    real(DOUBLE) , dimension(:)     , intent(inout) :: Qdeverse
    real(DOUBLE)     , dimension(:) , intent(inout):: QInjec
    ! Pertes de charge singulieres
-   real(DOUBLE), dimension(:)       , intent(in   ) :: PCSing
+   real(DOUBLE), dimension(:)       , intent(inout) :: PCSing
    ! Table du connectivite du reseau
    type(CONNECT_T)                  , intent(in   ) :: Connect
    ! Algorithme de resolution

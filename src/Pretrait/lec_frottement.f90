@@ -363,22 +363,4 @@ subroutine LEC_FROTTEMENT ( &
                 ' Abscisse debut : ',f12.3,' Abscisse fin : ',f12.3,/, &
                 'Coefficient mineur : ',f12.3,' Coefficient majeur : ',f12.3)
 
-   contains
-
-   subroutine xerror(Erreur)
-
-       use M_MESSAGE_C
-       use M_ERREUR_T            ! Type ERREUR_T
-
-       type(ERREUR_T)                   , intent(inout) :: Erreur
-
-       Erreur%Numero = 704
-       Erreur%ft     = err_704
-       Erreur%ft_c   = err_704c
-       call TRAITER_ERREUR( Erreur )
-
-       return
-
-   end subroutine xerror
-
 end subroutine LEC_FROTTEMENT

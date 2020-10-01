@@ -399,6 +399,7 @@ program HOMERE_MASCARET
    type(FICHIER_T) :: FichierControle
    ! Casiers
    ! -------
+   integer nbcasier, nbliaison
    type(CASIER_T), dimension(:), pointer :: Casier => null()
    type(LIAISON_T),dimension(:), pointer :: Liaison => null()
    type(APPORT_PLUIE_T), dimension(:), pointer :: ApportPluie => null()
@@ -784,8 +785,17 @@ program HOMERE_MASCARET
    !
    ! Impression de statistiques
    !---------------------------
+   if (.not.OptionCasier) then
+     ! Casier is not associated
+     nbcasier = 0
+     nbliaison = 0
+   else
+     nbcasier = size(Casier)
+     nbliaison = size(Liaison)
+   endif
+
    call print_stat_masc(TitreCas,size(Connect%ORIGINEBIEF),size(Profil),size(Connect%NUMSECTIONEXTLIBRE),  &
-                        size(Connect%NBBIEFCONFLUENCE),size(Apport),size(Deversoir),size(Casier),size(Liaison),  &
+                        size(Connect%NBBIEFCONFLUENCE),size(Apport),size(Deversoir),nbcasier,nbliaison,  &
                         size(Singularite),size(X),Noyau,DT,CourantObj,TempsMaximum,NbPasTemps,CritereArret,  &
                         PastempsVariable,associated(Singularite),OptionCasier,Impli_Trans,Boussinesq,NoConvection)
 !TAPENADE--

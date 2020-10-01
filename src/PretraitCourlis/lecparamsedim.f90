@@ -234,7 +234,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
   ! MS2018 option de pente locale
   optionPente = MOTLOG(ADRESS(3,663))
   WRITE(*,*)
-  WRITE(*,"(A,L)")" Pente locale : ", optionPente
+  WRITE(*,"(A,L1)")" Pente locale : ", optionPente
   ! MS2018 diametre moyen, d84 et d16 pour lefort et recking
   warning = 0
   d84 = MOTREA(ADRESS(2,664))
@@ -272,19 +272,19 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
 
   bedload_option = MOTLOG(ADRESS(3,667))
   WRITE(*,*)
-  WRITE(*,"(A,L)")" Bedload option : ", bedload_option
+  WRITE(*,"(A,L1)")" Bedload option : ", bedload_option
 
   suspension_option = MOTLOG(ADRESS(3,668))
   WRITE(*,*)
-  WRITE(*,"(A,L)")" Suspension option : ", suspension_option
+  WRITE(*,"(A,L1)")" Suspension option : ", suspension_option
 
   sediment_slide_option = MOTLOG(ADRESS(3,669))
   WRITE(*,*)
-  WRITE(*,"(A,L)")" sediment slide option : ", sediment_slide_option
+  WRITE(*,"(A,L1)")" sediment slide option : ", sediment_slide_option
 
   clipping_option = MOTLOG(ADRESS(3,670))
   WRITE(*,*)
-  WRITE(*,"(A,L)")" planim clipping option : ", clipping_option
+  WRITE(*,"(A,L1)")" planim clipping option : ", clipping_option
 
   absolute_clip = MOTREA(ADRESS(2,671))
   IF (clipping_option .EQV. .FALSE.) then

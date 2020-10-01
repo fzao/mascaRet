@@ -87,7 +87,7 @@ subroutine LEC_CONFLUENT( &
       call TRAITER_ERREUR( Erreur , 'Nombre de confluents' )
       return
    end if
-  
+
    if (UniteListing >0) write(UniteListing,11100)
    if (UniteListing >0) write(UniteListing,11110) nb_confluent
 
@@ -329,22 +329,5 @@ subroutine LEC_CONFLUENT( &
    11120 format (/,'Confluent ',i3,' Nom : ',A,' Nombre d''affluents : ',i2)
    11130 format ('Affluent ',i3,' Abscisse = ',f12.3,' Ordonnee = ',     &
                 f12.3,' Angle = ',f12.3)
-   contains
-
-   subroutine xerror(Erreur)
-
-       use M_MESSAGE_C
-       use M_ERREUR_T            ! Type ERREUR_T
-
-       type(ERREUR_T)                   , intent(inout) :: Erreur
-
-       Erreur%Numero = 704
-       Erreur%ft     = err_704
-       Erreur%ft_c   = err_704c
-       call TRAITER_ERREUR( Erreur )
-
-       return
-
-   end subroutine xerror
 
 end subroutine LEC_CONFLUENT

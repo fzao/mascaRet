@@ -58,7 +58,7 @@ MODULE M_SHARE_VAR
    TYPE(CONFLUENT_T), DIMENSION(:), POINTER :: confluent => null()
    TYPE(DEVERSOIR_T), DIMENSION(:), POINTER :: deversoir => null()
    TYPE(FICHIER_T) :: fichierlisting
-   DOUBLE PRECISION, DIMENSION(:), POINTER :: x, cf1, cf2 => null()
+   DOUBLE PRECISION, DIMENSION(:), POINTER :: x => null(), cf1 => null(), cf2 => null()
    DOUBLE PRECISION, DIMENSION(:), POINTER :: zref => null()
    DOUBLE PRECISION, DIMENSION(:), POINTER :: xdt => null()
    DOUBLE PRECISION, DIMENSION(:, :), POINTER :: f1 => null()
@@ -76,7 +76,7 @@ MODULE M_SHARE_VAR
 !TAPENADE--
 !
 ! Variables concernant le calage automatique
-! 
+!
   TYPE(FICHIER_T) :: FichierResultatCalage, FichierResultatCalage1
   TYPE(DONNEES_CALAGE_T), DIMENSION(:), POINTER :: calage_frott => null()
   TYPE(DONNEES_CRUES_CALAGE_T),SAVE :: calage_crues

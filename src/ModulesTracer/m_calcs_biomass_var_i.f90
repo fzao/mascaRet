@@ -75,7 +75,7 @@ module M_CALCS_BIOMASS_VAR_I
 
          implicit none
          integer                            :: SET_DOUBLE_CALCS_BIOMASS    ! different de 0 si erreur
-         real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
+         real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
          character(len= 40),     intent(in) :: NomVar                     ! Nom de la variable du modele
          integer,                intent(in) :: index1                     ! valeur du 1er indice
          real(DOUBLE),           intent(in) :: valeur                     ! valeur du real(DOUBLE) de l'instance pour les indexes specifies

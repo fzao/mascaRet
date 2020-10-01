@@ -82,14 +82,14 @@ module M_CALCS_EUTRO_VAR_I
          character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
       end function GET_INT_CALCS_EUTRO
-      
+
       function SET_DOUBLE_CALCS_EUTRO(ParQual_Eau, NomVar, index1, valeur, MessageErreur)
 
          use M_PRECISION
 
          implicit none
          integer                            :: SET_DOUBLE_CALCS_EUTRO    ! different de 0 si erreur
-         real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
+         real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
          character(len= 40),     intent(in) :: NomVar                     ! Nom de la variable du modele
          integer,                intent(in) :: index1                     ! valeur du 1er indice
          real(DOUBLE),           intent(in) :: valeur                     ! valeur du real(DOUBLE) de l'instance pour les indexes specifies
@@ -103,14 +103,14 @@ module M_CALCS_EUTRO_VAR_I
 
          implicit none
          integer                            :: SET_INT_CALCS_EUTRO    ! different de 0 si erreur
-         real(DOUBLE), dimension(*), intent(in) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
+         real(DOUBLE), dimension(*), intent(inout) :: ParQual_Eau                   ! Instance du type derive dont on souhaite recuperer la valeur
          character(len= 40),     intent(in) :: NomVar                     ! Nom de la variable du modele
          integer,                intent(in) :: index1                     ! valeur du 1er indice
          integer,                intent(in):: valeur                     ! valeur du real(DOUBLE) de l'instance pour les indexes specifies
          character(LEN=256),     intent(out):: MessageErreur              ! Message d'erreur
 
       end function SET_INT_CALCS_EUTRO
-      
+
    end interface
 
 end module M_CALCS_EUTRO_VAR_I

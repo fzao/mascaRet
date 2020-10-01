@@ -73,7 +73,7 @@ subroutine  PLADEB( &
    integer     , dimension(2), intent(in   ) :: LimiteInterne
    integer     , dimension(2), intent(in   ) :: LimiteExterne
    integer                   , intent(in   ) :: NumProf
-   real(DOUBLE), dimension(:), intent(in   ) :: DXP, DYP
+   real(DOUBLE), dimension(:), intent(inout) :: DXP, DYP
    logical                   , intent(in   ) :: FrottParoiVerticale
    logical                   , intent(in   ) :: ImpressionPlani
    integer                   , intent(in   ) :: UniteListing

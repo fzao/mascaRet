@@ -64,7 +64,7 @@ subroutine EXPORT_XML(RetourErreur, Identifiant, NomFichier, avecDesc, exportMod
    end if
 
    ! Test for Tracer option
-   call GET_BOOL_MASCARET(RetourErreur, Identifiant, 'Model.TracerOn', 0, 0, 0, tracerOption)
+   call GET_BOOL_MASCARET(RetourErreur, Identifiant, 'Model.TracerOn                          ', 0, 0, 0, tracerOption)
 
    call OUVERTURE_BALISE_XML(RetourErreur, Identifiant, NomFichier, uniteLogique, baliseModeleEtat)
 
@@ -77,7 +77,8 @@ subroutine EXPORT_XML(RetourErreur, Identifiant, NomFichier, avecDesc, exportMod
 
    do i=1, NB_VAR_MASCARET
       nomVar = TabNom(i)
-     if(xor(index(nomVar, '.Tracer').gt.0, tracerOption).eqv..false.) then
+     if(.not.((index(nomVar, '.Tracer').gt.0.or.tracerOption).and.&
+        (.not.(index(nomVar, '.Tracer').gt.0.and.tracerOption)))) then
         erreur = GET_TYPE_VAR_MASC(nomVar, TypeVar, Categorie, Modifiable, dimVar, MessageErreur)
         if (erreur /= 0) then
            RetourErreur = erreur

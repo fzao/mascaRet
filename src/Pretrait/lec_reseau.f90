@@ -433,12 +433,12 @@ subroutine LEC_RESEAU    ( &
 
    pathNode = 'parametresGeometrieReseau/extrLibres/typeCond'
    line = xcasReader(unitNum, pathNode)
-   read(unit=line, fmt=*) Extremite%Type
+   read(unit=line, fmt=*) (Extremite(i)%Type, i=1,NbExtLibre)
 
    ! Numeros des lois des extremites libres ! ne sert pas pour Connect
    pathNode = 'parametresGeometrieReseau/extrLibres/numLoi'
    line = xcasReader(unitNum, pathNode)
-   read(unit=line, fmt=*) Extremite%NumeroLoi
+   read(unit=line, fmt=*) (Extremite(i)%NumeroLoi, i=1,NbExtLibre)
 
    do iext = 1 , NbExtLibre
       ! Numeros des extremites libres
@@ -684,22 +684,5 @@ subroutine LEC_RESEAU    ( &
    10060 format (/,'Nombre d''extremites libres : ',i3,/)
    10070 format (i3,' Numero d''extremite = ',i3,' Type de condition = ',i3,' Numero de loi =',i3)
 
-   contains
-
-   subroutine xerror(Erreur)
-
-       use M_MESSAGE_C
-       use M_ERREUR_T            ! Type ERREUR_T
-
-       type(ERREUR_T)                   , intent(inout) :: Erreur
-
-       Erreur%Numero = 704
-       Erreur%ft     = err_704
-       Erreur%ft_c   = err_704c
-       call TRAITER_ERREUR( Erreur )
-
-       return
-
-   end subroutine xerror
 
 end subroutine LEC_RESEAU

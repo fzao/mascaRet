@@ -1,5 +1,3 @@
-static char adSid[]="$Id: adStack.c 4534 2012-08-27 09:40:31Z vmp $";
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -307,7 +305,7 @@ void lookpointer4_(char *ppp) {
 }
 
 void poppointer4_(char *ppp) {
-  popNarray(ppp, 4) ;  
+  popNarray(ppp, 4) ;
 }
 
 void pushpointer8_(char *ppp) {
@@ -319,7 +317,7 @@ void lookpointer8_(char *ppp) {
 }
 
 void poppointer8_(char *ppp) {
-  popNarray(ppp, 8) ;  
+  popNarray(ppp, 8) ;
 }
 
 /*   --> Called from C:                                   */
@@ -605,8 +603,7 @@ void printtopplacenum_(int *n) {
 void printstackmax_() {
     DoubleChainedBlock *stack = curStack ;
     int nbBlocks = (stack?-2:0) ;
-    int remainder = 0;
-    long int totalsz ;
+
     while(stack) {
 	stack = stack->prev ;
 	nbBlocks++ ;
@@ -616,7 +613,7 @@ void printstackmax_() {
 	stack = stack->next ;
 	nbBlocks++ ;
     }
-    
+
     printf(" Max Stack size (%i blocks): ", nbBlocks) ;
     printbigbytes((long int)nbBlocks, ONE_BLOCK_SIZE, (long int)0) ;
     printf(" bytes\n") ;

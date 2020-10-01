@@ -598,8 +598,6 @@ subroutine PRETRAIT_Tracer( &
                &' [ 1 : Aucun / 2 : O2       / 3 : Biomass    ',/,&
                &'   4 : Eutro / 5 : Micropol / 6 : Thermic  ] ')
    10655 format ('Frequence de couplage hydraulique / Tracer   : ',I3)
-   10660 format (/,'CONDITIONS INITIALES TRACER',/, &
-               &  '----------------------------',/)
    10690 format ('Presence de concentrations initiales        : ',A3)
 
    contains

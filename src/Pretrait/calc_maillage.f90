@@ -311,15 +311,15 @@ subroutine CALC_MAILLAGE ( &
 
             pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/num1erProfPlage'
             line = xcasReader(unitNum, pathNode)
-            read(unit=line, fmt=*) maille_e(1:nb_maille)%ProfilDeb
+            read(unit=line, fmt=*) (maille_e(k)%ProfilDeb, k=1,nb_maille)
 
             pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/numDerProfPlage'
             line = xcasReader(unitNum, pathNode)
-            read(unit=line, fmt=*) maille_e(1:nb_maille)%ProfilFin
+            read(unit=line, fmt=*) (maille_e(k)%ProfilFin, k=1,nb_maille)
 
             pathNode = 'parametresPlanimetrageMaillage/maillage/maillageClavier/pasEspacePlage'
             line = xcasReader(unitNum, pathNode)
-            read(unit=line, fmt=*) maille_e(1:nb_maille)%Pas
+            read(unit=line, fmt=*) (maille_e(k)%Pas, k=1,nb_maille)
 
             do k = 1 , nb_maille
 

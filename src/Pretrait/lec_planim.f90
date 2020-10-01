@@ -232,22 +232,4 @@ subroutine LEC_PLANIM    ( &
    10020 format ('Nombre de zones de planimetrage : ',i3,/)
    10030 format ('Zone : ',i3,' Profil debut : ',i5,' Profil fin : ',i5,' Pas : ',f12.3)
 
-   contains
-
-   subroutine xerror(Erreur)
-
-       use M_MESSAGE_C
-       use M_ERREUR_T            ! Type ERREUR_T
-
-       type(ERREUR_T)                   , intent(inout) :: Erreur
-
-       Erreur%Numero = 704
-       Erreur%ft     = err_704
-       Erreur%ft_c   = err_704c
-       call TRAITER_ERREUR( Erreur )
-
-       return
-
-   end subroutine xerror
-
 end subroutine LEC_PLANIM

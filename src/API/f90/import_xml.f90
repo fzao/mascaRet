@@ -45,7 +45,6 @@ subroutine import_xml(errorCode, Identifiant, NomFichier, importModele)
    logical :: mascaretFile ! Le fichier est bien un fichier mascaret
    character(len=1024) :: line
    integer             :: unitNum
-   integer             :: numLine
    character(len=64)   :: varName
    character(len=64)   :: varType
    integer             :: varDimension
@@ -191,7 +190,7 @@ contains
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
         integer :: valint
-        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer :: i, j, ii, size, prodsize, d(3)
         integer, dimension(:,:), allocatable :: ind
         integer :: errorCode
 
@@ -244,7 +243,7 @@ contains
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
         double precision :: valdouble
-        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer :: i, j, ii, size, prodsize, d(3)
         integer, dimension(:,:), allocatable :: ind
         integer :: errorCode
 
@@ -298,7 +297,7 @@ contains
         character(len=7), intent(in)       :: nameType2
         logical :: valbool
         character(len=4) :: frenchVal
-        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer :: i, j, ii, size, prodsize, d(3)
         integer, dimension(:,:), allocatable :: ind
         integer :: errorCode
 
@@ -361,7 +360,7 @@ contains
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
         character(len=128) :: valstring
-        integer :: i, j, k, ii, size, prodsize, d(3)
+        integer :: i, j, ii, size, prodsize, d(3)
         integer, dimension(:,:), allocatable :: ind
         integer :: errorCode
 
