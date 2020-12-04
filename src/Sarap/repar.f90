@@ -33,6 +33,7 @@ subroutine REPAR  ( &
      CF2          , &
      ModeleLit    , &
      LoiFrottement, & ! Loi de frottement
+     NomProfil    , & ! Nom du profil pour affichage erreur
      Erreur         & ! Erreur
                   )
 
@@ -124,6 +125,7 @@ subroutine REPAR  ( &
    real(DOUBLE)  , intent(in)    :: CF2
    integer       , intent(in)    :: ModeleLit
    integer       , intent(in)    :: LoiFrottement
+   Character(30) , intent(in)    :: NomProfil
    type(ERREUR_T), intent(inout) :: Erreur
    !.. Local Scalars ..
    real(DOUBLE) :: st1_temp
@@ -150,7 +152,7 @@ subroutine REPAR  ( &
       Erreur%Numero = 40
       Erreur%ft     = err_40
       Erreur%ft_c   = err_40c
-      call TRAITER_ERREUR( Erreur , P1 )
+      call TRAITER_ERREUR_1C1R( Erreur , NomProfil, P1 )
       return
    endif
 

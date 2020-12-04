@@ -42,7 +42,8 @@ module M_REPAR_I
        CF1         , &
        CF2         , &
        ModeleLit   , &
-      LoiFrottement, & ! Loi de frottement
+       LoiFrottement, & ! Loi de frottement
+       NomProfil   , & ! Nom du profil pour erreur
       Erreur         & ! Erreur
                    )
 
@@ -125,6 +126,7 @@ module M_REPAR_I
    real(DOUBLE)  , intent(in)    :: CF2
    integer       , intent(in)    :: ModeleLit
    integer       , intent(in)    :: LoiFrottement
+   Character(30) , intent(in)    :: NomProfil
    type(ERREUR_T), intent(inout) :: Erreur
 
    end subroutine REPAR

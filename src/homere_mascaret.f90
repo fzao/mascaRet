@@ -1918,14 +1918,6 @@ End select CouplageHydroSedim
   !call CPU_TIME (tc1)
   !print *,"select couplage hydro-sedim : ",tc1-tc2
 if( OptionCourlis) then
-  ! critere de varation sedimentaire
-  if (NiteSed<1) Then
-    if (OptionCourlis) then ! PU2016 : A declarer sup a 1E-5 pour planimetrer quand OptionCourlis est faux
-      varsed(:) = W0
-    else
-      varsed(:) = 2.E-5
-    endif
-  endif
   if (suspension_option) then
     do i = 1, NbPtmax
       varsed(:)=varsed(:) + DeltaH(i,:)

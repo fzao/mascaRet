@@ -208,7 +208,7 @@ subroutine CCL(                     &
 
             NSC             = Connect%NumSectionExtLibre(iext)
             pente_fond      = Extremite(iext)%PenteFond
-            debitance_cible = Q1(NSC)**2 / pente_fond ! Debitance pour un ecoulement normal
+            debitance_cible = Q1(NSC) / pente_fond**W12 ! Debitance pour un ecoulement normal
             num_prof        = IDT(NSC)
             nb_pas          = Profil(num_prof)%NbPas
             pas             = Profil(num_prof)%Pas

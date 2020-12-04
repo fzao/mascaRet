@@ -1,12 +1,12 @@
 Subroutine Diffu (  &
 
  Conc   ,  & ! Concentration a t+Dt
- T2    ,  & ! Grandeur convectee (SmC) a t+Dt
+ T2     ,  & ! Grandeur convectee (SmC) a t+Dt
  Flux   ,  & ! Flux lineaire de MES (kg/s/m)
- Sm    ,  & ! Surface mouillee a t+DT
+ Sm     ,  & ! Surface mouillee a t+DT
  Vit    ,  & ! Vitesse a t+dt
  Absc   ,  & ! Abscisse des sections de calcul
- Dt    ,  & ! Pas de temps
+ Dt     ,  & ! Pas de temps
  Cnux   ,  & ! Coefficient de diffusion
  Erreur   )
 
@@ -182,12 +182,12 @@ use M_BISSDL_I
 
   If (Vit(NbProf) >= W0) Then
     AAA(NbProf) = -W1
- BBB(NbProf) =  W1
- DDD(NbProf) =  W0
+    BBB(NbProf) =  W1
+    DDD(NbProf) =  W0
   Else
     AAA(NbProf) =  W0
- BBB(NbProf) =  W1
- DDD(NbProf) =  T2(NbProf) / Sm(NbProf)
+    BBB(NbProf) =  W1
+    DDD(NbProf) =  T2(NbProf) / Sm(NbProf)
   Endif
 
 
@@ -199,30 +199,30 @@ use M_BISSDL_I
 
   Do i = 2, NbProf-1
 
- Hi   = Absc(i  ) - Absc(i-1)
- HiP1 = Absc(i+1) - Absc(i  )
- HHi  = Absc(i+1) - Absc(i-1)
+    Hi   = Absc(i  ) - Absc(i-1)
+    HiP1 = Absc(i+1) - Absc(i  )
+    HHi  = Absc(i+1) - Absc(i-1)
 
     Ai   = Sm(i)
- APi  = (Sm(i) - Sm(i-1)) / Hi
+    APi  = (Sm(i) - Sm(i-1)) / Hi
 
- Cst1 =  W2 / (HiP1 * HHi )
- Cst2 =  W2 / (Hi   * HHi )
- Cst3 = -W2 / (Hi   * HiP1)
+    Cst1 =  W2 / (HiP1 * HHi )
+    Cst2 =  W2 / (Hi   * HHi )
+    Cst3 = -W2 / (Hi   * HiP1)
 
- AAA(i) =            - Cnux * Ai * Cst2 + Cnux * APi / Hi
- BBB(i) = Alpha * Ai - Cnux * Ai * Cst3 - Cnux * APi / Hi
- CCC(i) =            - Cnux * Ai * Cst1
- DDD(i) = T2(i) * Alpha
+    AAA(i) =            - Cnux * Ai * Cst2 + Cnux * APi / Hi
+    BBB(i) = Alpha * Ai - Cnux * Ai * Cst3 - Cnux * APi / Hi
+    CCC(i) =            - Cnux * Ai * Cst1
+    DDD(i) = T2(i) * Alpha
 
   Enddo
 
 
   Do i = 1, NbProf
     A(i) = AAA(i)
- B(i) = BBB(i)
- C(i) = CCC(i)
- D(i) = DDD(i) + Flux(i)
+    B(i) = BBB(i)
+    C(i) = CCC(i)
+    D(i) = DDD(i) + Flux(i)
   Enddo
 
 
@@ -231,16 +231,16 @@ use M_BISSDL_I
 !=========================================================================
 
   call Bissdl  (  &
- Conc   ,  & ! Resultat de la diffusion
- A    ,  & ! ! Coefficient
- B    ,  & ! ! de la
- C    ,  & ! ! matrice de
- D    ,  & ! ! diffusion
- NbProf   ,  & ! Nombre de point des tableaux
- Erreur   )
+        Conc   ,  & ! Resultat de la diffusion
+        A      ,  & ! ! Coefficient
+        B      ,  & ! ! de la
+        C      ,  & ! ! matrice de
+        D      ,  & ! ! diffusion
+        NbProf ,  & ! Nombre de point des tableaux
+        Erreur   )
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 

@@ -220,10 +220,11 @@ err_39c = '("Froude = ",f10.2," > 1 Cross-section ",i5," Reach ",i3,            
 !-------------------------------------------------------------------------
 character (*), parameter ::                                                &
 err_40  = '("Computation error.",/,                                         &
-          & "Main channel wetted perimeter is not strictly positive",/,            &
-          & "at the cross-section : P1 = ",g12.2)'
+          & "Main channel wetted perimeter is not strictly positive",/,     &
+          & "at the cross-section : ",A,/, &
+          & "with value P1 = ",g12.2)'
 character (*), parameter ::                                                &
-err_40c = '("Wetted perimeter <=0 : P1 = ",g12.2)'
+err_40c = '("Wetted perimeter <=0 at ",A," : P1 = ",g12.2)'
 !-------------------------------------------------------------------------
 character (*), parameter ::                                                &
 err_41  = '("Computation error.",/,                                         &
@@ -246,7 +247,7 @@ character (*), parameter ::                                                &
 err_43  = '("Computation error.",/,                                         &
           & "Singularity # ",i3,", (type 2 )",/,                   &
           & "for the current hydraulic state at time = ",g12.3,/,    &
-          & "the upstream level is lesser than the crest level :",/,                                               &
+          & "the upstream level is lesser than the crest level :",/,     &
           & "Zupstream = ",g12.3," Zcrest = ",g12.3)'
 character (*), parameter ::                                                &
 err_43c = '("Singularity # ",i3," (type 2), at time ",g12.3,            &

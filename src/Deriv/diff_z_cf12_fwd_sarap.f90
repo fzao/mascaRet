@@ -1389,7 +1389,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 ! Donnees non modifiees
                   CALL REPAR(debc, vc, betac, q1, q2, ss1, ss2, rh1, &
 &                         rh2, p1, p2, q(j), cf1(j), cf2(j), modelelit, &
-&                         loifrottement, erreur)
+&                         loifrottement, profil(idt(j))%Nom, erreur)
                   IF (erreur%numero .NE. 0) THEN
                     GOTO 210
                   ELSE
@@ -1869,8 +1869,8 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 ! Donnees non modifiees
 ! Erreur
         CALL REPAR(debam, vam, betaam, q1, q2, sm1, sm2, rh1, rh2, p1&
-&               , p2, q(j), cf1(j), cf2(j), modelelit, loifrottement, &
-&               erreur)
+&               , p2, q(j), cf1(j), cf2(j), modelelit, loifrottement&
+&               , profil(idt(j))%Nom, erreur)
         IF (erreur%numero .NE. 0) THEN
           GOTO 280
         ELSE
@@ -1902,7 +1902,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 ! Erreur
           CALL REPAR(debav, vav, betaav, q1, q2, sm1, sm2, rh1, rh2, &
 &                 p1, p2, q(j+1), cf1(j+1), cf2(j+1), modelelit, &
-&                 loifrottement, erreur)
+&                 loifrottement, profil(idt(j+1))%Nom, erreur)
           IF (erreur%numero .NE. 0) THEN
             GOTO 290
           ELSE
@@ -1943,7 +1943,8 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 ! Erreur
                 CALL REPAR(debav, vav, betaav, q1, q2, sm1, sm2, rh1&
 &                       , rh2, p1, p2, q(j+1), cf1(j+1), cf2(j+1), &
-&                       modelelit, loifrottement, erreur)
+&                       modelelit, loifrottement, profil(idt(j+1))%Nom&
+&                       , erreur)
                 IF (erreur%numero .NE. 0) THEN
                   GOTO 330
                 ELSE
@@ -2002,7 +2003,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
                         CALL REPAR(debav, vav, betaav, q1, q2, sm1, &
 &                               sm2, rh1, rh2, p1, p2, q(j+1), cf1(j+1)&
 &                               , cf2(j+1), modelelit, loifrottement, &
-&                               erreur)
+&                               profil(idt(j+1))%Nom, erreur)
                         IF (erreur%numero .NE. 0) THEN
                           GOTO 370
                         ELSE
@@ -3844,7 +3845,7 @@ SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, b2d, bs&
         CALL REPAR(deb, vmoy, beta(isec), q1(isec), q2(isec), s1(isec&
 &               ), s2(isec), rh1(isec), rh2(isec), p1(isec), p2(isec), q&
 &               (isec), cf1(isec), cf2(isec), modelelit, loifrottement, &
-&               erreur)
+&               profil(idt(isec))%Nom, erreur)
         IF (erreur%numero .NE. 0) THEN
           GOTO 140
         ELSE

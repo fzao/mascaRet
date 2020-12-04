@@ -194,8 +194,9 @@ subroutine CRITIQ ( &
               Q           , &
               CF1         , &
               CF2         , &
-             ModeleLit    , &
-             LoiFrottement, &
+              ModeleLit    , &
+              LoiFrottement, &
+              Profil(IDT(Section))%Nom, &
               Erreur        &
              )
 

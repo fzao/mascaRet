@@ -23,14 +23,14 @@ Subroutine CalcApport   (  &
 !=========================================================================
 !  Fonction : Extrait des lois de debit et de concentration Q, Cvase, 
 !  --------	  Csable au temps Temps pour - la condition limite amont
-!                                            - les apports
+!                                        - les apports
 !
 !  Sous-programme appelant : DansLo
 !  -----------------------
 !
 !  Sous-programme appele : Qcl_Courlis
 !  ---------------------
-!		
+!
 !=========================================================================
 
 use M_PRECISION                 ! Definition de la precision DOUBLE ou SIMPLE

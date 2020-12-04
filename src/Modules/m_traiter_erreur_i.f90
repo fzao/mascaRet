@@ -34,6 +34,8 @@ interface TRAITER_ERREUR
 
   module procedure TRAITER_ERREUR_1C1I
 
+  module procedure TRAITER_ERREUR_1C1R
+
   module procedure TRAITER_ERREUR_1C2I
 
   module procedure TRAITER_ERREUR_1C3I
@@ -206,8 +208,8 @@ contains
 
    ! =======================================================
    subroutine TRAITER_ERREUR_1C1I (Erreur,    &
-                                chaine,    &
-                                entier     )
+                                   chaine,    &
+                                   entier     )
 
       ! Declarations ----------------------------------------
       use M_MESSAGE_C   ! Liste des messages d'erreur
@@ -233,6 +235,36 @@ contains
       write(Erreur%message,Erreur%ft_c) chaine, entier
 
    end subroutine TRAITER_ERREUR_1C1I
+
+   ! =======================================================
+   subroutine TRAITER_ERREUR_1C1R (Erreur,    &
+                                   chaine,    &
+                                   reel     )
+
+      ! Declarations ----------------------------------------
+      use M_MESSAGE_C   ! Liste des messages d'erreur
+      use M_ERREUR_T    ! Definition du type ERREUR_T
+      use M_FICHIER_T   ! UL_LST
+
+      implicit none
+
+      !... Arguments ...
+      type(ERREUR_T),intent(inout) :: Erreur      ! Erreur
+      character(*),  intent(in   ) :: chaine      ! argument d'entree
+      real(DOUBLE)  ,intent(in   ) :: reel        ! argument d'entree
+
+      ! Instructions ----------------------------------------
+      if (UL_LST > 0) then
+          call preliminaire( Erreur )
+
+          write(UL_LST,Erreur%ft) chaine , reel
+          write(UL_LST,banniere)
+      end if
+
+      ! Message court
+      write(Erreur%message,Erreur%ft_c) chaine, reel
+
+   end subroutine TRAITER_ERREUR_1C1R
 
    ! =======================================================
    subroutine TRAITER_ERREUR_1C2I (Erreur,    &

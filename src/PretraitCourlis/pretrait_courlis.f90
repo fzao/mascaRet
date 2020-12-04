@@ -1,60 +1,59 @@
 Subroutine  PRETRAIT_COURLIS ( &
-
- FicListingCourlis   , & ! Unite logique fichier listing
- FichierMotCle    , & ! Fichier des mots-cle
- FichierDico     , & ! Fichier dictionnaire de Damocles
- Noyau      , & ! Choix du noyau de calcul de l'hydraulique
- Type_maillage    , & ! Choix du type de maille longitudinal
- CritereArret    , & ! Critere d'arret des calculs
- NBief      , & ! Nombre de biefs
- PasTempsVariable   , & ! Pas de temps dependant du nombre de courant
- TempsMaximum    , & ! Temps de fin de calcul
- OptionCasier    , & ! Choix d'un calcul avec CASIER
- OptionCourlis    , & ! Choix d'un calcul Courlis
+ FicListingCourlis           , & ! Unite logique fichier listing
+ FichierMotCle               , & ! Fichier des mots-cle
+ FichierDico                 , & ! Fichier dictionnaire de Damocles
+ Noyau                       , & ! Choix du noyau de calcul de l'hydraulique
+ Type_maillage               , & ! Choix du type de maille longitudinal
+ CritereArret                , & ! Critere d'arret des calculs
+ NBief                       , & ! Nombre de biefs
+ PasTempsVariable            , & ! Pas de temps dependant du nombre de courant
+ TempsMaximum                , & ! Temps de fin de calcul
+ OptionCasier                , & ! Choix d'un calcul avec CASIER
+ OptionCourlis               , & ! Choix d'un calcul Courlis
 !        CHARRIAGE                               , & ! Choix du mode de transport
  CalcSable                   , & ! Choix d'un calcul avec Sable
- Apport      , & ! Apports hyrauliques
- Profil      , & ! Profils geometriques de l'hydraulique
+ Apport                      , & ! Apports hyrauliques
+ Profil                      , & ! Profils geometriques de l'hydraulique
 ! Lecture des parametres de sediments
- FichierSedim    , & ! Fichier des parametres de sediments
- CoucheSed     , & ! variable contenant ttes les donnees rel. a ch. couche
- Talus      , & ! variable contenant ttes les donnees rel. aux talus
- LimiteSable     , & ! % de sable a part. dql la couche est traitee
+ FichierSedim                , & ! Fichier des parametres de sediments
+ CoucheSed                   , & ! variable contenant ttes les donnees rel. a ch. couche
+ Talus                       , & ! variable contenant ttes les donnees rel. aux talus
+ LimiteSable                 , & ! % de sable a part. dql la couche est traitee
 ! suivant les lois de sable
- CnuxV      , & ! Coefficient de diffusion vases
- CnuxS      , & ! Coefficient de diffusion sables
+ CnuxV                       , & ! Coefficient de diffusion vases
+ CnuxS                       , & ! Coefficient de diffusion sables
  ConsConv                    , & ! paramï¿½tres schema convection
 ! Lecture de la geometrie des rivieres
- FicGeomCourlis    , & ! Fichier des profils definissant les interfaces
- ProfilCourlis    , & ! Profils de la geometrie des rivieres, lus dans COURLIS
+ FicGeomCourlis              , & ! Fichier des profils definissant les interfaces
+ ProfilCourlis               , & ! Profils de la geometrie des rivieres, lus dans COURLIS
 ! Lecture des concentrations initiales
- FicCMESIni     , & ! Fichier des concentrations initiales en sable et vase
- CVaseIni     , & ! Concentration en vase  initialemt ds bief
- CSableIni     , & ! Concentration en sable initialemt ds bief
+ FicCMESIni                  , & ! Fichier des concentrations initiales en sable et vase
+ CVaseIni                    , & ! Concentration en vase  initialemt ds bief
+ CSableIni                   , & ! Concentration en sable initialemt ds bief
 ! Lois de concentration
- FicLoiConc     , & ! Fichier de l'evolution temporelle de conc en vase
- NbLoiConc     , & ! Nombre de Lois de concentration
- LoiConc      , & ! Structure de donnnees des lois de concentration
+ FicLoiConc                  , & ! Fichier de l'evolution temporelle de conc en vase
+ NbLoiConc                   , & ! Nombre de Lois de concentration
+ LoiConc                     , & ! Structure de donnnees des lois de concentration
 ! Lecture des apports Courlis
- ApportVase     , & ! Var. contenant les donnees sedim. des apports de vase
- ApportSable     , & ! Var. contenant les donnees sedim. des apports de sable
- CL_Vase      , & ! CL amont de la concentration en Vase
- CL_Sable     , & ! CL amont de la concentration en Sable
+ ApportVase                  , & ! Var. contenant les donnees sedim. des apports de vase
+ ApportSable                 , & ! Var. contenant les donnees sedim. des apports de sable
+ CL_Vase                     , & ! CL amont de la concentration en Vase
+ CL_Sable                    , & ! CL amont de la concentration en Sable
 ! Impression des parametres et resultats
- FicStockPLongCourlis  , & ! Fichier graphique des res. selon profil en long du bief
- FicStockPTransCourlis  , & ! Fichier graphique des res. selon profil en travers du b.
- FicControleCourlis   , & ! Ficher de controle
- FicErreurCourlis   , & ! Fichier d'erreur
- FicResuGeom     , & ! Fichier de la geometrie finale des couches
- FicResuMES     , & ! Fichier des concentrations en MES a fin calcul a ch. x
- PasImpressionCourlis  , & ! Periodicite des enregistrements listing
- PasStockLongCourlis   , & ! Periodicite des enregistremts graph. profil en long
- PasStockTransCourlis  , & ! Periodicite des enregistremts graph. profil en travers
+ FicStockPLongCourlis        , & ! Fichier graphique des res. selon profil en long du bief
+ FicStockPTransCourlis       , & ! Fichier graphique des res. selon profil en travers du b.
+ FicControleCourlis          , & ! Ficher de controle
+ FicErreurCourlis            , & ! Fichier d'erreur
+ FicResuGeom                 , & ! Fichier de la geometrie finale des couches
+ FicResuMES                  , & ! Fichier des concentrations en MES a fin calcul a ch. x
+ PasImpressionCourlis        , & ! Periodicite des enregistrements listing
+ PasStockLongCourlis         , & ! Periodicite des enregistremts graph. profil en long
+ PasStockTransCourlis        , & ! Periodicite des enregistremts graph. profil en travers
 ! Lecture des parametres de couplage
- NbIterHydro     , & ! Nb d'iter. pour l'hydraulique entre 2 echanges
- NbIterSedim     , & ! Nb d'iter. pour  la sedimento entre 2 echanges
+ NbIterHydro                 , & ! Nb d'iter. pour l'hydraulique entre 2 echanges
+ NbIterSedim                 , & ! Nb d'iter. pour  la sedimento entre 2 echanges
 ! Traitement des erreurs
-    Erreur      )
+ Erreur      )
 
 
 !*************************************************************************

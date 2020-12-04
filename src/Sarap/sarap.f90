@@ -269,6 +269,7 @@ subroutine SARAP ( &
           CF2(isec)   , &
           ModeleLit    , &
           LoiFrottement, &
+          Profil(IDT(isec))%Nom, &
           Erreur        &
           )
 

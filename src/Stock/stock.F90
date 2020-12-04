@@ -619,8 +619,14 @@ subroutine STO_OPTHYCA( &
                write(fmt_precision,'("("";""f",I2,".",I1,")")') &
                   var_nom(ivar)%Precision + 9 , &
                   var_nom(ivar)%Precision
-               write(ul, fmt_precision,advance='NO') &
-                  REAL(gdr(ivar)%Valeur(num_sect), kind=SIMPLE)
+
+               if(ivar==1) then
+                  write(ul, fmt_precision,advance='NO') &
+                     gdr(ivar)%Valeur(num_sect)
+               else
+                  write(ul, fmt_precision,advance='NO') &
+                     REAL(gdr(ivar)%Valeur(num_sect), kind=SIMPLE)
+               endif
 
             end if
 
@@ -653,8 +659,13 @@ subroutine STO_OPTHYCA( &
                   var_nom(ivar)%Precision + 9 , &
                   var_nom(ivar)%Precision
 
-               write(ul, fmt_precision,advance='NO') &
-                  REAL(gdr(ivar)%Valeur(num_sect), kind=SIMPLE)
+               if(ivar==1) then
+                  write(ul, fmt_precision,advance='NO') &
+                     gdr(ivar)%Valeur(num_sect)
+               else
+                  write(ul, fmt_precision,advance='NO') &
+                     REAL(gdr(ivar)%Valeur(num_sect), kind=SIMPLE)
+               endif
 
             end if
 

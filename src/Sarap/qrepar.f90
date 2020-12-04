@@ -324,6 +324,7 @@ subroutine QREPAR (   &
                    CF2(I)      , &
                    ModeleLit   , &
                    LoiFrottement, &
+                   Profil(IDT(I))%Nom, &
                    Erreur        &
                    )
 
@@ -416,6 +417,7 @@ subroutine QREPAR (   &
                  CF2(I)      , &
                  ModeleLit    , &
                  LoiFrottement, &
+                 Profil(IDT(I))%Nom, &
                  Erreur        &
                   )
             if( Erreur%Numero /= 0 ) then
@@ -545,6 +547,7 @@ subroutine QREPAR (   &
                     CF2(I)      , &
                     ModeleLit    , &
                     LoiFrottement, &
+                    Profil(IDT(I))%Nom, &
                     Erreur        &
                                  )
          if( Erreur%Numero /=0 ) then
@@ -580,6 +583,7 @@ subroutine QREPAR (   &
                    CF2(I)      , &
                    ModeleLit    , &
                    LoiFrottement, &
+                   Profil(IDT(I))%Nom, &
                    Erreur        &
                                  )
 
@@ -617,6 +621,7 @@ subroutine QREPAR (   &
                    CF2(I)      , &
                    ModeleLit    , &
                    LoiFrottement, &
+                   Profil(IDT(I))%Nom, &
                    Erreur        &
                                  )
          if( Erreur%Numero /=0 ) then

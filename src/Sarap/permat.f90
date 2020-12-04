@@ -334,6 +334,7 @@ subroutine PERMAT ( &
        CF2(J)      , &
        ModeleLit    , &
        LoiFrottement, &
+       Profil(IDT(J))%Nom, &
        Erreur        & ! Erreur
        )
    if( Erreur%Numero /= 0 ) then
@@ -469,6 +470,7 @@ subroutine PERMAT ( &
        CF2(J)      , &
        ModeleLit    , &
        LoiFrottement, &
+       Profil(IDT(J))%Nom, &
        Erreur        &
        )
 
@@ -599,6 +601,7 @@ subroutine PERMAT ( &
           CF2(J)      , &
           ModeleLit    , &
           LoiFrottement, &
+          Profil(IDT(J))%Nom, &
           Erreur        &
           )
       if( Erreur%Numero /= 0 ) then
@@ -899,6 +902,7 @@ subroutine PERMAT ( &
               CF2(J)      , &
               ModeleLit    , &
               LoiFrottement, &
+              Profil(IDT(J))%Nom, &
               Erreur        & ! Erreur
               )
 
@@ -948,6 +952,7 @@ subroutine PERMAT ( &
               CF2(J+1)    , &
               ModeleLit   , &
               LoiFrottement, &
+              Profil(IDT(J+1))%Nom, &
               Erreur        & ! Erreur
               )
          if( Erreur%Numero /= 0 ) then
@@ -1020,6 +1025,7 @@ subroutine PERMAT ( &
               CF2(J+1)    , &
               ModeleLit   , &
               LoiFrottement, &
+              Profil(IDT(J+1))%Nom, &
               Erreur        & ! Erreur
               )
 
@@ -1114,6 +1120,7 @@ subroutine PERMAT ( &
        CF2(J+1)    , &
        ModeleLit   , &
        LoiFrottement, &
+       Profil(IDT(J+1))%Nom, &
        Erreur        & ! Erreur
        )
 

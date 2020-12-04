@@ -307,6 +307,10 @@ subroutine  PLANIM         ( &
 
       if ( Temps .EQ. TempsInitial .OR. condition_courlis) then
 
+        if(associated(varsed)) then
+          varsed(iprof) = 0.0
+        endif
+
         my_cpt_planim = my_cpt_planim + 1  ! PU2017: Incrementation de la variable globale pour compter le nombre d'etapes de planimetrage
 
 

@@ -1,45 +1,45 @@
 Subroutine compute_suspension (  &
 
- CVase    ,  & ! Concentration des vases en suspension
- CSable    ,  & ! Concentration des sables en suspension
- QVaseCouche   ,  & ! Flux de d�p�t des vases par couche (> 0 d�p�t, < 0 �rosion)
- QSableCouche ,  & ! Flux de d�p�t des sables par couche (> 0 d�p�t, < 0 �rosion)
- QVase    ,  & ! Flux de d�p�t des vases (> 0 d�p�t, < 0 �rosion)
- QSable    ,  & ! Flux de d�p�t des sables (> 0 d�p�t, < 0 �rosion)
+ CVase         ,  & ! Concentration des vases en suspension
+ CSable        ,  & ! Concentration des sables en suspension
+ QVaseCouche   ,  & ! Flux de depot des vases par couche (> 0 depot, < 0 erosion)
+ QSableCouche  ,  & ! Flux de depot des sables par couche (> 0 depot, < 0 erosion)
+ QVase         ,  & ! Flux de depot des vases (> 0 depot, < 0 erosion)
+ QSable        ,  & ! Flux de depot des sables (> 0 depot, < 0 erosion)
  QApportVase   ,  & ! Flux de d'apport lineaires des vases (Qapp*Capp) en (kg/s/m)
- QApportSable ,  & ! Flux de d'apport lineaires des sables (Qapp*Capp) en (kg/s/m)
- TauH    ,  & ! Contrainte hydraulique locale (depend du tirant d'eau local)
- TauHMoy    ,  & ! Contrainte hydraulique moyenne dans la section
- TauHMax    ,  & ! Contrainte hydraulique maximale dans la section
- TauE    ,  & ! Contrainte hydraulique effective (depend du rayon hydr.)
- TauEMoy    ,  & ! Contrainte hydraulique effective moyenne ds section
- TauEMax    ,  & ! Contrainte hydraulique effective maximale ds section
- Ceq      ,  & ! Concentration d'equilibre des sables locale
- CeqMoy    ,  & ! Concentration d'equilibre des sables moyenne dans la section
- DeltaH    ,  & ! Variation de hauteur s�dimentaire en chaque point des profils
+ QApportSable  ,  & ! Flux de d'apport lineaires des sables (Qapp*Capp) en (kg/s/m)
+ TauH          ,  & ! Contrainte hydraulique locale (depend du tirant d'eau local)
+ TauHMoy       ,  & ! Contrainte hydraulique moyenne dans la section
+ TauHMax       ,  & ! Contrainte hydraulique maximale dans la section
+ TauE          ,  & ! Contrainte hydraulique effective (depend du rayon hydr.)
+ TauEMoy       ,  & ! Contrainte hydraulique effective moyenne ds section
+ TauEMax       ,  & ! Contrainte hydraulique effective maximale ds section
+ Ceq           ,  & ! Concentration d'equilibre des sables locale
+ CeqMoy        ,  & ! Concentration d'equilibre des sables moyenne dans la section
+ DeltaH        ,  & ! Variation de hauteur sedimentaire en chaque point des profils
  ProfilCourlis ,  & ! Profils sedimentaires
- CL_Vase    ,  & ! CL amont de la concentration en Vase
- CL_Sable   ,  & ! CL amont de la concentration en Sable
- ApportVase   ,  & ! Apports en vase
+ CL_Vase       ,  & ! CL amont de la concentration en Vase
+ CL_Sable      ,  & ! CL amont de la concentration en Sable
+ ApportVase    ,  & ! Apports en vase
  ApportSable   ,  & ! Apports en sable
- Apport    ,  & ! Apports hydrauliques
- LoiHydrau   ,  & ! Lois hydrauliques
- LoiConc    ,  & ! Lois de concentration
- TempsCourlis    ,  & ! Temps du calcul
- DtCourlis      ,  & ! Pas de temps
- Zsurf1    ,  & ! Cote de la surface libre a t+dt
- Sm0      ,  & ! Surface mouillee a t
- Sm1      ,  & ! Surface mouillee a t+dt
- Vit1    ,  & ! Vitesse moyenne par section a t+dt
- Pm1      ,  & ! Perimetre mouille a t+dt
- CnuxV    ,  & ! Coefficient de diffusion vases
- CnuxS    ,  & ! Coefficient de diffusion Sables
- ConsConv        ,  & ! Param�tres pour les sch�ma de convection
- CoucheSed   ,  & ! Param�tres s�dimentaires des diff�rentes couches
- LimiteDepotG ,  & ! num�ro du point au del� duquel il peut y a voir d�p�t ou �rosion (1er pt immerg�)
- LimiteDepotD ,  & ! num�ro du dernier pt pour lequel il peut y a voir d�p�t ou �rosion (dernier pt immerg�)
- LimiteSable   ,  & ! % de sable � partir duquel la couche est trait�e suivant les lois du sable
- CalcSable       ,  & ! choix du calcul avec sable
+ Apport        ,  & ! Apports hydrauliques
+ LoiHydrau     ,  & ! Lois hydrauliques
+ LoiConc       ,  & ! Lois de concentration
+ TempsCourlis  ,  & ! Temps du calcul
+ DtCourlis     ,  & ! Pas de temps
+ Zsurf1        ,  & ! Cote de la surface libre a t+dt
+ Sm0           ,  & ! Surface mouillee a t
+ Sm1           ,  & ! Surface mouillee a t+dt
+ Vit1          ,  & ! Vitesse moyenne par section a t+dt
+ Pm1           ,  & ! Perimetre mouille a t+dt
+ CnuxV         ,  & ! Coefficient de diffusion vases
+ CnuxS         ,  & ! Coefficient de diffusion Sables
+ ConsConv      ,  & ! Parametres pour les sch�ma de convection
+ CoucheSed     ,  & ! Parametres sedimentaires des diff�rentes couches
+ LimiteDepotG  ,  & ! numero du point au dela duquel il peut y a voir depot ou erosion (1er pt immerge)
+ LimiteDepotD  ,  & ! numero du dernier pt pour lequel il peut y a voir depot ou erosion (dernier pt immerge)
+ LimiteSable   ,  & ! % de sable a partir duquel la couche est traitee suivant les lois du sable
+ CalcSable     ,  & ! choix du calcul avec sable
  Erreur    )
 
 
@@ -68,17 +68,17 @@ use M_PRECISION      ! Definition de la precision DOUBLE ou SIMPLE
 use M_PARAMETRE_C    ! Definition des constante tq EPS*, W0, ...
 
 use M_PROFIL_COURLIS_T   ! Definition du type PROFIL_COURLIS
-use M_COUCHE_T      ! D�finition du type COUCHE_T
+use M_COUCHE_T      ! Definition du type COUCHE_T
 use M_APPORT_T      ! Definition du type APPORT_T
 use M_SOURCE_TRACER_T   ! Donn�es des sources d'un traceur
 use M_CL_COURLIS_T    ! Definition du type CL_COURLIS_T
 use M_LOI_T       ! Definition du type LOI_T
 use M_LOI_CONC_T    ! Definition du type LOI_T
-use M_CONSTANTES_TRACER_T ! Donn�es pour le sch�ma de convection
+use M_CONSTANTES_TRACER_T ! Donn�es pour le schema de convection
 
 use M_ERREUR_T      ! Type ERREUR_T
 use M_MESSAGE_C      ! Messages d'erreur
-use M_TRAITER_ERREUR_I   ! Traitement de l'errreur
+use M_TRAITER_ERREUR_I   ! Traitement de l'erreur
 
 use M_CalcApport_I
 use M_Convec_I
@@ -171,37 +171,37 @@ use M_Diffu_I
 
   Do i = 1, NbProfil
     QVase(i)  = W0
- QSable(i) = W0
- Do k = 1, NbCouche
-   QVaseCouche(k,i)  = W0
-   QSableCouche(k,i) = W0
- Enddo
+    QSable(i) = W0
+    Do k = 1, NbCouche
+      QVaseCouche(k,i)  = W0
+      QSableCouche(k,i) = W0
+    Enddo
     If (NbApport /= 0) Then
-   QApportVase(i)  = W0
-   QApportSable(i) = W0
- Endif
+      QApportVase(i)  = W0
+      QApportSable(i) = W0
+    Endif
   Enddo
 
 
 !=========================================================================
 ! Calcul des termes sources par apport et conditions limites
 !=========================================================================
-  call CalcApport   (  &
- CL_Vase      ,  & ! CL amont de la concentration en Vase
- CL_Sable    ,  & ! CL amont de la concentration en Sable
- QApportVase    ,  & ! D�bit de l'apport en vase en (kg/s/m)
- QApportSable   ,  & ! D�bit de l'apport en sable en (kg/s/m)
- ApportVase    ,  & ! Apports en vase
- ApportSable    ,  & ! Apports en sable
- Apport      ,  & ! Apports hydrauliques
- LoiHydrau    ,  & ! Lois hydrauliques
- LoiConc      ,  & ! Lois de concentration
- TempsCourlis      ,  & ! Temps
- ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
- Erreur      )    ! Erreur
+  call CalcApport   (    &
+    CL_Vase           ,  & ! CL amont de la concentration en Vase
+    CL_Sable          ,  & ! CL amont de la concentration en Sable
+    QApportVase       ,  & ! Debit de l'apport en vase en (kg/s/m)
+    QApportSable      ,  & ! Debit de l'apport en sable en (kg/s/m)
+    ApportVase        ,  & ! Apports en vase
+    ApportSable       ,  & ! Apports en sable
+    Apport            ,  & ! Apports hydrauliques
+    LoiHydrau         ,  & ! Lois hydrauliques
+    LoiConc           ,  & ! Lois de concentration
+    TempsCourlis      ,  & ! Temps
+    ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
+    Erreur           )     ! Erreur
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 !=========================================================================
@@ -210,40 +210,40 @@ use M_Diffu_I
 
 ! Convection de la concentration en vase
 
-  call Convec    (  &
- TV2       ,  & ! Grandeur convect�e (Sm.Conc) a t+dt
- ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
- CVase      ,  & ! Concentration en suspension a t
- CL_Vase%Conc   ,  & ! CL amont a t
- Sm0       ,  & ! Surface mouillee a t
- Sm1       ,  & ! Surface mouillee a t+dt
- Vit1      ,  & ! Vitesse a t+dt
- DtCourlis               ,  & ! Pas de temps
- ConsConv            ,  & ! donn�es sch�ma de convection
- Erreur      )    ! Erreur
+  call Convec    (       &
+    TV2               ,  & ! Grandeur convect�e (Sm.Conc) a t+dt
+    ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
+    CVase             ,  & ! Concentration en suspension a t
+    CL_Vase%Conc      ,  & ! CL amont a t
+    Sm0               ,  & ! Surface mouillee a t
+    Sm1               ,  & ! Surface mouillee a t+dt
+    Vit1              ,  & ! Vitesse a t+dt
+    DtCourlis         ,  & ! Pas de temps
+    ConsConv          ,  & ! donnees schema de convection
+    Erreur       )         ! Erreur
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 
 ! Convection de la concentration en sable
 if (CalcSable) then
-  call Convec    (  &
- TS2       ,  & ! Grandeur convect�e (Sm.Conc) a t+dt
- ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
- CSable      ,  & ! Concentration en suspension a t
- CL_Sable%Conc   ,  & ! CL amont a t
- Sm0       ,  & ! Surface mouillee a t
- Sm1       ,  & ! Surface mouillee a t+dt
- Vit1      ,  & ! Vitesse a t+dt
- DtCourlis               ,  & ! Pas de temps
-    ConsConv            ,  & ! donn�es sch�ma de convection
- Erreur      )    ! Erreur
+  call Convec    (       &
+    TS2               ,  & ! Grandeur convect�e (Sm.Conc) a t+dt
+    ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
+    CSable            ,  & ! Concentration en suspension a t
+    CL_Sable%Conc     ,  & ! CL amont a t
+    Sm0               ,  & ! Surface mouillee a t
+    Sm1               ,  & ! Surface mouillee a t+dt
+    Vit1              ,  & ! Vitesse a t+dt
+    DtCourlis         ,  & ! Pas de temps
+    ConsConv          ,  & ! donnees schema de convection
+    Erreur       )         ! Erreur
 endif
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 
@@ -253,42 +253,42 @@ endif
 
   Do i = 1, NbProfil
     CVase(i)  = max(TV2(i) / Sm1(i), EPS8)
- if (calcsable) then
- CSable(i) = max(TS2(i) / Sm1(i), EPS8)
- endif
+    if (calcsable) then
+      CSable(i) = max(TS2(i) / Sm1(i), EPS8)
+    endif
   Enddo
 
-  call Sedimento   (  &
- QVaseCouche    ,  & ! Flux de d�p�t des vases par couche (> 0 d�p�t, < 0 �rosion)
- QSableCouche   ,  & ! Flux de d�p�t des sables par couche (> 0 d�p�t, < 0 �rosion)
- TauH      ,  & ! Contrainte hydraulique locale (depend du tirant d'eau local)
- TauHMoy      ,  & ! Contrainte hydraulique moyenne dans la section
- TauHMax      ,  & ! Contrainte hydraulique maximale dans la section
- TauE      ,  & ! Contrainte hydraulique effective (depend du rayon hydr.)
- TauEMoy      ,  & ! Contrainte hydraulique effective moyenne ds section
- TauEMax      ,  & ! Contrainte hydraulique effective maximale ds section
- Ceq       ,  & ! Concentration d'equilibre des sables locale
- CeqMoy      ,  & ! Concentration d'equilibre des sables moyenne dans la section
- DeltaH      ,  & ! Variation de hauteur s�dimentaire en chaque point des profils
- ProfilCourlis   ,  & ! Profils sedimentaires
- NbProfil    ,  & ! Nombre de profils
- CoucheSed    ,  & ! Param�tres s�dimentaires des diff�rentes couches
- NbCouche    ,  & ! Nombre de couches
- CVase      ,  & ! Concentration des vases en suspension
- CSable      ,  & ! Concentration des sables en suspension
- DtCourlis       ,  & ! Pas de temps
- Zsurf1      ,  & ! Cote de la surface libre
- Vit1      ,  & ! Vitesse moyenne par section
- Sm1       ,  & ! Surface mouillee
- Pm1       ,  & ! P�rim�tre mouill�
- LimiteDepotG   ,  & ! num�ro du point au del� duquel il peut y a voir d�p�t ou �rosion (1er pt immerg�)
- LimiteDepotD   ,  & ! num�ro du dernier pt pour lequel il peut y a voir d�p�t ou �rosion (dernier pt immerg�)
- LimiteSable    ,  & ! % de sable � partir duquel la couche est trait�e suivant les lois du sable
- CalcSable           ,  & ! choix calcul avec sable
- Erreur      )
+  call Sedimento  (  &
+    QVaseCouche   ,  & ! Flux de depot des vases par couche (> 0 depot, < 0 �rosion)
+    QSableCouche  ,  & ! Flux de depot des sables par couche (> 0 depot, < 0 �rosion)
+    TauH          ,  & ! Contrainte hydraulique locale (depend du tirant d'eau local)
+    TauHMoy       ,  & ! Contrainte hydraulique moyenne dans la section
+    TauHMax       ,  & ! Contrainte hydraulique maximale dans la section
+    TauE          ,  & ! Contrainte hydraulique effective (depend du rayon hydr.)
+    TauEMoy       ,  & ! Contrainte hydraulique effective moyenne ds section
+    TauEMax       ,  & ! Contrainte hydraulique effective maximale ds section
+    Ceq           ,  & ! Concentration d'equilibre des sables locale
+    CeqMoy        ,  & ! Concentration d'equilibre des sables moyenne dans la section
+    DeltaH        ,  & ! Variation de hauteur sedimentaire en chaque point des profils
+    ProfilCourlis ,  & ! Profils sedimentaires
+    NbProfil      ,  & ! Nombre de profils
+    CoucheSed     ,  & ! Parametres sedimentaires des differentes couches
+    NbCouche      ,  & ! Nombre de couches
+    CVase         ,  & ! Concentration des vases en suspension
+    CSable        ,  & ! Concentration des sables en suspension
+    DtCourlis     ,  & ! Pas de temps
+    Zsurf1        ,  & ! Cote de la surface libre
+    Vit1          ,  & ! Vitesse moyenne par section
+    Sm1           ,  & ! Surface mouillee
+    Pm1           ,  & ! Perimetre mouille
+    LimiteDepotG  ,  & ! numero du point au dela duquel il peut y a voir depot ou erosion (1er pt immerge)
+    LimiteDepotD  ,  & ! numero du dernier pt pour lequel il peut y a voir depot ou erosion (dernier pt immerge)
+    LimiteSable   ,  & ! % de sable a partir duquel la couche est traitee suivant les lois du sable
+    CalcSable     ,  & ! choix calcul avec sable
+    Erreur        )
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 
@@ -299,11 +299,11 @@ endif
     Do k = 1, NbCouche
       QVase(i)  = QVase(i)  + QVaseCouche(k,i)
       QSable(i) = QSable(i) + QSableCouche(k,i)
- Enddo
+    Enddo
     If (NbApport /= 0) Then
-   QVase(i)  = QVase(i)  + QApportVase(i)
-   QSable(i) = QSable(i) + QApportSable(i)
- Endif
+      QVase(i)  = QVase(i)  + QApportVase(i)
+      QSable(i) = QSable(i) + QApportSable(i)
+    Endif
   Enddo
 
 
@@ -312,37 +312,37 @@ endif
 !=========================================================================
 
 ! Diffusion de la concentration en vase
-  call Diffu    (  &
- CVase      ,  & ! Concentration a t+Dt
- TV2       ,  & ! Grandeur convect�e (Sm.C) a t+Dt
- QVase      ,  & ! Flux lin�aire de MES (kg/s/m)
- Sm1       ,  & ! Surface mouillee a t+DT
- Vit1      ,  & ! Vitesse a t+dt
- ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul
- DtCourlis       ,  & ! Pas de temps
- CnuxV      ,  & ! Coefficient de diffusion
- Erreur      )
+  call Diffu    (        &
+    CVase             ,  & ! Concentration a t+Dt
+    TV2               ,  & ! Grandeur convect�e (Sm.C) a t+Dt
+    QVase             ,  & ! Flux lin�aire de MES (kg/s/m)
+    Sm1               ,  & ! Surface mouillee a t+DT
+    Vit1              ,  & ! Vitesse a t+dt
+    ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul
+    DtCourlis         ,  & ! Pas de temps
+    CnuxV             ,  & ! Coefficient de diffusion
+    Erreur      )
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 ! Diffusion de la concentration en sable
-if (CalcSable) then
-  call Diffu    (  &
- CSable      ,  & ! Concentration a t+Dt
- TS2       ,  & ! Grandeur convect�e (Sm.C) a t+Dt
- QSable      ,  & ! Flux lin�aire de MES (kg/s/m)
- Sm1       ,  & ! Surface mouillee a t+DT
- Vit1      ,  & ! Vitesse a t+dt
- ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul
- DtCourlis       ,  & ! Pas de temps
- CnuxS      ,  & ! Coefficient de diffusion
- Erreur      )
-endif
+  if (CalcSable) then
+    call Diffu    (          &
+        CSable            ,  & ! Concentration a t+Dt
+        TS2               ,  & ! Grandeur convect�e (Sm.C) a t+Dt
+        QSable            ,  & ! Flux lin�aire de MES (kg/s/m)
+        Sm1               ,  & ! Surface mouillee a t+DT
+        Vit1              ,  & ! Vitesse a t+dt
+        ProfilCourlis%Abs ,  & ! Abscisse des sections de calcul
+        DtCourlis         ,  & ! Pas de temps
+        CnuxS             ,  & ! Coefficient de diffusion
+        Erreur     )
+  endif
 
   If (Erreur%Numero /= 0) Then
- return
+    return
   Endif
 
 

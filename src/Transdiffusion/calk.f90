@@ -65,10 +65,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    ! * DECLARATION DES VARIABLES LOCALES *
    integer I
-   real(DOUBLE) :: Ueff , EPST, UNSURSIX
-
-   ! Sinon **(1/6) -> **(0)
-   UNSURSIX = 1.0/6
+   real(DOUBLE) :: Ueff , EPST
    !
    ! --------------------------------------------------------------------
    !
@@ -78,7 +75,7 @@ SUBROUTINE CALK( RK , RKC , &
       do I = 1 , Nbsect
          RK(I) = RKC(1) * U(I) + RKC(2)
          if( RK(I).LT.0 ) THEN
-            RK(I) = 0.d0
+            RK(I) = W0
          endif
       enddo
    endif
@@ -88,7 +85,7 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 2 ) THEN
       do I = 1 , Nbsect
-         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
+         Ueff  = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
          RK(I) = 5.93d0 * H(I) * Ueff
       enddo
    endif
@@ -98,12 +95,12 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 3 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.000001d0 )THEN
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.EPS6 )THEN
             RK(I)= 0.011d0 * H(I) * Ueff * &
-                  ( B(I) / H(I) )**(2) *( U(I) / Ueff )**2
+                  ( B(I) / H(I) )**2 *( U(I) / Ueff )**2
          ENDIF
       enddo
    endif
@@ -113,12 +110,12 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 4 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.000001d0 )THEN
+         Ueff = GPES**(0.5) * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.EPS6 )THEN
             RK(I) = 0.18d0 * H(I) * Ueff * &
-                   ( B(I) / H(I) )**(2) * ( U(I) / Ueff )**0.5d0
+                   ( B(I) / H(I) )**2 * ( U(I) / Ueff )**W12
          ENDIF
       enddo
    endif
@@ -128,11 +125,11 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 5 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.000001d0 )THEN
-            RK(I) = 2 * H(I) * Ueff * ( B(I) / H(I) )**(1.5d0)
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.EPS6 )THEN
+            RK(I) = 2 * H(I) * Ueff * ( B(I) / H(I) )**W32
          ENDIF
       enddo
    endif
@@ -143,8 +140,8 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 6 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         RK(I)= 0.058d0 * U(I) * Ueff**(2) / GPES
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         RK(I)= 0.058d0 * U(I) * Ueff**2 / GPES
       enddo
    endif
    !
@@ -154,13 +151,13 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK==7 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.d0) THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.d0) THEN
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.W0) THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.W0) THEN
             IF( B(I).GE.50.d0 * H(I) )THEN
                RK(I) = 10.612d0 * H(I) * U(I) * ( U(I) / Ueff )
-            ELSEIF( B(I).GT.50.d0 * H(I) )THEN
+            ELSEIF( B(I).LT.50.d0 * H(I) )THEN
                EPST = 7.428d0 + 1.775d0 * ( B(I) / H(I)**(0.62) ) * &
                       ( Ueff / U(I) )**0.572d0
                RK(I) = EPST * H(I) * U(I) * ( U(I) / Ueff )
@@ -175,10 +172,10 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 8 ) THEN
       do I = 1 , Nbsect
-         IF( U(I).LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( U(I).GT.0.000001d0 )THEN
-            Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
+         IF( U(I).LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( U(I).GT.EPS6 )THEN
+            Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
             RK(I)= 75.86d0 * H(I) * U(I) *( Ueff / ( 0.4d0 *U(I)))**(1.632d0)
          ENDIF
       enddo
@@ -189,8 +186,8 @@ SUBROUTINE CALK( RK , RKC , &
    !
    if( NOPTK == 9 ) THEN
       do I = 1 , Nbsect
-         Ueff  = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         RK(I) = 0.6d0 * H(I) * Ueff * ( B(I) / H(I) )**(2)
+         Ueff  = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         RK(I) = 0.6d0 * H(I) * Ueff * ( B(I) / H(I) )**2
       enddo
    endif
    !-----------------------------------------------------------------------
@@ -198,10 +195,10 @@ SUBROUTINE CALK( RK , RKC , &
    !FORMULE DE Seo et Cheong (1998)
    if( NOPTK == 10 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.000001d0 )THEN
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.EPS6 )THEN
             RK(I) = 5.92d0 * H(I) * Ueff * &
                     ( B(I) / H(I) )**(0.62d0) * ( U(I) / Ueff )**(1.43d0)
          ENDIF
@@ -211,13 +208,13 @@ SUBROUTINE CALK( RK , RKC , &
    !FORMULE de Deng et al. (2001)
    if( NOPTK == 11 ) THEN
       do I = 1 , Nbsect
-         Ueff = GPES**(0.5d0) * U(I) / ( ST(I) * H(I)**(UNSURSIX) )
-         IF( Ueff.LE.0.000001d0 )THEN
-            RK(I) = 0.d0
-         ELSEIF( Ueff.GT.0.000001d0 )THEN
+         Ueff = GPES**W12 * U(I) / ( ST(I) * H(I)**W16 )
+         IF( Ueff.LE.EPS6 )THEN
+            RK(I) = W0
+         ELSEIF( Ueff.GT.EPS6 )THEN
             EPST  = 0.145d0 + ( U(I) / Ueff ) * ( B(I) / H(I) )**(1.38d0) / 3520.d0
             RK(I) = 0.15d0 * H(I) * Ueff / ( 8.d0 * EPST ) * &
-                    ( B(I) / H(I) )**(1.67d0) * ( U(I) / Ueff )**(2)
+                    ( B(I) / H(I) )**(1.67d0) * ( U(I) / Ueff )**2
          ENDIF
       enddo
    endif

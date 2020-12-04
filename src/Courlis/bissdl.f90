@@ -1,12 +1,11 @@
 Subroutine Bissdl (  &
-
- Z    ,  & ! Resultat de la diffusion
- A    ,  & ! ! Coefficient
- B    ,  & ! ! de la
- C    ,  & ! ! matrice de
- D    ,  & ! ! diffusion
- Imax   ,  & ! Nombre de point des tableaux
- Erreur   )
+     Z    ,  & ! Resultat de la diffusion
+     A    ,  & ! ! Coefficient
+     B    ,  & ! ! de la
+     C    ,  & ! ! matrice de
+     D    ,  & ! ! diffusion
+     Imax ,  & ! Nombre de point des tableaux
+     Erreur   )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -77,21 +76,21 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
   Do i = 2, Im1
 
- If (abs(B(i-1)) < EPS10) Then
+    If (abs(B(i-1)) < EPS10) Then
       Erreur%Numero = 103
       Erreur%ft   = err_103
       Erreur%ft_c = err_103c
       call TRAITER_ERREUR (Erreur, B(i-1))
       return
- Endif
+    Endif
 
     B(i) = B(i) - A(i) * C(i-1) / B(i-1)
- D(i) = D(i) - A(i) * D(i-1) / B(i-1)
+    D(i) = D(i) - A(i) * D(i-1) / B(i-1)
 
   Enddo
 
   If (abs(A(Imax) * C(Im1) - B(Im1) * B(Imax)) < EPS10) Then
- Erreur%Numero = 103
+    Erreur%Numero = 103
     Erreur%ft   = err_103
     Erreur%ft_c = err_103c
     call TRAITER_ERREUR (Erreur, A(Imax) * C(Im1) - B(Im1) * B(Imax))
@@ -103,13 +102,13 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
   Do i = Im1, 1, -1
 
- If (abs(B(i)) < EPS10) Then
+    If (abs(B(i)) < EPS10) Then
       Erreur%Numero = 103
       Erreur%ft   = err_103
       Erreur%ft_c = err_103c
       call TRAITER_ERREUR (Erreur, B(i))
       return
- Endif
+    Endif
 
     Z(i) = (D(i) - C(i) * Z(i+1)) / B(i)
 

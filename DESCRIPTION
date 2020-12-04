@@ -2,7 +2,7 @@ Package: mascaRet
 Type: Package
 Title: 1D Shallow Water
 Version: 8.2.0
-Date: 2020-04-27
+Date: 2020-12-04
 Authors@R: c(
   person("Fabrice", "Zaoui", role = c("aut", "cre"), email = "fabrice.zaoui@edf.fr")
   )

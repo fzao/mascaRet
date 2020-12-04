@@ -277,7 +277,8 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
       Ch = W1
     Endif
 
-      Lam(j) = Talus%Lambda * Ch
+    Lam(j) = 1 * Ch
+    !Lam(j) = Talus%Lambda * Ch
 
     If (j == 1) Then ! Modif 1
       Dz(j) = C(j) * (Z(k,j+1) - Z(k,j)) * Lam(j)      !???
@@ -287,9 +288,10 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
     Enddo
 
-    Ch = W1                          !???
-    Lam(NPt) = Talus%Lambda * Ch                !???
-    Dz(NPt)  = A(NPt) * (Z(k,NPt-1) - Z(k,NPt)) * Lam(NPt-1)  !???
+    Ch = W1 !???
+    !Lam(NPt) = Talus%Lambda * Ch !???
+    Lam(NPt) = 1 * Ch
+    Dz(NPt)  = A(NPt) * (Z(k,NPt-1) - Z(k,NPt)) * Lam(NPt-1) !???
 
 
   ! Le deplacement de la couche est limitee a HsC (hauteur de sï¿½diment dans la couche traitee)
