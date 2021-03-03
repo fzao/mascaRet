@@ -2,6 +2,7 @@
 #'
 #' @param id : (integer, scalar) integer number identifying a MASCARET problem
 #' @param filename : (string) MASCARET file .lig
+#' @param verbose : (logical, scalar) printing option for all mascaret info
 #' @return  (logical, scalar) Error flag
 #'
 #' @examples
