@@ -9,25 +9,26 @@
 #'
 #' @examples
 #' # mascaRet_init(mascId, q, z)
-#' 
+#'
 #' @author Fabrice Zaoui - Copyright EDF 2020
-#' 
+#'
+
 mascaRet_init <- function(id, q, z) {
   # error flag
   error <- as.integer(1)
-  
+
   # types of parameters
   id <- as.integer(id)
   q <- as.numeric(q)
   z <- as.numeric(z)
-  
+
   # call MASCARET
-  if(length(q) == length(z)){
+  if (length(q) == length(z)) {
     Address <- getNativeSymbolInfo("init_ligne_mascaret_")$address
     Init <- .Fortran(Address, error, id, q, z, as.integer(length(q)))
     error <- Init[[1]]
   }
-  
+
   # return
   return(as.logical(error))
 }

@@ -12,9 +12,10 @@
 #'
 #' @examples
 #' # mascaRet_set(mascId, "Model.FricCoefMainCh", 12, 0, 0, 30.)
-#' 
+#'
 #' @author Fabrice Zaoui - Copyright EDF 2020
-#' 
+#'
+
 mascaRet_set <- function(id, varname, i1, i2, i3, value) {
   # types of parameters
   id <- as.integer(id)
@@ -22,21 +23,21 @@ mascaRet_set <- function(id, varname, i1, i2, i3, value) {
   i1 <- as.integer(i1)
   i2 <- as.integer(i2)
   i3 <- as.integer(i3)
-  
+
   # call MASCARET
-  if(varname != ""){
+  if (varname != "") {
     vartype <- mascaRet::mascaRet_vartype(id, varname)[1]
-    if(vartype != "?"){
-      if(grepl("DOUBLE", vartype)){
+    if (vartype != "?") {
+      if (grepl("DOUBLE", vartype)) {
         Address <- getNativeSymbolInfo("C_SET_DOUBLE_MASCARET")$address
         value <- as.numeric(value)
-      }else if(grepl("INT", vartype)){
-        Address <- getNativeSymbolInfo("C_SET_INT_MASCARET")$address   
+      } else if (grepl("INT", vartype)) {
+        Address <- getNativeSymbolInfo("C_SET_INT_MASCARET")$address
         value <- as.integer(value)
-      }else if(grepl("BOOL", vartype)){
+      } else if(grepl("BOOL", vartype)) {
         Address <- getNativeSymbolInfo("C_SET_BOOL_MASCARET")$address
         value <- as.logical(value)
-      }else if(grepl("STRING", vartype)){
+      } else if(grepl("STRING", vartype)) {
         Address <- getNativeSymbolInfo("C_SET_STRING_MASCARET")$address
         value <- as.character(value)
       }
@@ -44,8 +45,8 @@ mascaRet_set <- function(id, varname, i1, i2, i3, value) {
       return(FALSE)
     }
   }
-  
+
   # return NA if failed
   message("error from 'mascaRet_set': the variable type is unknown")
-  return(list(Error=TRUE))
+  return(list(Error = TRUE))
 }

@@ -11,9 +11,10 @@
 #'
 #' @examples
 #' # value <- mascaRet_get(mascId, "Model.Zbot", 24)
-#' 
+#'
 #' @author Fabrice Zaoui - Copyright EDF 2020
-#' 
+#'
+
 mascaRet_get <- function(id, varname, i1, i2, i3) {
   # types of parameters
   id <- as.integer(id)
@@ -21,36 +22,35 @@ mascaRet_get <- function(id, varname, i1, i2, i3) {
   i1 <- as.integer(i1)
   i2 <- as.integer(i2)
   i3 <- as.integer(i3)
-  
+
   # call MASCARET
-  if(varname != ""){
+  if (varname != "") {
     vartype <- mascaRet::mascaRet_vartype(id, varname)[1]
-    if(vartype != "?"){
-      if(grepl("DOUBLE", vartype)){
+    if (vartype != "?") {
+      if (grepl("DOUBLE", vartype)) {
         Address <- getNativeSymbolInfo("C_GET_DOUBLE_MASCARET")$address
         value <- as.numeric(0.)
         Get <- .C(Address, id, varname, i1, i2, i3, value)
-      }else if(grepl("INT", vartype)){
-        Address <- getNativeSymbolInfo("C_GET_INT_MASCARET")$address   
+      } else if (grepl("INT", vartype)) {
+        Address <- getNativeSymbolInfo("C_GET_INT_MASCARET")$address
         value <- as.integer(0)
         Get <- .C(Address, id, varname, i1, i2, i3, value)
-      }else if(grepl("BOOL", vartype)){
+      }else if (grepl("BOOL", vartype)) {
         Address <- getNativeSymbolInfo("C_GET_BOOL_MASCARET")$address
         value <- FALSE
         trueref <- FALSE
         Get <- .C(Address, id, varname, i1, i2, i3, value, trueref)
-      }else if(grepl("STRING", vartype)){
+      }else if (grepl("STRING", vartype)) {
         Address <- getNativeSymbolInfo("C_GET_STRING_MASCARET")$address
         n <- 256
         value <- ""
-        for(i in 1:n) value <- paste(value, " ", sep="")
-        
+        for (i in 1:n) value <- paste(value, " ", sep = "")
         Get <- .C(Address, id, varname, i1, i2, i3, value)
       }
       return(Get[[6]])
     }
   }
-  
+
   # return NA if failed
   message("error from 'mascaRet_get': the variable type is unknown")
   return(NA)

@@ -9,53 +9,54 @@
 #'
 #' @examples
 #' # mascaRet_import(mascId, 0, 'mascaret.files')
-#' 
+#'
 #' @author Fabrice Zaoui - Copyright EDF 2020
 #'
+
 mascaRet_import <- function(id, verbose, mascfile) {
   # error flag
   error <- as.logical(1)
-  
+
   # file exists ?
-  if(!file.exists(mascfile)){
+  if (!file.exists(mascfile)) {
     message("error from 'mascaRet_import': file does not exist")
     return(error)
   }
-  
+
   # get file extension
-  getExtension <- function(file){ 
-    ex <- strsplit(basename(file), split="\\.")[[1]]
+  getExtension <- function(file) {
+    ex <- strsplit(basename(file), split = "\\.")[[1]]
     return(ex[-1])
   }
-  
+
   # known file extensions
   extmasc <- c("xcas", "geo", "loi", "lig", "listing",
                "res", "res_casier", "res_liaison",
-               "casier", "listing_casier", "listing_liaison", 
+               "casier", "listing_casier", "listing_liaison",
                "tracer_loi", "tracer_conc", "tracer_meteo", "tracer_parphy",
                "tracer_listing", "tracer_res")
-  
+
   # get data file extensions
   listmasc <- readLines(mascfile)
-  for(i in 1:length(listmasc)){
+  for (i in 1:length(listmasc)) {
     ext <- getExtension(listmasc[i])
-    if(!(ext %in% extmasc)){
-      message(paste("error from 'mascaRet_import': unknow file extension .", ext, sep=""))
+    if (!(ext %in% extmasc)) {
+      message(paste("error from 'mascaRet_import': unknow file extension .", ext, sep = ""))
       return(error)
     }
   }
-  
+
   # types of parameters
   id <- as.integer(id)
   verbose <- as.integer(verbose)
   mascfile <- as.character(mascfile)
-  
+
   # call MASCARET
-  if(mascfile != ""){
+  if (mascfile != "") {
     Address <- getNativeSymbolInfo("C_IMPORT_MODELE_MASCARET_ONEFILE")$address
     Import <- .C(Address, id, verbose, mascfile)
   }
-  
+
   # return with a default value (no Mascaret error catch)
   error <- as.logical(0)
   return(error)

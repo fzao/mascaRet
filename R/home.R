@@ -1,9 +1,7 @@
-.onAttach <- function(lib, pkg)
-{
+.onAttach <- function(lib, pkg) {
   version <- read.dcf(file.path(lib, pkg, "DESCRIPTION"), "Version")
 
-  if(interactive())
-    { # > figlet mascaRet
+  if (interactive()) { # > figlet mascaRet
       packageStartupMessage(
 "                                _____      _
                                |  __ \\    | |
@@ -12,8 +10,8 @@
  | | | | | | (_| \\__ \\ (_| (_| | | \\ \\  __/ |_
  |_| |_| |_|\\__,_|___/\\___\\__,_|_|  \\_\\___|\\__|, version ", version)
 
+} else {
+   packageStartupMessage("Package 'mascaRet' version ", version)
 }
-else
-  { packageStartupMessage("Package 'mascaRet' version ", version) }
   invisible()
 }
