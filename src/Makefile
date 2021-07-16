@@ -9,20 +9,20 @@ DBG =
 INSTALL_DIR=.
 # Compilation and link options for a particular OS
 ifdef SYSTEMROOT
-# Windows OS
+	# Windows OS
 	MASC = mascaret.dll
 	FFLAGS = $(OPT) $(DBG)
 	LDFLAGS = $(OPT) $(DBG) -static
 	LDFLAGSLIB = $(LDFLAGS)
 else
 	ifeq ($(shell uname),Linux)
-# GNU/Linux OS
+		# GNU/Linux OS
 		MASC = mascaret.so
 		FFLAGS = $(OPT) $(DBG) -fPIC
 		CFLAGS = $(OPT) $(DBG) -fPIC
 		LDFLAGSLIB = $(OPT) $(DBG)
 	else
-# Mac OSX
+		# macOS
 		MASC = mascaret.dylib
 		FFLAGS = $(OPT) $(DBG)
 		LDFLAGS = $(OPT) $(DBG)
@@ -2601,10 +2601,6 @@ clean:
 	if test -f ${INSTALL_DIR}/libmascaret.so ; \
 	then \
 		(rm -f ${INSTALL_DIR}/libmascaret.so) ; \
-	fi
-	if test -f ${INSTALL_DIR}/libmascaret.dylib ; \
-	then \
-		(rm -f ${INSTALL_DIR}/libmascaret.dylib) ; \
 	fi
 	if test -f ${INSTALL_DIR}/mascaret.exe ; \
 	then \
