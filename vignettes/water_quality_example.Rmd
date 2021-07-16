@@ -87,7 +87,6 @@ First get the number of 1D nodes
 Get the number of 1D nodes asking for the size of the abscissa vector
 
 ```{r get}
-setwd(datadir)
 varname <- "Model.X"  # abscissa name
 index <- as.integer(1)  # 1D array
 Size <- mascaRet_varsize(myMascProblem, varname, index)
@@ -98,7 +97,6 @@ print(nbnodes)
 Then initialize the temperature with a default value of 10 degree Celsius
 
 ```{r temperature}
-setwd(datadir)
 ntracer <- 1
 Tini <- matrix(10., nrow = nbnodes, ncol = ntracer)
 error <- mascaRet_tracer_initialization(myMascProblem, verbose, Tini)
@@ -118,7 +116,6 @@ dt <- 3  # time step (s)
 Compute 1D shallow water with Tracer
 
 ```{r compute}
-setwd(datadir)
 error <- mascaRet_compute(myMascProblem, verbose, tini, tend, dt)
 print(error)
 ```
