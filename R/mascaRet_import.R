@@ -19,7 +19,7 @@ mascaRet_import <- function(id, verbose, mascfile) {
 
   # file exists ?
   if (!file.exists(mascfile)) {
-    message("error from 'mascaRet_import': file does not exist")
+    message(paste("error from 'mascaRet_import':", mascfile, "file does not exist"))
     return(error)
   }
 
@@ -42,6 +42,10 @@ mascaRet_import <- function(id, verbose, mascfile) {
     ext <- getExtension(listmasc[i])
     if (!(ext %in% extmasc)) {
       message(paste("error from 'mascaRet_import': unknow file extension .", ext, sep = ""))
+      return(error)
+    }
+    if (!file.exists(listmasc[i])) {
+      message(paste("error from 'mascaRet_import': file", listmasc[i], "does not exist"))
       return(error)
     }
   }
