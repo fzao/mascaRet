@@ -35,7 +35,14 @@ mascaRet_hydro <- function(id) {
       for (i in 2:nbnodes) {
         vol <- vol + mascaRet_get(id, 'State.VOL', i, 0, 0)
       }
-    } else vol <- NA
+    } else {
+      vol <- 0.
+      for (i in 2:nbnodes) {
+        dx <- mascaRet_get(id, 'Model.X', i, 0, 0) - mascaRet_get(id, 'Model.X', i-1, 0, 0)
+        sec <- mascaRet_get(id, 'State.S1', i-1, 0, 0) + mascaRet_get(id, 'State.S2', i-1, 0, 0) + mascaRet_get(id, 'State.S1', i, 0, 0) + mascaRet_get(id, 'State.S2', i, 0, 0)
+        vol <- vol + sec * dx * 0.5
+      }
+    }
   }
 
   # return with the error flag and hydraulic state
