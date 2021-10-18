@@ -22,13 +22,22 @@ mascaRet_hydro <- function(id) {
 
   # call MASCARET
   if (id > 0) {
+    # water level and flow values
     Address <- getNativeSymbolInfo("get_ligne_")$address
     Hydro <- .Fortran(Address, error, id, q, z)
     error <- Hydro[[1]]
     q <- Hydro[[3]]
     z <- Hydro[[4]]
+    # water volume
+    listexport <- mascaRet::mascaRet_get(id, "Model.PrintComp", 0, 0, 0)
+    if(listexport) {
+      vol <- 0.
+      for (i in 2:nbnodes) {
+        vol <- vol + mascaRet_get(id, 'State.VOL', i, 0, 0)
+      }
+    } else vol <- NA
   }
 
   # return with the error flag and hydraulic state
-  return(list(Error = as.logical(error), Q = q, Z = z))
+  return(list(Error = as.logical(error), Q = q, Z = z, VOL = vol))
 }
