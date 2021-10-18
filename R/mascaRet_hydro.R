@@ -2,7 +2,7 @@
 #' Get the hydraulic state (Discharges et Water levels for all the river)
 #'
 #' @param id : (integer, scalar) integer number identifying a MASCARET problem
-#' @return  (list) Error flag (logical) , Qi (real) , Zi (real)
+#' @return  (list) Error flag (logical) , Qi (real) , Zi (real), Volume (real scalar)
 #'
 #' @examples
 #' # HydroState <- mascaRet_hydro(mascId)
