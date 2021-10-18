@@ -45,11 +45,13 @@ mascaRet_import <- function(id, verbose, mascfile) {
       return(error)
     }
     if (!file.exists(listmasc[i])) {
-      message(paste("error from 'mascaRet_import': file", listmasc[i], "does not exist"))
-      return(error)
+      if(!(grepl('listing', ext)) & !(grepl('res', ext))) {
+        message(paste("error from 'mascaRet_import': file", listmasc[i], "does not exist"))
+        return(error)
+      }
     }
   }
-
+  
   # types of parameters
   id <- as.integer(id)
   verbose <- as.integer(verbose)
