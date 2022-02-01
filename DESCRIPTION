@@ -9,9 +9,9 @@ Authors@R: c(
 Author: Fabrice Zaoui [aut, cre]
 Maintainer: Fabrice Zaoui <fabrice.zaoui@edf.fr>
 License: GPL-3 | file LICENSE
-Description: 1D Shallow Water Code for sub-critical and super-critical flows
+Description: 1D Shallow Water Code for sub-critical and super-critical flows.
 NeedsCompilation: yes
-Suggests: markdown, knitr, plotly
+Suggests: markdown, rmarkdown, knitr, plotly
 URL: http://www.opentelemac.org
 BugReports:
 Encoding: UTF-8
