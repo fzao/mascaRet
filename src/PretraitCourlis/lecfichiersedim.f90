@@ -1,25 +1,25 @@
 Subroutine  LecFichierSedim    ( &
 
-    FichierSedim            , & ! Fichier contenant les donnees sédim. rel. à ch. couche + donnees concernant la stabilite des berges
-    NbCouche                , & ! Nb de couches sedimentaires
-    CoucheSed                , & ! variable contenant ttes les donnees rel. à ch. couche
-    Talus                    , & ! variable contenant ttes les donnees rel. aux talus
-    LimiteSable                , & ! % de sable à part. dql la couche est traitee suivant les lois du sable
-    CnuxV                    , & ! Coefficient de diffusion vases
-    CnuxS                   , & ! Coefficient de diffusion sables
-    !ConsConv                , & ! paramètres schéma de convection
-    Erreur                    )
+    FichierSedim               , & ! Fichier contenant les donnees sedim. rel. a ch. couche + donnees concernant la stabilite des berges
+    NbCouche                   , & ! Nb de couches sedimentaires
+    CoucheSed                  , & ! variable contenant ttes les donnees rel. a ch. couche
+    Talus                      , & ! variable contenant ttes les donnees rel. aux talus
+    LimiteSable                , & ! % de sable a part. dql la couche est traitee suivant les lois du sable
+    CnuxV                      , & ! Coefficient de diffusion vases
+    CnuxS                      , & ! Coefficient de diffusion sables
+    !ConsConv                   , & ! parametres schema de convection
+    Erreur                     )
 
 
 !*************************************************************************
-!  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL - M. Jodeau
+!  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL, M. JODEAU
 !
 !  VERSION : 5.1       08-2009        Copyright EDF-CETMEF
 !
 !*************************************************************************
 !=========================================================================
 !  Fonction : Lecture du fichier contenant les parametres des couches
-!  --------      sedimentaires constituant le lit du bief
+!  --------    sedimentaires constituant le lit du bief
 !
 !  Sous-programme appelant : LecParamSedim
 !  -----------------------
@@ -29,30 +29,29 @@ Subroutine  LecFichierSedim    ( &
 !
 !=========================================================================
 
-
 !=========================== Declarations ================================
 
-use M_PRECISION                ! Definition de la precision DOUBLE ou SIMPLE
-use M_CONSTANTES_CALCUL_C    ! Constantes num, phys et info
-use M_LIRE_CHAINE_S            ! lecture de lignes de commentaire du fichier
-use M_FICHIER_T                ! Definition du type FICHIER_T
-use M_COUCHE_T                ! Definition du type COUCHE_T
-use M_TALUS_T                ! Definition du type TALUS_T
-use M_CONSTANTES_TRACER_T ! paramètres schéma convection
+use M_PRECISION           ! Definition de la precision DOUBLE ou SIMPLE
+use M_CONSTANTES_CALCUL_C ! Constantes num, phys et info
+use M_LIRE_CHAINE_S       ! lecture de lignes de commentaire du fichier
+use M_FICHIER_T           ! Definition du type FICHIER_T
+use M_COUCHE_T            ! Definition du type COUCHE_T
+use M_TALUS_T             ! Definition du type TALUS_T
+use M_CONSTANTES_TRACER_T ! parametres schema convection
 
-use M_ERREUR_T                ! Definition du type ERREUR_T
-use M_MESSAGE_C                ! Messages d'erreur
-use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
+use M_ERREUR_T            ! Definition du type ERREUR_T
+use M_MESSAGE_C           ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 !.. Implicit Declarations ..
   implicit none
 
-! Variables d'entrée
+! Variables d'entree
   type(FICHIER_T)        , intent(in   ) :: FichierSedim
 
 ! Variables de sortie
-  integer                , intent(  out)    :: NbCouche
-  type(TALUS_T)            , intent(  out)    :: Talus
+  integer                 , intent(  out)    :: NbCouche
+  type(TALUS_T)           , intent(  out)    :: Talus
   real(DOUBLE)            , intent(  out)    :: LimiteSable
   real(DOUBLE)            , intent(  out)    :: CnuxV
   real(DOUBLE)            , intent(  out)    :: CnuxS
@@ -65,15 +64,13 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 
 ! Variables locales
   integer        :: UniteSedim        ! Unite du fichier de sedimentation a lire
-  character(72)    :: txt, DesignVar
-  integer        :: iCouche            ! indice de couche
-  integer       :: NumCouche        ! Numero de couche
+  character(72)  :: txt, DesignVar
+  integer        :: iCouche           ! indice de couche
+  integer        :: NumCouche         ! Numero de couche
 
-  character(LEN_CHAINE) :: chaine        ! Chaine contenant une ligne du fichier
+  character(LEN_CHAINE) :: chaine     ! Chaine contenant une ligne du fichier
 
-  character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui
-                                                        ! debute une ligne commentaire
-
+  character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui debute une ligne commentaire
 
 ! Traitement des erreurs
   integer         :: retour(8)        ! Code de retour de la fonction read
@@ -81,15 +78,13 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 !  character(132) :: arbredappel_old    ! ancien arbre  ! PU2017 : Mis en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
 
-
 !=========================================================================
 !   INITIALISATION
 !=========================================================================
 
   UniteSedim = FichierSedim%Unite
-  RETOUR0     = 0
+  RETOUR0    = 0
   RETOUR     = 0
-
 
 ! ===============================================================
 ! OUVERTURE DU FICHIER DE PARAMETRES
@@ -98,7 +93,6 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
   Erreur%Numero      = 0
 !  arbredappel_old    = trim(Erreur%arbredappel)  ! PU2017 : Mis en commentaire
   Erreur%arbredappel = trim(Erreur%arbredappel)//'=>LecFichierSedim'
-
 
 ! Ouverture du fichier
 ! --------------------
@@ -112,7 +106,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_3c
     call TRAITER_ERREUR (Erreur, trim(FichierSedim%Nom))
     return
-  End if
+  Endif
 
 
 !=========================================================================
@@ -129,13 +123,11 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 !
 ! les lignes 2 a 11 sont repetees autant de fois qu'il y a de couches
 
-
-
 !=========================================================================
 !    LECTURE DES COUCHES DE SEDIMENTS
 !=========================================================================
 
-! Lecture du nombre de couches de sédiments
+! Lecture du nombre de couches de sediments
 !---------------------------------------------------------------
   call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour0)
 
@@ -147,7 +139,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_411c
     call TRAITER_ERREUR (Erreur,'NCOUCHES(nombre de couches)')
     return
-  End if
+  Endif
 
 ! Verification sur le nombre de couche (on impose 0 < NbCouche < 8 )
 !-------------------------------------------------------------------
@@ -163,10 +155,10 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_408c
     call TRAITER_ERREUR (Erreur, 'Le nombre de couches', 'au maximum de 7.')
     return
-  End if
+  Endif
 
 
-! Allocation de memoire du tableau des couches de sédiments
+! Allocation de memoire du tableau des couches de sediments
 !----------------------------------------------------------
   allocate (CoucheSed(NbCouche), STAT = retour0)
   If (retour0 /= 0) Then
@@ -175,7 +167,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_5c
     call TRAITER_ERREUR (Erreur, 'CoucheSed')
     return
-  End if
+  Endif
 
 
 ! Boucle de lecture sur les couches de sediments
@@ -192,7 +184,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
       Erreur%ft_c = err_411c
       call TRAITER_ERREUR (Erreur, 'Numero de couche')
       return
-    End if
+    Endif
 
     ! Verification NumCouche <= Nbcouche
     If (NumCouche > NbCouche) Then
@@ -201,7 +193,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
       Erreur%ft_c = err_408c
       call TRAITER_ERREUR (Erreur, 'Le numero de la couche', '<= au nb de couches.')
       return
-    End if
+    Endif
 
     ! Lecture du nom de couche
     call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour(1))
@@ -213,7 +205,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 
     ! Lecture du pourcentage de sable
     call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour(3))
-        read(chaine,*, iostat = retour(3)) DesignVar, CoucheSed(NumCouche)%Psable
+    read(chaine,*, iostat = retour(3)) DesignVar, CoucheSed(NumCouche)%Psable
 
     ! Lecture du diametre moyen du sable
     call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour(4))
@@ -244,10 +236,11 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
       Erreur%Numero = 411
       Erreur%ft   = err_411
       Erreur%ft_c = err_411c
-      write(txt,'(a,i3,a)') 'parametres de couche de sediments (couche n0 ',NumCouche,')'
+      write(txt,'(a,i3,a)') 'parametres de couche de sediments &
+                            &(couche n0 ',NumCouche,')'
       call TRAITER_ERREUR (Erreur, trim(txt))
       return
-    End if
+    Endif
 
     ! Lecture de la vitesse de chute et de la Contrainte critique de depot des vases,
     ! pour la 1ere couche seulement
@@ -270,11 +263,10 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
         Erreur%ft_c = err_411c
         call TRAITER_ERREUR (Erreur, 'Contrainte critique de depot des vases')
         return
-      End if
-    End if
+      Endif
+    Endif
 
-  End do
-
+  Enddo
 
 !=========================================================================
 ! LECTURE DU POURCENTAGE CRITIQUE DE SABLE
@@ -292,8 +284,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_411c
     call TRAITER_ERREUR (Erreur,'Pourcentage limite de sable')
     return
-  End if
-
+  Endif
 
 !=========================================================================
 ! LECTURE DES PARAMETRES DES BERGES (ou TALUS)
@@ -320,7 +311,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_411c
     call TRAITER_ERREUR (Erreur,'Modele ou une des pentes de stabilite de talus')
     return
-  End if
+  Endif
 
 ! Allocation de memoire du tableau des talus
 !-------------------------------------------
@@ -331,7 +322,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_5c
     call TRAITER_ERREUR (Erreur, 'CoucheSed')
     return
-  End if
+  Endif
 
 ! Coef de resistance residuelle et poids volumiques (eau et sediments)
 !---------------------------------------------------------------------
@@ -351,8 +342,10 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
 
     ! Poids volumique des sediments
     Do iCouche = 1, NbCouche
-      call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour(iCouche+3))
-      read(chaine,*, iostat = retour(iCouche+3)) DesignVar, Talus%Gamma(iCouche)
+      call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, &
+                          retour(iCouche+3))
+      read(chaine,*, iostat = retour(iCouche+3)) DesignVar, &
+                                                 Talus%Gamma(iCouche)
     End do
 
     ! Message si erreur de lecture
@@ -362,7 +355,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
       Erreur%ft_c = err_411c
       call TRAITER_ERREUR (Erreur,'Coefficient ou poids volumique de talus')
       return
-    End if
+    Endif
 
   Else
     ! Cas d'un modele de talus autre que le glissement
@@ -379,9 +372,9 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Talus%GammaW = 0.
     Do iCouche = 1, NbCouche
       Talus%Gamma(iCouche) = 0.
-    End do
+    Enddo
 
-  End if
+  Endif
 
 !=========================================================================
 ! LECTURE DES COEFFICIENTs DE DIFFUSION
@@ -396,7 +389,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_411c
     call TRAITER_ERREUR (Erreur,'Coefficient de diffusion')
     return
-  End if
+  Endif
 
   call LIRE_CHAINE_S (chaine, FichierSedim, CHAINE_COMMENTAIRE, retour0)
   read(chaine,*, iostat = retour0) DesignVar, CnuxS
@@ -407,7 +400,7 @@ use M_TRAITER_ERREUR_I        ! Traitement de l'errreur
     Erreur%ft_c = err_411c
     call TRAITER_ERREUR (Erreur,'Coefficient de diffusion')
     return
-  End if
+  Endif
 
 !=========================================================================
 ! LECTURE DES PARAMETRES DU SCHEMA DE CONVECTION

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_LEC_FROTTEMENT_I
 !***********************************************************************
 ! PROGICIEL : MASCARET       S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -93,7 +93,7 @@ module M_LEC_FROTTEMENT_I
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab1(:),rtab2(:),rtab3(:),rtab4(:)
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    !character(132) :: !arbredappel_old
 
    end subroutine LEC_FROTTEMENT

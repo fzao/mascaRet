@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET-TRACER.
 !
@@ -31,7 +31,7 @@ subroutine LEC_LOI_TRACER( &
 ! PROGICIEL : TRACER         M. LUCK
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !*****************************************************************************
 !  Fonction : Lecture des lois temporelles d'evolution de concentration
 !  --------    (pour CL et apports)
@@ -75,7 +75,7 @@ subroutine LEC_LOI_TRACER( &
    integer :: unite_temps           ! unite de temps des lois entres par clavier
    character(132) :: arbredappel_old
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    ! Traitement des erreurs
    type(ERREUR_T), intent(inout) :: Erreur
 

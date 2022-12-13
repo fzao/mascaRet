@@ -1,12 +1,13 @@
 MODULE M_PERSAR_I_B
   IMPLICIT NONE
 
-  INTERFACE 
+  INTERFACE
       SUBROUTINE PERSAR_B(z, zb, q, qb, x, zref, cf1, cf1b, cf2, cf2b, &
 &       pcsing, pcsingb, idt, xdt, profil, profilplan, f1, qinjec, &
 &       qinjecb, connect, singularite, extremite, &
 &       modelelit, confluent, abaque, impression, unitelisting, temps, &
-&       algorithme, loifrottement, pertechargeconfluent, cqmv, erreur)
+&       algorithme, loifrottement, pertechargeconfluent, cqmv, &
+&       decentrement, erreur)
 ! **********************************************************************
 !
 !   FONCTION :
@@ -65,7 +66,7 @@ MODULE M_PERSAR_I_B
 !   ------------------------
 !   SOUS PROGRAMME APPELANT :  SARAP
 !   -------------------------
-!   SOUS PROGRAMMES APPELES : 
+!   SOUS PROGRAMMES APPELES :
 !   -------------------------
 !
 !   - PERMAT :  SOUS-PROGRAMME DU CALCUL DE LA LIGNE D'EAU
@@ -146,6 +147,7 @@ MODULE M_PERSAR_I_B
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: cqmv
         LOGICAL, INTENT(IN) :: pertechargeconfluent
+        LOGICAL, INTENT(IN) :: decentrement
         TYPE(ERREUR_T), INTENT(INOUT) :: erreur
       END SUBROUTINE PERSAR_B
   END INTERFACE

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -277,7 +277,7 @@ SUBROUTINE PSING_D(zam, zamd, singularite, zref, zav, zavd&
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !  FONCTION :
@@ -971,7 +971,7 @@ END SUBROUTINE CRITIQ_D
 SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 & , cf2d, pcsing, pcsingd, idt, xdt, profil, profilplan, f1, connect, &
 & numbief, nbsect, singularite, modelelit, impression, &
-& unitelisting, temps, loifrottement, cqmv, erreur)
+& unitelisting, temps, loifrottement, cqmv, decentrement, erreur)
 !/ERREUR/)
 ! *********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE
@@ -979,7 +979,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION :
 !   --------
@@ -1132,6 +1132,7 @@ SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, cf1d, cf2&
   INTEGER, INTENT(IN) :: loifrottement
   INTEGER, INTENT(IN) :: nbsect
   INTEGER, INTENT(IN) :: cqmv
+  LOGICAL, INTENT(IN) :: decentrement
   TYPE(ERREUR_T), INTENT(INOUT) :: erreur
 !.. Constantes ..
 !----------------
@@ -2179,7 +2180,7 @@ SUBROUTINE CALC_PC_CONFLU_D(pcsing, pcsingd, z, zd, q, qd, x, zref, &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !============================== Instructions ================================
   USE M_PRECISION
@@ -3345,7 +3346,7 @@ SUBROUTINE PERSAR_D(z, zd, q, qd, x, zref, cf1, cf1d, cf2, cf2d, pcsing&
 & , pcsingd, idt, xdt, profil, profilplan, f1, qinjec, connect, &
 & singularite, extremite, modelelit, confluent, abaque, &
 & impression, unitelisting, temps, algorithme, loifrottement, &
-& pertechargeconfluent, cqmv, erreur)
+& pertechargeconfluent, cqmv, decentrement, erreur)
 !
 !.. Modules importes ..
 !----------------------
@@ -3409,6 +3410,7 @@ SUBROUTINE PERSAR_D(z, zd, q, qd, x, zref, cf1, cf1d, cf2, cf2d, pcsing&
   INTEGER, INTENT(IN) :: loifrottement
   LOGICAL, INTENT(IN) :: pertechargeconfluent
   INTEGER, INTENT(IN) :: cqmv
+  LOGICAL, INTENT(IN) :: decentrement
   TYPE(ERREUR_T), INTENT(INOUT) :: erreur
 !.. Constantes ..
 !----------------
@@ -3563,7 +3565,8 @@ label_ia:DO WHILE (ia .LT. nappel)
 &                 , cf2, cf2d, pcsing, pcsingd, idt, xdt, profil, &
 &                 profilplan, f1, connect, noeud_bief, nbsect, &
 &                 singularite, modelelit, impression, &
-&                 unitelisting, temps, loifrottement, cqmv, erreur)
+&                 unitelisting, temps, loifrottement, cqmv, decentrement, &
+&                 erreur)
 !Erreur
           IF (erreur%numero .NE. 0) GOTO 210
         CASE (appel_qnode_1er_pass)
@@ -3671,13 +3674,14 @@ SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, b2d, bs&
 & extremite, apport, qinjec, qdeverse, temps, profil, profilplan, f1, x&
 & , cf1, cf1d, cf2, cf2d, zref, xdt, idt, connect, singularite, pcsing, &
 & pcsingd, deversoir, modelelit, confluent, abaque, algorithme, impression,&
-& unitelisting, loifrottement, pertechargeconfluent, cqmv, erreur)
+& unitelisting, loifrottement, pertechargeconfluent, cqmv, decentrement, &
+& erreur)
 ! *********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 ! FONCTION :                                                          .
 ! .          CALCUL EN REGIME PERMANENT A L'AIDE DU CODE SARA         .
@@ -3770,6 +3774,7 @@ SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, b2d, bs&
   INTEGER, INTENT(IN) :: unitelisting
   INTEGER, INTENT(IN) :: loifrottement, cqmv
   LOGICAL, INTENT(IN) :: pertechargeconfluent
+  LOGICAL, INTENT(IN) :: decentrement
 ! Temps
   DOUBLE PRECISION, INTENT(IN) :: temps
 ! Deversoirs
@@ -3824,7 +3829,7 @@ SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, b2d, bs&
 &            , singularite, extremite, modelelit, &
 &            confluent, abaque, impression, unitelisting, temps, &
 &            algorithme, loifrottement, pertechargeconfluent, cqmv, &
-&            erreur)
+&            decentrement, erreur)
   IF (erreur%numero .NE. 0) THEN
     RETURN
   ELSE
@@ -3989,7 +3994,7 @@ SUBROUTINE DIFF_Z_CF12_FWD_SARAP(diff_z_fwd, dcf1_fwd, dcf2_fwd)
 &              , idt, connect, singularite, pcsing&
 &              , diff_pcsing, deversoir, modelelit, confluent, &
 &              abaque, algorithme, impressioncalcul, fichierlisting%unite, &
-&              loifrottement, pertechargeconfluent, cqmv, erreur)
+&              loifrottement, pertechargeconfluent, cqmv, decentrement, erreur)
 
 
   DEALLOCATE(z)

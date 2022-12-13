@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -19,7 +19,7 @@
 ! *********************************************************************
 ! PROGICIEL : MASCARET       J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
    !.................................................................................................................................
    ! Calcul d'un nouvel etat au "TpsFinal" en utilisant le modele courant et l'etat precedent
@@ -485,7 +485,6 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
       Modele%Liaisons(i)%CaracRC%DQDZcasier  = Etat%Liaisons(i)%DQDZcasier
       Modele%Liaisons(i)%CaracRC%DQDZriviere = Etat%Liaisons(i)%DQDZriviere
     END DO
-
   end if !endif (Modele%OptionCasier)
 
   !==========================================================================
@@ -781,6 +780,7 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
          Modele%LoiFrottement       , & ! Type de lois de frottement utilisee
          Modele%PerteChargeConfluent, & ! Flag de perte de charge auto aux confluents
          Modele%CQMV          , & ! qmv des debits d'apports
+         Modele%decentrement  , & ! option decentrement
          Erreur                & ! Erreur
               )
 
@@ -1315,6 +1315,7 @@ subroutine CALCUL_MASCARET(RetourErreur, Identifiant, TpsInitial, TpsFinal, PasT
             Etat%Tracer%BT_ANT(:) = Etat%Tracer%BT(:)
          endif
 
+         Modele%Tracer%DT_Trac = Etat%DT * dble(Modele%Tracer%FreqCouplage)
          call TRACER (                            &
             Etat%Tracer%CTraceur                , & ! Concentrations en traceurs
             Etat%Tracer%QT                      , & ! Debit,

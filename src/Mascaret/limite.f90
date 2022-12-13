@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -51,7 +51,7 @@ subroutine LIMITE( &
 !***********************************************************************
 ! PROGICIEL : MASCARET        N. GOUTAL           F. LEPEINTRE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 !
 !  FONCTION :
@@ -271,14 +271,14 @@ subroutine LIMITE( &
 
             end do
 
-            S1 = S0 
+            S1 = S0
             Y1 = CSURM1( S1 , DZ(NO) , SGEO(NO,:) , Erreur )
             Q1 = QFIX
 
          else
             ! ***                 COTE IMPOSEE
             NO = IS
-            Y1 = YFIX 
+            Y1 = YFIX
             S1 = CSUR( NO , YFIX , DZ , SGEO , NMLARG , Erreur )
             Q1 = S1 * FM + S1 * AKIV( NO , S1 , AKGEO , SGEO , NMLARG , Erreur )
          endif
@@ -311,7 +311,7 @@ subroutine LIMITE( &
             Erreur%numero = 1
             return
          endif
-		 
+
       else label_froude
          !                            XXXX
          !                      -----------
@@ -643,6 +643,23 @@ subroutine LIMITE( &
          NSECG = IS - NVAL
          NSECD = IS
          INDIC = 0
+
+         do I = NSECG , NSECD
+            call FROTTE ( &
+                  FRNODE(I) , &
+                          I , &
+                   SNODE(I) , &
+                   QNODE(I) , &
+                     DEBGEO , &
+                       SGEO , &
+                     NMLARG , &
+                     Erreur )
+            if( Erreur%Numero /= 0 ) then
+               return
+            endif
+
+         end do
+
          call CARAC  ( &
              QP     , &
              INDIC  , &

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -19,7 +19,7 @@
 ! *********************************************************************
 ! PROGICIEL : MASCARET       J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
    !.................................................................................................................................
    ! Retourne la version courante de Mascaret
@@ -31,7 +31,7 @@
         integer, intent(out) :: Micro   ! Numero de la version Micro de Mascaret
 
         Majeur = 8
-        Mineur = 2
+        Mineur = 4
         Micro  = 0
 
     end subroutine VERSION_MASCARET

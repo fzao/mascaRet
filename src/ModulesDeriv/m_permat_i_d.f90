@@ -1,11 +1,11 @@
 MODULE M_PERMAT_I_D
   IMPLICIT NONE
-  INTERFACE 
+  INTERFACE
       SUBROUTINE PERMAT_D(z, zd, q, qd, zinit, zinitd, x, zref, cf1, &
 &       cf1d, cf2, cf2d, pcsing, pcsingd, idt, xdt, profil, profilplan, &
 &       f1, connect, numbief, nbsect, singularite, &
-&       modelelit, impression, unitelisting, temps, loifrottement, cqmv&
-&       , erreur)
+&       modelelit, impression, unitelisting, temps, loifrottement, &
+&       cqmv, decentrement, erreur)
 !
 !============================= Declarations ===========================
 !.. Modules importes ..
@@ -79,6 +79,7 @@ MODULE M_PERMAT_I_D
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: nbsect
         INTEGER, INTENT(IN) :: cqmv
+        LOGICAL, INTENT(IN) :: decentrement
         TYPE(ERREUR_T), INTENT(INOUT) :: erreur
       END SUBROUTINE PERMAT_D
   END INTERFACE

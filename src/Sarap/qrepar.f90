@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -46,7 +46,7 @@ subroutine QREPAR (   &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !   FONCTION :
@@ -147,7 +147,7 @@ subroutine QREPAR (   &
    integer            ,                 intent(in   ) :: NumConfluence
    type(CONNECT_T)    ,                 intent(in)    :: Connect
    integer            ,                 intent(in   ) :: ModeleLit
-   real(DOUBLE)       ,                 intent(  out) :: Epsil
+   real(DOUBLE)       ,                 intent(inout) :: Epsil
    real(DOUBLE)       , dimension(:)  , intent(  out) :: DZPREV
    integer            ,                 intent(in   ) :: UniteListing
    integer                            , intent(in)    :: LoiFrottement

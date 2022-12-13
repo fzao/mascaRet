@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_PRETRAIT_INTERFACE_I
 !***********************************************************************
 ! PROGICIEL : MASCARET        J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 
 interface
@@ -74,6 +74,7 @@ subroutine  PRETRAIT_INTERFACE                             ( &
   FichierListingCasier ,&
   FichierListingLiaison,&
   FichierGeomCasier,    &
+  decentrement, &
   Erreur, &
   FichiersLois, Impression )
 
@@ -151,6 +152,7 @@ use M_XCAS_S
   logical        , intent(  out) :: OptionCourlis
   type(FICHIER_T), intent(  out) :: FichierMotCleCourlis
   Type(FICHIER_T), intent(  out) :: FichierDicoCourlis
+  logical        , intent(  out) :: decentrement
   logical        , intent(  out) :: OndeSubm
   logical        , intent(  out) :: CalculValidation
   logical        , intent(  out) :: PerteChargeConfluent
@@ -244,10 +246,6 @@ use M_XCAS_S
 
   type(ZONE_SECHE_T), dimension(:), pointer      :: ZoneSeche
   type(ZONE_FROT_T) , dimension(:), pointer      :: ZoneFrot
-
-! Utilisation Cray
-
-  logical                                        :: UtilisationCray
 
 ! Impressions - resultats
 

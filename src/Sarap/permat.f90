@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -40,6 +40,7 @@ subroutine PERMAT ( &
      Temps        , & ! Temps
      LoiFrottement, & ! Loi de frottement
      CQMV         , & ! apport de debit dans la quantite de mvt
+     decentrement , & ! option decentrement
      Erreur         ) !/ERREUR/)
 
 ! *********************************************************************
@@ -48,7 +49,7 @@ subroutine PERMAT ( &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION :
 !   --------
@@ -184,6 +185,7 @@ subroutine PERMAT ( &
    integer            ,                 intent(in)    :: LoiFrottement
    integer            ,                 intent(in)    :: Nbsect
    integer             ,                intent(in)    :: CQMV
+   logical            ,                 intent(in)    :: decentrement
    type(ERREUR_T)     ,                 intent(inout) :: Erreur
    !.. Constantes ..
    !----------------
@@ -275,7 +277,29 @@ subroutine PERMAT ( &
    izone = 0
    Z(J)  = ZINIT
    ZAM1  = ZINIT
-
+   !
+   ! INITIALISATION DE LA VALEUR CRITIQUE AU POINT J
+   ! C. Coulet (Artelia) : Lors du calcul entre J-1 et J, 
+   !    on a potentiellement un appel à ZC(J) qui peut ne pas être calculé
+   ! ------------------------------------
+   call CRITIQ (      &
+       ZCRIT        , & ! /RESULTATS/
+       J            , & ! /DONNEES NON MODIFIEES/
+       ZREF         , &
+       Q(J)         , & ! /DONNEES NON MODIFIEES
+       CF1(J)       , & !  (ARGUMENTS DE S.P APPELES)/
+       CF2(J)       , &
+       IDT          , &
+       XDT          , &
+       Profil       , &
+       ProfilPlan   , &
+       ModeleLit    , &
+       LoiFrottement, &
+       UniteListing , &
+       Erreur         & ! Erreur
+       )
+   ZC(J) = ZCRIT
+   !
    ! 1ER  TEST SUR LA CONDITION AVAL DU BIEF :
    ! COHERENCE AVEC LA COTE DES FONDS A L'AVAL
    ! -----------------------------------------
@@ -479,7 +503,11 @@ subroutine PERMAT ( &
    endif
 
    SC     = SS1 + SS2
-   JAVC   = Q(J)**2 / ( 0.5_DOUBLE * ( DEBAV**2 + DEBC**2 ) )
+   if (decentrement) then
+     JAVC   = Q(J)**2 / (DEBC**2 )
+   else
+     JAVC   = Q(J)**2 / ( 0.5_DOUBLE * ( DEBAV**2 + DEBC**2 ) )
+   endif
    JAVC   = sign(JAVC, Q(J))
    VC2    = VC**2
    HC     = ZCRIT + 0.5_DOUBLE * BETAC * VC2 / GPES
@@ -609,7 +637,11 @@ subroutine PERMAT ( &
       endif
 
       SAM   = SS1 + SS2
-      JAVAM = sign(Q(J)**2, Q(J)) / ( 0.5_DOUBLE * ( DEBAV**2 + DEBAM**2 ) )
+      if (decentrement) then
+        JAVAM = sign(Q(J)**2, Q(J)) / ( DEBAM**2 )
+      else
+        JAVAM = sign(Q(J)**2, Q(J)) / ( 0.5_DOUBLE * ( DEBAV**2 + DEBAM**2 ) )
+      endif
       VAM2  = VAM**2
 
       !---------------------

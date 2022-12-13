@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET-TRACER.
 !
@@ -32,7 +32,7 @@ subroutine LEC_CONC_INI_TRACER_INTERFACE( &
 ! PROGICIEL : TRACER         S.MANDELKERN - M. LUCK
 !!                           F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 !
 !  FONCTION : LECTURE DU FICHIER DES CONCENTRATIONS INITIALES

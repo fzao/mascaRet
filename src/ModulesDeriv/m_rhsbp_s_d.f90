@@ -11,7 +11,7 @@ CONTAINS
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0             EDF-CEREMA
+! VERSION : V8P4R0             EDF-CEREMA
 !***********************************************************************
 !   FONCTION :
 !   --------
@@ -201,7 +201,7 @@ CONTAINS
 !***********************************************************************
 ! PROGICIEL : MASCARET      S. MANDELKERN
 !
-! VERSION : V8P2R0             EDF-CEREMA
+! VERSION : V8P4R0             EDF-CEREMA
 !***********************************************************************
 !
 !  FONCTION :

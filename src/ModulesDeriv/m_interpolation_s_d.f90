@@ -6,7 +6,7 @@ MODULE M_INTERPOLATION_S_D
 !                             P. CHERUBINI
 !                             S. PERON
 !                             S. MANDELKERN
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 !
 !----------------------------------------------------------

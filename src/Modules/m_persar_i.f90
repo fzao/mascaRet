@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -22,7 +22,7 @@ module M_PERSAR_I
 !                              P.CHERUBINI
 !                              S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -38,7 +38,7 @@ module M_PERSAR_I
                        XDT , &
                     Profil , &
                 ProfilPlan , &
-                        F1 , & 
+                        F1 , &
                     QInjec , &
                    Connect , &
                Singularite , &
@@ -52,7 +52,8 @@ module M_PERSAR_I
                 Algorithme , &
              LoiFrottement , & ! Loi de frottement
       PerteChargeConfluent , & ! Perte de charge automatique aux confluents
-                      CQMV , & ! Apport de debit quantite de mvt 
+                      CQMV , & ! Apport de debit quantite de mvt
+              decentrement , &
                     Erreur & !/Erreur/
                         )
 
@@ -114,7 +115,7 @@ module M_PERSAR_I
    !   ------------------------
    !   SOUS PROGRAMME APPELANT :  SARAP
    !   -------------------------
-   !   SOUS PROGRAMMES APPELES : 
+   !   SOUS PROGRAMMES APPELES :
    !   -------------------------
    !
    !   - PERMAT :  SOUS-PROGRAMME DU CALCUL DE LA LIGNE D'EAU
@@ -181,8 +182,9 @@ module M_PERSAR_I
    real(DOUBLE)                       , intent(in)    :: Temps
    integer            , dimension(:)  , intent(in)    :: Algorithme
    integer                            , intent(in)    :: LoiFrottement
-   integer                            , intent(in)    :: CQMV 
+   integer                            , intent(in)    :: CQMV
    logical                            , intent(in)    :: PerteChargeConfluent
+   logical                            , intent(in)    :: decentrement
    type(ERREUR_T)                     , intent(inout) :: Erreur
 
    end subroutine PERSAR

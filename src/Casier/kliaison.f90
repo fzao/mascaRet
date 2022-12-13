@@ -34,7 +34,7 @@ subroutine  KLIAISON                    ( &
 ! *********************************************************************
 ! PROGICIEL : MASCARET      S. DELMAS    C. COULET
 !
-! VERSION : V8P2R0         EDF-CEREMA-ARTELIA
+! VERSION : V8P4R0         EDF-CEREMA-ARTELIA
 ! *********************************************************************
 !   FONCTION :
 !   --------

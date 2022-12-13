@@ -4,14 +4,13 @@ Interface
 
 Subroutine  EcrFicGeom  (  &
 
-  FicResuGeom      ,  & ! Fichier de la geometrie finale
-  NbProfil      ,  & ! nombre de profils
-  ProfilCourlis    ,  & ! Profils sédimentaire
-  NbInterface      ,  & ! nombre de d'interfaces sédimentaires
-  TitreCas      ,  & ! Titre du cas de calcul
-  Temps        ,  & ! Temps du calcul
-    Erreur        )    ! Erreur
-
+    FicResuGeom    ,  & ! Fichier de la geometrie finale
+    NbProfil       ,  & ! nombre de profils
+    ProfilCourlis  ,  & ! Profils sedimentaire
+    NbInterface    ,  & ! nombre de d'interfaces sedimentaires
+    TitreCas       ,  & ! Titre du cas de calcul
+    Temps          ,  & ! Temps du calcul
+    Erreur         )    ! Erreur
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -20,10 +19,10 @@ Subroutine  EcrFicGeom  (  &
 !
 !*************************************************************************
 !=========================================================================
-!  Fonction : Ecriture du fichier contenant es profils geometriques
-!  --------    des differentes interfaces sedimentaires à la fin du calcul
-!        Ce fichier sert de geometrie initiale dans le cas d'une
-!        suite de calcul
+!  Fonction : Ecriture du fichier contenant des profils geometriques
+!  --------    des differentes interfaces sedimentaires a la fin du calcul
+!             Ce fichier sert de geometrie initiale dans le cas d'une
+!              suite de calcul
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
@@ -33,7 +32,7 @@ Subroutine  EcrFicGeom  (  &
 !=========================================================================
 !  Commentaire : Description du fichier :
 !  -----------
-!    Ligne 1 :  MOT_CLE, NomBief, NomProfil, abscisse profil.
+!   Ligne 1 :  MOT_CLE, NomBief, NomProfil, abscisse profil.
 !        sans blanc dans les noms : le blanc est le caractere separateur
 !        Ex : <MOT_CLE bief1 profil1 340.3>
 !
@@ -51,16 +50,16 @@ Subroutine  EcrFicGeom  (  &
 !   DECLARATIONS
 !=========================================================================
 
-use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PRECISION            ! Definition de la precision DOUBLE ou SIMPLE
 use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
-use M_PARAMETRE_C      ! Definition des constante tq EPS*, W0, ...
+use M_PARAMETRE_C          ! Definition des constante tq EPS*, W0, ...
 
-use M_FICHIER_T        ! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
+use M_FICHIER_T            ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T     ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T        ! Definition du type ERREUR_T
-use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_ERREUR_T             ! Definition du type ERREUR_T
+use M_MESSAGE_C            ! Messages d'erreur
+use M_TRAITER_ERREUR_I     ! Traitement de l'errreur
 
 !=========================================================================
 
@@ -70,7 +69,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 ! Constantes
   integer, parameter    :: LEN_CHAINE  = 80
 
-! Variables d'entrée
+! Variables d'entree
   type(FICHIER_T), intent(in   ) :: FicResuGeom
 
   integer, intent(in   ) :: NbProfil
@@ -79,19 +78,17 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   type(PROFIL_COURLIS_T), dimension(:  ), intent(in   ) :: ProfilCourlis
 
   character(LEN_CHAINE), intent(in   ) :: TitreCas
-  real(DOUBLE),       intent(in   ) :: Temps
+  real(DOUBLE),          intent(in   ) :: Temps
 
 ! Variables de sortie
 
 ! Variables locales
-! PU2017 : Mise en commentaire des var loc
-!  integer :: i,j,k       ! Compteurs
-!  integer :: Unite       ! Unite du fichier de sedimentation a ecrire
+  integer :: i,j,k       ! Compteurs
+  integer :: Unite       ! Unite du fichier de sedimentation a ecrire
 
 ! Traitement des erreurs
-! PU2017 : Mise en commentaire des var loc pour traitement erreur
-!  integer        :: retour       ! code de retour des fonctions d'e/s
-!  character(132) :: arbredappel_old   ! ancien arbre
+  integer        :: retour       ! code de retour des fonctions d'e/s
+!  character(132) :: arbredappel_old   ! ancien arbre  ! PU2017 : Mise en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
 
 !=========================================================================

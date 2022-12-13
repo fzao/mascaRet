@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,11 +20,11 @@ module M_DIRECT_I
 !***********************************************************************
 ! PROGICIEL : MASCARET       A. LEBOSSE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
-   SUBROUTINE DIRECT( & 
+   SUBROUTINE DIRECT( &
               FCOUTI , &
                Z_CAL , &   ! Variables propres au calage
                    Z , &   ! Cote de la surface libre
@@ -32,7 +32,7 @@ module M_DIRECT_I
               Qinjec , &   ! Qinjecte
               PCSing , &   ! Pertes de charge singulieres
                ZINIT , &
-                  ic   &   ! Numero de la crue   
+                  ic   &   ! Numero de la crue
                )
 
 ! *********************************************************************
@@ -126,7 +126,7 @@ module M_DIRECT_I
    real(DOUBLE)  , dimension(:) ,      intent(inout)  :: Z_cal
    real(DOUBLE)                 ,      intent(inout)  :: FCOUTI
 
- 
+
    end subroutine DIRECT
 
    end interface

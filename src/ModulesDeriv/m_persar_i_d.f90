@@ -1,10 +1,10 @@
 MODULE M_PERSAR_I_D
-  INTERFACE 
+  INTERFACE
       SUBROUTINE PERSAR_D(z, zd, q, qd, x, zref, cf1, cf1d, cf2, cf2d, &
 &       pcsing, pcsingd, idt, xdt, profil, profilplan, f1, qinjec, &
 &       connect, singularite, extremite, modelelit, &
 &       confluent, abaque, impression, unitelisting, temps, algorithme, &
-&       loifrottement, pertechargeconfluent, cqmv, erreur)
+&       loifrottement, pertechargeconfluent, cqmv, decentrement, erreur)
         USE M_PRECISION
         USE M_MESSAGE_C
         USE M_CONFLUENT_T
@@ -51,6 +51,7 @@ MODULE M_PERSAR_I_D
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: cqmv
         LOGICAL, INTENT(IN) :: pertechargeconfluent
+        LOGICAL, INTENT(IN) :: decentrement
         TYPE(ERREUR_T), INTENT(INOUT) :: erreur
       END SUBROUTINE PERSAR_D
   END INTERFACE

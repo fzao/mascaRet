@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -75,7 +75,7 @@ subroutine  REZO    ( &
 !                             F. ZAOUI
 !                             S. DELMAS       C. COULET
 !
-! VERSION : V8P2R0               EDF-CEREMA-ARTELIA
+! VERSION : V8P4R0               EDF-CEREMA-ARTELIA
 ! *********************************************************************
 ! FONCTION :
 !
@@ -188,9 +188,9 @@ subroutine  REZO    ( &
    real(DOUBLE)        , dimension(:), pointer       :: DPDZ1, DPDZ2
    ! Casier
    logical                           , intent(in   ) :: OptionCasier
-   type(CASIER_T)       , dimension(:)  , intent(inout) :: Casier
+   type(CASIER_T)       , dimension(:)  , pointer, intent(inout) :: Casier
    type(LIAISON_T)      , dimension(:)  , pointer , intent(inout) :: Liaison
-   type(APPORT_PLUIE_T ), dimension(:)  , intent(in   ) :: ApportPluie
+   type(APPORT_PLUIE_T ), dimension(:)  , pointer, intent(inout   ) :: ApportPluie
    ! Flag calcul particulier
    logical                           , intent(in   ) :: NoConvection
    integer                           , intent(in   ) :: CQMV

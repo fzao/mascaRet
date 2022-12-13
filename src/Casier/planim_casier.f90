@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -21,7 +21,7 @@ subroutine PLANIM_CASIER( Casier , Icasier , Option , Erreur )
 ! ******************************************************************
 ! PROGICIEL : MASCARET                     C. RISSOAN
 !
-! VERSION : V8P2R0                  EDF-CEREMA
+! VERSION : V8P4R0                  EDF-CEREMA
 !
 ! PLANIMETRAGE AUTOMATIQUE DE LA VARIABLE CASIER
 ! ******************************************************************

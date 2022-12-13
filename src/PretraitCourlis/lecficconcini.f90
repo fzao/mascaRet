@@ -1,12 +1,10 @@
 Subroutine  LecFicConcIni( &
 
-  FicCMESIni       , & ! Fichier des concentrations de sable et vase presentes initialement dans le bief
-  OptionCourlis     , & ! commutateur : VRAI si calcul COURLIS de sediments
-  AbscIni         , & ! Abscisse curviligne ou sont donnees les valeurs de concentration initiale
-  Traceurs       , & ! Concentr. initiale des traceurs
-    Erreur           & ! Erreur
-                 )
-
+    FicCMESIni     , & ! Fichier des concentrations de sable et vase presentes initialement dans le bief
+    OptionCourlis  , & ! commutateur : VRAI si calcul COURLIS de sediments
+    AbscIni        , & ! Abscisse curviligne ou sont donnees les valeurs de concentration initiale
+    Traceurs       , & ! Concentr. initiale des traceurs
+    Erreur         )   ! Erreur
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
@@ -27,7 +25,7 @@ Subroutine  LecFicConcIni( &
 !=========================================================================
 !   Commentaires :
 !   ------------
-!  !!!!!!!  CE SOUS-PROGRAMME POURRA ETRE UTILISE ULTERIEUREMENT POUR
+!   !!!!!!!  CE SOUS-PROGRAMME POURRA ETRE UTILISE ULTERIEUREMENT POUR
 !   !!!!!!!                   LA LECTURE DES TRACEURS.
 !   !!!!!!!
 !   !!!!!!!             IL RESTE CEPENDANT A PROGRAMMER
@@ -40,28 +38,25 @@ Subroutine  LecFicConcIni( &
 !   DECLARATIONS
 !=========================================================================
 
-use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PRECISION            ! Definition de la precision DOUBLE ou SIMPLE
 use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
-use M_LIRE_CHAINE_S      ! Lecture de lignes de commentaire du fichier
-use M_OPT2FORT_I      ! Interface de sous-programme
-use M_FICHIER_T        ! Definition du type FICHIER_T
+use M_LIRE_CHAINE_S        ! Lecture de lignes de commentaire du fichier
+use M_OPT2FORT_I           ! Interface de sous-programme
+use M_FICHIER_T            ! Definition du type FICHIER_T
 
-
-use M_ERREUR_T        ! Definition du type ERREUR_T
-use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
-
+use M_ERREUR_T             ! Definition du type ERREUR_T
+use M_MESSAGE_C            ! Messages d'erreur
+use M_TRAITER_ERREUR_I     ! Traitement de l'errreur
 
 !.. Implicit Declarations ..
   implicit none
 
 ! Constantes
-  integer, parameter    :: LEN_CHAINE      = 80
-  character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui
-                            ! debute une ligne commentaire
+  integer     , parameter :: LEN_CHAINE         = 80
+  character(1), parameter :: CHAINE_COMMENTAIRE = "#" ! Caractere commentaire qui debute une ligne commentaire
 
-! Variables d'entrée
-  type(FICHIER_T)       , intent(in) :: FicCMESIni
+! Variables d'entree
+  type(FICHIER_T)   , intent(in) :: FicCMESIni
   logical           , intent(in) :: OptionCourlis
 
 ! Variables de sortie
@@ -69,29 +64,29 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   real(DOUBLE), dimension(:,:), pointer :: Traceurs
 
 ! Variables locales
-!  integer  :: ModeMESIni    ! Mode d'entree de la concentration initiale de vase  ! PU2017 : Mise en commentaire
-  integer  :: NbPtsConcIni    ! Nombre de points devrivant les concentrations initiales
-  integer  :: NbTraceurs    ! Nombre de traceurs
-  integer  :: iPts,i      ! Compteur de points
+!  integer  :: ModeMESIni  ! Mode d'entree de la concentration initiale de vase  ! PU2017 : Mise en commentaire
+  integer  :: NbPtsConcIni ! Nombre de points devrivant les concentrations initiales
+  integer  :: NbTraceurs   ! Nombre de traceurs
+  integer  :: iPts,i       ! Compteur de points
   integer  :: UniteConc    ! Unite du fichier de sedimentation a lire
-  integer  :: rang        ! position du mot cle sur la ligne
-  integer  :: ivar        ! compteur
-  integer  :: PosAbs      ! position de l'abscisse curviligne
+  integer  :: rang         ! position du mot cle sur la ligne
+  integer  :: ivar         ! compteur
+  integer  :: PosAbs       ! position de l'abscisse curviligne
   integer  :: PosVase      ! position de la colonne de qmin
-  integer  :: PosSable      ! position de la colonne de qmin
-  integer  :: NbVarStocke    ! nombre de variables stockees
+  integer  :: PosSable     ! position de la colonne de qmin
+  integer  :: NbVarStocke  ! nombre de variables stockees
+
   real(DOUBLE), dimension(:), allocatable :: var
 
-  character(LEN_CHAINE) :: chaine     ! Chaine contenant une ligne du fichier
+  character(LEN_CHAINE) :: chaine      ! Chaine contenant une ligne du fichier
   character(LEN_CHAINE) :: chaine_opt  ! chaine au format opthyca
   character(LEN_CHAINE) :: chaine_fort ! chaine convertie au format fortran
 
 
 ! Traitement des erreurs
-  integer        :: retour        ! code de retour des fonctions d'e/s
-!  character(132) :: arbredappel_old    ! ancien arbre  ! PU2017 : Mise en commentaire
+  integer                       :: retour ! code de retour des fonctions d'e/s
+!  character(132) :: arbredappel_old       ! ancien arbre  ! PU2017 : Mise en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
-
 
 !=========================================================================
 ! COMMENTAIRES
@@ -101,16 +96,16 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 !----------------------------
 ! Toute ligne de commentaire commence par le caractere "#"
 !
-!   Exemple :
+! Exemple :
 !
-!   #ESSAI
-!   #03/03/2003
+!  #ESSAI
+!  #03/03/2003
 !  [variables]
-!  "Abscisse curviligne"  ;"X"   ;"m"  ;1
-!  "Concentration en vase"  ;"CVASE" ;"g/l";3
+!  "Abscisse curviligne"   ;"X"     ;"m"  ;1
+!  "Concentration en vase" ;"CVASE" ;"g/l";3
 !  "Concentration en sable";"CSABLE";"g/l";3
 !  [resultats]
-!  0;    0.5;    0.1
+!  0;     0.5;    0.1
 !  10;    0.5;    0.1
 !  20;    0.5;    0.1
 !  30;    0.5;    0.1
@@ -122,7 +117,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 !  INITIALISATION
 !=========================================================================
 
-  Erreur%Numero     = 0
+  Erreur%Numero      = 0
 !  arbredappel_old   = trim(Erreur%arbredappel)  ! PU2017 : Mise en commentaire
   Erreur%arbredappel = trim(Erreur%arbredappel)//'=>LecFicConcIni'
 
@@ -137,12 +132,12 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 
   If (retour /= 0) Then
-  Erreur%Numero = 3
-  Erreur%ft   = err_3
-  Erreur%ft_c = err_3c
-  call TRAITER_ERREUR (Erreur, FicCMESIni%Nom)
-  return
-  End if
+    Erreur%Numero = 3
+    Erreur%ft   = err_3
+    Erreur%ft_c = err_3c
+    call TRAITER_ERREUR (Erreur, FicCMESIni%Nom)
+    return
+  Endif
 
 
 !=========================================================================
@@ -156,12 +151,12 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 ! si probleme en lecture de la ligne
 !-----------------------------------
   If (retour /= 0) Then
-  Erreur%Numero = 64
-  Erreur%ft   = err_64
-  Erreur%ft_c = err_64c
-  call TRAITER_ERREUR (Erreur,'Concentrations Initiales')
-  return
-  End if
+    Erreur%Numero = 64
+    Erreur%ft   = err_64
+    Erreur%ft_c = err_64c
+    call TRAITER_ERREUR (Erreur,'Concentrations Initiales')
+    return
+  Endif
 
   rang = 0
   rang = index(chaine, '[variables]')
@@ -170,12 +165,12 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 ! si le mot-cle '[variables]' n'est pas trouve
 !--------------------------------------------
   If (rang == 0) Then
-  Erreur%Numero = 65
-  Erreur%ft   = err_65
+    Erreur%Numero = 65
+    Erreur%ft   = err_65
     Erreur%ft_c = err_65c
-  call TRAITER_ERREUR (Erreur,'Concentrations Initiales','[variables]')
-  return
-  End if
+    call TRAITER_ERREUR (Erreur,'Concentrations Initiales','[variables]')
+    return
+  Endif
 
 !---------------------------
 ! initialisation des indices
@@ -185,48 +180,45 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   PosVase  = 0
   PosSable = 0
 
-
 !-----------------------------------------
 ! lecture de la premiere ligne de variable
 !-----------------------------------------
   call LIRE_CHAINE_S (chaine, FicCMESIni, CHAINE_COMMENTAIRE, retour)
-
 
 !----------------------------------------------
 ! Boucle de lecture sur les lignes de variables
 !----------------------------------------------
   Do while (retour == 0)
 
-  ! Si mot cle "resultat" present ==> sortir de la boucle
-  ! -----------------------------------------------------
-  rang = 0
-  rang = index(chaine, '[resultats]')
-  If (rang /= 0) exit
+    ! Si mot cle "resultat" present ==> sortir de la boucle
+    ! -----------------------------------------------------
+    rang = 0
+    rang = index(chaine, '[resultats]')
+    If (rang /= 0) exit
 
-  ! on incremente la position de la variable lue
-  ivar = ivar + 1
+    ! on incremente la position de la variable lue
+    ivar = ivar + 1
 
-  ! on recherche la position des colonnes AbscIni et Traceurs
-  !------------------------------------------------------
-  If (index(chaine, 'X') /= 0) Then
-    PosAbs = ivar
-  Else If(OptionCourlis .and. index(chaine, 'CVASE') /= 0) Then
-    PosVase = ivar
-  Else If(OptionCourlis .and. index(chaine, 'CSABLE') /= 0) Then
-    PosSable = ivar
-  Else If (index(chaine, 'CTRAC') /= 0) then
-  !!!!!!!!! PARTIE SPECIFIQUE AUX TRACEURS. A PROGRAMMER.
-    Erreur%Numero = 66
-    Erreur%ft   = err_66
-    Erreur%ft_c = err_66c
-    call TRAITER_ERREUR (Erreur,'Concentrations Initiales', ivar+1)
-    return
-  Endif
+    ! on recherche la position des colonnes AbscIni et Traceurs
+    !------------------------------------------------------
+    If (index(chaine, 'X') /= 0) Then
+      PosAbs = ivar
+    Else If(OptionCourlis .and. index(chaine, 'CVASE') /= 0) Then
+      PosVase = ivar
+    Else If(OptionCourlis .and. index(chaine, 'CSABLE') /= 0) Then
+      PosSable = ivar
+    Else If (index(chaine, 'CTRAC') /= 0) then
+    !!!!!!!!! PARTIE SPECIFIQUE AUX TRACEURS. A PROGRAMMER.
+      Erreur%Numero = 66
+      Erreur%ft   = err_66
+      Erreur%ft_c = err_66c
+      call TRAITER_ERREUR (Erreur,'Concentrations Initiales', ivar+1)
+      return
+    Endif
 
-  call LIRE_CHAINE_S (chaine, FicCMESIni, CHAINE_COMMENTAIRE, retour)
+    call LIRE_CHAINE_S (chaine, FicCMESIni, CHAINE_COMMENTAIRE, retour)
 
-  End do
-
+  Enddo
 
 !=========================================================================
 ! TRAITEMENT DES ERREURS
@@ -235,41 +227,41 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 ! Message d'erreur si probleme de lecture
 !-----------------------
   If (retour /= 0) Then
-  Erreur%Numero = 66
-  Erreur%ft   = err_66
-  Erreur%ft_c = err_66c
-  call TRAITER_ERREUR (Erreur,'Concentrations Initiales', ivar + 1)
-  return
+    Erreur%Numero = 66
+    Erreur%ft   = err_66
+    Erreur%ft_c = err_66c
+    call TRAITER_ERREUR (Erreur,'Concentrations Initiales', ivar + 1)
+    return
   End if
 
 ! Message d'erreur si il n'y a pas de variables dans l'en-tete
 !-------------------------------------------
   If (ivar == 0) Then
-  Erreur%Numero = 67
-  Erreur%ft   = err_67
-  Erreur%ft_c = err_67c
-  call TRAITER_ERREUR (Erreur,'Concentrations Initiales')
-  return
+    Erreur%Numero = 67
+    Erreur%ft   = err_67
+    Erreur%ft_c = err_67c
+    call TRAITER_ERREUR (Erreur,'Concentrations Initiales')
+    return
   End if
 
 ! Message d'erreur si il n'y a pas de X
 !----------------------------
   If (PosAbs == 0) Then
-  Erreur%Numero = 412
-  Erreur%ft   = err_412
-  Erreur%ft_c = err_412c
-  call TRAITER_ERREUR (Erreur,' des Concentrations Initiales', 'X')
-  return
+    Erreur%Numero = 412
+    Erreur%ft   = err_412
+    Erreur%ft_c = err_412c
+    call TRAITER_ERREUR (Erreur,' des Concentrations Initiales', 'X')
+    return
   End if
 
 ! Message d'erreur si il n'y a pas de CVASE
 !----------------------------
   If (OptionCourlis .and. PosVase == 0) Then
-  Erreur%Numero = 412
-  Erreur%ft   = err_412
-  Erreur%ft_c = err_412c
-  call TRAITER_ERREUR (Erreur,'des Concentrations Initiales', 'CVASE')
-  return
+    Erreur%Numero = 412
+    Erreur%ft   = err_412
+    Erreur%ft_c = err_412c
+    call TRAITER_ERREUR (Erreur,'des Concentrations Initiales', 'CVASE')
+    return
   End if
 
 ! Message d'erreur si il n'y a pas de CSABLE
@@ -278,16 +270,16 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     Erreur%Numero = 412
     Erreur%ft   = err_412
     Erreur%ft_c = err_412c
-  call TRAITER_ERREUR (Erreur,'des Concentrations Initiales', 'CSABLE')
-  return
+    call TRAITER_ERREUR (Erreur,'des Concentrations Initiales', 'CSABLE')
+    return
   End if
 
 ! mise en memoire du nombre total de variables stockees en plus
   NbVarStocke = ivar
 
-    !!!!!!!!!!!!
+  !!!!!!!!!!!!
   !!!!!!!!!!!! ERREUR SPECIFIQUE AUX TRACEURS A PROGRAMMER ICI.
-    !!!!!!!!!!!!
+  !!!!!!!!!!!!
 
 
 ! Allocation du tableau 'var' en fonction de l'indice le plus grand
@@ -300,7 +292,6 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     call TRAITER_ERREUR (Erreur, 'var')
     return
   End if
-
 
 !==========================================================================
 ! PREMIERE LECTURE DES VALEURS POUR COMPTER LE NOMBRE DE SECTIONS DE CALCUL
@@ -350,50 +341,49 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
   Do while (retour == 0)
 
-  iPts = iPts + 1
+    iPts = iPts + 1
 
-  !-----------------------------
-  ! lecture de la ligne suivante
-  !-----------------------------
-  call LIRE_CHAINE_S (chaine_opt, FicCMESIni, CHAINE_COMMENTAIRE, retour)
-!      read(UniteConc,'(A)',iostat=RETOUR) chaine_opt
+    !-----------------------------
+    ! lecture de la ligne suivante
+    !-----------------------------
+    call LIRE_CHAINE_S (chaine_opt, FicCMESIni, CHAINE_COMMENTAIRE, retour)
+!        read(UniteConc,'(A)',iostat=RETOUR) chaine_opt
 
-  If (retour < 0) Then
-  ! si fin du fichier ==> Sortir de la boucle
+    If (retour < 0) Then
+    ! si fin du fichier ==> Sortir de la boucle
       exit
     Else If(retour > 0) Then
-  ! si probleme de lecture ==> Erreur
+    ! si probleme de lecture ==> Erreur
       Erreur%Numero = 69
       Erreur%ft   = err_69
       Erreur%ft_c = err_69c
       call TRAITER_ERREUR (Erreur, 'Concentrations Initiales', iPts)
       return
-  End if
+    Endif
 
-  !--------------------------------------------------------
-  ! conversion de la ligne (suppression des points-virgule)
-  !--------------------------------------------------------
-  call OPT2FORT (chaine_fort, chaine_opt, Erreur)
+    !--------------------------------------------------------
+    ! conversion de la ligne (suppression des points-virgule)
+    !--------------------------------------------------------
+    call OPT2FORT (chaine_fort, chaine_opt, Erreur)
 
-  If (Erreur%Numero /= 0)  return
+    If (Erreur%Numero /= 0)  return
 
-  !--------------------------------------
-  ! lecture des informations sur la ligne
-  !--------------------------------------
-  read(chaine_fort, * , iostat = retour) (var(i),i=1,NbVarStocke)
+    !--------------------------------------
+    ! lecture des informations sur la ligne
+    !--------------------------------------
+    read(chaine_fort, * , iostat = retour) (var(i),i=1,NbVarStocke)
 
-  ! si probleme de lecture ==> Erreur
-  !----------------------------------
-  If (retour /= 0) Then
+    ! si probleme de lecture ==> Erreur
+    !----------------------------------
+    If (retour /= 0) Then
       Erreur%Numero = 69
       Erreur%ft   = err_69
       Erreur%ft_c = err_69c
       call TRAITER_ERREUR (Erreur, 'Concentrations Initiales', iPts)
       return
-    End if
+    Endif
 
-  End do   ! Fin Boucle sur les valeurs
-
+  Enddo   ! Fin Boucle sur les valeurs
 
   !-----------------------------------------------------
   ! allocation de memoire des tableaux AbscIni, Traceurs
@@ -419,13 +409,9 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     return
   End if
 
-
-
 !=====================================================================
 ! DEUXIEME PASSAGE : LECTURE PROPREMENT DITE DES VALEURS DES VARIABLES
 !=====================================================================
-
-
 ! Repositionnement au debut des resultats (apres l'en-tete)
 ! qui prend NbVarStocke + 2 lignes
 !----------------------------------------------------------
@@ -434,7 +420,6 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   Do ivar = 1, NbVarStocke + 2
     call LIRE_CHAINE_S (chaine, FicCMESIni, CHAINE_COMMENTAIRE, retour)
   End do
-
 
 ! Boucle de lecture des donnees
 !==============================
@@ -480,21 +465,19 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     !--------------------------------------
     ! affectation du tableau Traceurs
     !--------------------------------------
-  AbscIni(iPts) = var(PosAbs)
+    AbscIni(iPts) = var(PosAbs)
 
-  If (OptionCourlis) Then
-    Traceurs(1,iPts) = var(PosVase)
-    Traceurs(2,iPts) = var(PosSable)
-  Else
-    !!!!!!!!
-    !!!!!!!! PARTIE SPECIFIQUE AUX TRACEURS. A PROGRAMMER.
-    !!!!!!!!
-    Traceurs(:,iPts) = 0.
-  End if
+    If (OptionCourlis) Then
+      Traceurs(1,iPts) = var(PosVase)
+      Traceurs(2,iPts) = var(PosSable)
+    Else
+      !!!!!!!!
+      !!!!!!!! PARTIE SPECIFIQUE AUX TRACEURS. A PROGRAMMER.
+      !!!!!!!!
+      Traceurs(:,iPts) = 0.
+    Endif
 
-  End do  ! Fin de la boucle sur les valeurs
-
-
+  Enddo  ! Fin de la boucle sur les valeurs
 
 !=========================================================================
 ! TRAITEMENT DE FIN DE SOUS-PROGRAMME
@@ -510,7 +493,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     Erreur%ft_c = err_6c
     call TRAITER_ERREUR (Erreur, 'var')
     return
-  End if
+  Endif
 
   ! fermeture du fichier
   !---------------------

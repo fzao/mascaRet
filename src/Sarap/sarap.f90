@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -57,11 +57,12 @@ subroutine SARAP ( &
     Abaque       , & ! Abaques des pertes de  charges aux confluences
     Algorithme   , & ! Algorithme de parcours des biefs
 ! Parametres
-     Impression  , & ! Flag d'impression
-     UniteListing, & ! Unite logique du fichier listing
+     Impression   , & ! Flag d'impression
+     UniteListing , & ! Unite logique du fichier listing
      LoiFrottement,& ! Loi de frottement
      PerteChargeConfluent,& ! Perte de charge automatique aux confluents
-     CQMV        , &
+     CQMV         , &
+     decentrement , &
      Erreur        & ! Erreur
                  )
 
@@ -70,7 +71,7 @@ subroutine SARAP ( &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 ! FONCTION :                                                          .
 ! .          CALCUL EN REGIME PERMANENT A L'AIDE DU CODE SARA         .
@@ -155,6 +156,7 @@ subroutine SARAP ( &
    integer                          , intent(in   ) :: UniteListing
    integer                          , intent(in   ) :: LoiFrottement,CQMV
    logical                          , intent(in   ) :: PerteChargeConfluent
+   logical                          , intent(in   ) :: decentrement
    ! Temps
    real(DOUBLE)                     , intent(in   ) :: Temps
    ! Deversoirs
@@ -228,6 +230,7 @@ subroutine SARAP ( &
        LoiFrottement  , &
        PerteChargeConfluent, &
        CQMV           , &
+       decentrement   , &
        Erreur           &
        )
 

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -23,7 +23,7 @@ module M_REZO_I
 !                           E. BEN SLAMA
 !                           S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -89,7 +89,7 @@ module M_REZO_I
    ! .....................................................................
    ! . DANS LES COMMENTAIRES :
    ! . DQ DESIGNE LA VARIATION DE DEBIT D'UN PAS DE TEMPS AU SUIVANT
-   ! . DANS UNE SECTION DE CALCUL, 
+   ! . DANS UNE SECTION DE CALCUL,
    ! . ET DE MEME DZ DESIGNE LA VARIATION DE COTE                        .
    ! .....................................................................
    ! . FICHIERS EN SORTIE                                                .
@@ -136,11 +136,11 @@ module M_REZO_I
    use M_LIAISON_T
    use M_APPORT_PLUIE_T
    use M_KLIAISON_I
-   
+
    !.. Implicit Declarations
    implicit none
 
-   !.. Arguments .. 
+   !.. Arguments ..
    !
    real(DOUBLE), dimension(:), intent(inout) :: Z, Q1, Q2
    real(DOUBLE), dimension(:), intent(inout) :: P1, P2
@@ -191,9 +191,9 @@ module M_REZO_I
    real(DOUBLE)        , dimension(:), pointer       :: DPDZ1, DPDZ2
    ! Casier
    logical                           , intent(in   ) :: OptionCasier
-   type(CASIER_T)       , dimension(:)  , intent(inout) :: Casier
-   type(LIAISON_T)      , dimension(:)  , pointer, intent(inout) :: Liaison
-   type(APPORT_PLUIE_T ), dimension(:)  , intent(in   ) :: ApportPluie
+   type(CASIER_T)       , dimension(:)  , pointer, intent(inout) :: Casier
+   type(LIAISON_T)      , dimension(:)  , pointer , intent(inout) :: Liaison
+   type(APPORT_PLUIE_T ), dimension(:)  , pointer, intent(inout   ) :: ApportPluie
    ! Flag calcul particulier
    logical                           , intent(in   ) :: NoConvection
    integer                           , intent(in   ) :: CQMV

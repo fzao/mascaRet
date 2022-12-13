@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_MESSAGE_C
 !***********************************************************************
 ! PROGICIEL : MASCARET       N. GOUTAL
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 ! === CE MODULE CONTIENT LES MESSAGES D'ERREUR LONGS ET COURTS ===
 
@@ -1409,12 +1409,11 @@ character (*), parameter ::                                                    &
 err_600c = '("Water Depth <= 0 Reach ",i3," Abscissa ",f12.3)'
 !-------------------------------------------------------------------------
 character (*), parameter ::                                              &
-err_601  = '("Computation error.",/,                                      &
-           & "The value of the water level : ",i3," is out of bounds",/,&
-           & "[",2f12.3,"] for the graph Z=f(Q).")'
+err_601  = '("Computation error."/,                           &
+           & "For law ",i3," The value of the water level : ",f12.3,/,&
+           & "is out of bounds [",2f12.3,"] graph Z=f(Q).")'
 character (*), parameter ::                                                    &
-err_601c = '("Water level : ",i3," out of bounds",/,                  &
-           & "[",f12.3","f12.3,"] graph Z=f(Q).")'
+err_601c = '("Z=f(Q) # ",i3,": Z ",f8.3," out of bounds [",2f8.3,"].")'
 !-------------------------------------------------------------------------
 character (*), parameter ::                                               &
 err_602  = '("Computation error.",/,                                       &

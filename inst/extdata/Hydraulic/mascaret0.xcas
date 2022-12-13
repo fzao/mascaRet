@@ -36,6 +36,7 @@
       <termesNonHydrostatiques>false</termesNonHydrostatiques>
       <apportDebit>0</apportDebit>
       <attenuationConvection>false</attenuationConvection>
+      <decentrement>false</decentrement>
     </parametresNumeriques>
     <parametresTemporels>
       <pasTemps>1.0</pasTemps>

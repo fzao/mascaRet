@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -19,7 +19,7 @@
 ! *********************************************************************
 ! PROGICIEL : MASCARET       J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
    !..................................................................................................................................
    ! Importation d'un modele mascaret a partir des fichiers natifs de Mascaret
@@ -300,9 +300,6 @@
                    FichierMotCle%Nom = nomFic
                 elseif ( index(nomFic,'.geo').ne.0) then
                    FichierGeom%Nom   = nomFic
-                elseif ( index(nomFic, '.casier').ne.0) then
-                   FichierGeomCasier%Nom = nomFic
-                   Modele%FichierGeomCasier%Nom = nomFic
                 elseif ( index(nomFic , '.listing_casier').ne.0) then
                    FichierListingCasier%Nom = nomFic
                    Modele%FichierListingCasier%Nom = nomFic
@@ -315,6 +312,9 @@
                 elseif ( index(nomFic,'.res_casier').ne.0) then
                    FichierResultatCasier%Nom = nomFic
                    Modele%FichierResuCasier%Nom = nomFic
+                elseif ( index(nomFic, '.casier').ne.0) then
+                   FichierGeomCasier%Nom = nomFic
+                   Modele%FichierGeomCasier%Nom = nomFic
                 elseif (index(nomFic,'.res_liaison').ne.0) then
                    FichierResultatLiaison%Nom = nomFic
                    Modele%FichierResuLiaison%Nom = nomFic
@@ -364,27 +364,21 @@
                compteurLoi = compteurLoi + 1
                FichiersLois(compteurLoi)%Nom = nomFic
                FichiersLois(compteurLoi)%Unite = 21
-            else if ( index(typeFic, 'casier') > 0) THEN
-               FichierGeomCasier%Nom = nomFic
-               Modele%FichierGeomCasier%Nom = nomFic
             else if ( index(typeFic, 'listing_casier') > 0) THEN
                FichierListingCasier%Nom = nomFic
                Modele%FichierListingCasier%Nom = nomFic
             else if ( index(typeFic, 'listing_liaison') > 0) THEN
                FichierListingLiaison%Nom = nomFic
                Modele%FichierListingLiaison%Nom = nomFic
-            else if ( index(typeFic, 'listing') > 0) THEN
-               FichierListing%Nom = nomFic
-               Modele%FichierListing%Nom = nomFic
             else if ( index(typeFic, 'res_casier') > 0) THEN
                FichierResultatCasier%Nom = nomFic
                Modele%FichierResuCasier%Nom = nomFic
+            else if ( index(typeFic, 'casier') > 0) THEN
+               FichierGeomCasier%Nom = nomFic
+               Modele%FichierGeomCasier%Nom = nomFic
             else if ( index(typeFic, 'res_liaison') > 0) THEN
                FichierResultatLiaison%Nom = nomFic
                Modele%FichierResuLiaison%Nom = nomFic
-            else if ( index(typeFic, 'res') > 0) THEN
-               FichierResultat%Nom = nomFic
-               Modele%FichierResultat%Nom = nomFic
             else if ( index(typeFic, 'lig') > 0) THEN
                FichierLigne%Nom = nomFic
             else if ( index(typeFic, 'tracer_conc') > 0) THEN
@@ -400,6 +394,12 @@
             else if ( index(typeFic, 'tracer_res') > 0) THEN
                FichierResuTracer%Nom = nomFic
                Modele%Tracer%FichierResuTracer%Nom = nomFic
+            else if ( index(typeFic, 'res') > 0) THEN
+               FichierResultat%Nom = nomFic
+               Modele%FichierResultat%Nom = nomFic  
+            else if ( index(typeFic, 'listing') > 0) THEN
+               FichierListing%Nom = nomFic
+               Modele%FichierListing%Nom = nomFic          
             end if
          end do
       endif
@@ -545,6 +545,7 @@
         FichierListingCasier ,&
         FichierListingLiaison,&
         FichierGeomCasier,          &
+        Modele%decentrement,         &
         Erreur, &
         FichiersLois, Impression)
 

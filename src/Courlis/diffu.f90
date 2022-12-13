@@ -8,7 +8,7 @@ Subroutine Diffu (  &
  Absc   ,  & ! Abscisse des sections de calcul
  Dt     ,  & ! Pas de temps
  Cnux   ,  & ! Coefficient de diffusion
- Erreur   )
+ Erreur )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -29,12 +29,12 @@ Subroutine Diffu (  &
 !
 !=========================================================================
 
-use M_PRECISION    ! Definition de la precision DOUBLE ou SIMPLE
-use M_PARAMETRE_C   ! Definition des constante tq EPS*, W0, ...
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PARAMETRE_C      ! Definition des constante tq EPS*, W0, ...
 
-use M_ERREUR_T    ! Type ERREUR_T
-use M_MESSAGE_C    ! Messages d'erreur
-use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
+use M_ERREUR_T         ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I ! Traitement de l'errreur
 
 use M_BISSDL_I
 
@@ -61,20 +61,20 @@ use M_BISSDL_I
 
 ! Variables locales
   integer :: NbProf  ! Nombre de sections de calcul
-  integer :: i   ! Compteur
+  integer :: i       ! Compteur
 
   real(DOUBLE), dimension(:), allocatable :: AAA, BBB, CCC, DDD ! coefficients de la matrice
-  real(DOUBLE), dimension(:), allocatable :: A, B, C, D   ! coefficients de la matrice
+  real(DOUBLE), dimension(:), allocatable :: A, B, C, D         ! coefficients de la matrice
 
-  real(DOUBLE) :: Alpha    ! Variable de calcul
-  real(DOUBLE) :: Ai, APi   ! Variable de calcul
-  real(DOUBLE) :: Hi, HiP1, HHi  ! Variable de calcul
+  real(DOUBLE) :: Alpha            ! Variable de calcul
+  real(DOUBLE) :: Ai, APi          ! Variable de calcul
+  real(DOUBLE) :: Hi, HiP1, HHi    ! Variable de calcul
   real(DOUBLE) :: Cst1, Cst2, Cst3 ! Variable de calcul
 
 ! Traitement des erreurs
   type(ERREUR_T), intent(inout) :: Erreur
-  integer      :: retour ! Code de retour de la fonction read, allocate
-  character(132) :: arbredappel_old   ! Ancien arbre d'appel
+  integer                       :: retour ! Code de retour de la fonction read, allocate
+  character(132)                :: arbredappel_old   ! Ancien arbre d'appel
 
 !=========================================================================
 
@@ -82,7 +82,7 @@ use M_BISSDL_I
 !           Initialisations
 !=========================================================================
 
-  Erreur%Numero = 0
+  Erreur%Numero      = 0
   arbredappel_old    = trim(Erreur%arbredappel)
   Erreur%arbredappel = trim(Erreur%arbredappel)//'=>Diffu'
 
@@ -130,7 +130,6 @@ use M_BISSDL_I
     return
   End if
 
-
   Allocate(A(NbProf),STAT=retour)
   If (retour /= 0) Then
     Erreur%Numero = 5
@@ -167,7 +166,6 @@ use M_BISSDL_I
     return
   End if
 
-
 !=========================================================================
 ! Conditions limites amont
 !=========================================================================
@@ -189,7 +187,6 @@ use M_BISSDL_I
     BBB(NbProf) =  W1
     DDD(NbProf) =  T2(NbProf) / Sm(NbProf)
   Endif
-
 
 !=========================================================================
 ! Calcul des coefficients courants
@@ -217,14 +214,12 @@ use M_BISSDL_I
 
   Enddo
 
-
   Do i = 1, NbProf
     A(i) = AAA(i)
     B(i) = BBB(i)
     C(i) = CCC(i)
     D(i) = DDD(i) + Flux(i)
   Enddo
-
 
 !=========================================================================
 ! Resolution du systeme
@@ -243,7 +238,6 @@ use M_BISSDL_I
     return
   Endif
 
-
 !=========================================================================
 ! Dellocation des tableaux locaux
 !=========================================================================
@@ -252,7 +246,6 @@ use M_BISSDL_I
   deallocate(A, B, C, D)
 
 !  Erreur%arbredappel = arbredappel_old
-
 
   return
 

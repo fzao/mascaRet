@@ -4,12 +4,12 @@ Interface
 
 Subroutine LimiteDepot (  &
 
-  LimiteDepotG     ,  & ! numéro du point au delà duquel il peut y a voir dépôt ou érosion (1er pt immergé)
-  LimiteDepotD     ,  & ! numéro du dernier pt pour lequel il peut y a voir dépôt ou érosion (dernier pt immergé)
-  Zsurf         ,  & ! Cote de la surface libre
-  ProfilCourlis      ,  & ! Profils sedimentaires
-    NbProfils          ,  & ! Nombre de profils
-  Erreur         )
+  LimiteDepotG       , & ! numero du point au dela duquel il peut y a voir depot ou erosion (1er pt immerge)
+  LimiteDepotD       , & ! numero du dernier pt pour lequel il peut y a voir depot ou erosion (dernier pt immerge)
+  Zsurf              , & ! Cote de la surface libre
+  ProfilCourlis      , & ! Profils sedimentaires
+  NbProfils          , & ! Nombre de profils
+  Erreur             )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -18,11 +18,9 @@ Subroutine LimiteDepot (  &
 !
 !*************************************************************************
 !=========================================================================
-!  Fonction
-!  --------
-!    Calcul les indices des bornes RG et RD (LimitedepotG et LimiteDepotD)
-!   de la partie immergée de chaque profil.
-!  Il ne peut y avoir depot - erosion qu'entre ces points.
+!  Fonction : Calcul les indices des bornes RG et RD (LimitedepotG et LimiteDepotD)
+!  --------   de la partie immergee de chaque profil.
+!             Il ne peut y avoir depot - erosion qu'entre ces points.
 !
 !  Sous-programme appelant : Courlis
 !  -----------------------
@@ -31,12 +29,12 @@ Subroutine LimiteDepot (  &
 !  ---------------------
 !=========================================================================
 
-use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PRECISION           ! Definition de la precision DOUBLE ou SIMPLE
 use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T        ! Type ERREUR_T
-use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_ERREUR_T            ! Type ERREUR_T
+use M_MESSAGE_C           ! Messages d'erreur
+use M_TRAITER_ERREUR_I    ! Traitement de l'erreur
 
 !=========================================================================
 ! DECLARATIONS
@@ -46,7 +44,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   implicit none
 
 ! Variables d'entree
-  integer, intent(in)   :: NbProfils
+  integer, intent(in) :: NbProfils
 
   real(DOUBLE),           dimension(:), intent(in   ) :: Zsurf
   type(PROFIL_COURLIS_T), dimension(:), intent(in   ) :: ProfilCourlis
@@ -55,11 +53,12 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   integer,                dimension(:), intent(  out) :: LimiteDepotG, LimiteDepotD
 
 ! Variables locale
-!  integer :: i, j  ! PU2017 : Mis en commentaire
+  integer :: i, j
 
 ! Traitement des erreurs
   type(ERREUR_T), intent(inout) :: Erreur
-!  character(132) :: arbredappel_old      ! Ancien arbre d'appel  ! PU2017 : Mis en commentaire
+!  character(132) :: arbredappel_old   ! Ancien arbre d'appel  ! PU2017 : Mise en commentaire
+
 
 !=========================================================================
 

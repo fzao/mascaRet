@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -23,7 +23,7 @@ module M_REZO_INTERFACE_I
 !                           E. BEN SLAMA
 !                           S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -87,7 +87,7 @@ module M_REZO_INTERFACE_I
 !                             E. BEN SLAMA    S. MANDELKERN
 !                             F. ZAOUI
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 ! FONCTION :
 !
@@ -149,7 +149,7 @@ module M_REZO_INTERFACE_I
    use M_APPORT_PLUIE_T
    use M_KLIAISON_I
    use M_APIMASCARET_I       ! API
-   
+
    !.. Implicit Declarations
    implicit none
 
@@ -204,9 +204,9 @@ module M_REZO_INTERFACE_I
    real(DOUBLE)        , dimension(:), pointer       :: DPDZ1, DPDZ2
    ! Casier
    logical                           , intent(in   ) :: OptionCasier
-   type(CASIER_T)       , dimension(:)  , intent(inout) :: Casier
+   type(CASIER_T)       , dimension(:)  , pointer, intent(inout) :: Casier
    type(LIAISON_T)      , dimension(:)  , pointer, intent(inout) :: Liaison
-   type(APPORT_PLUIE_T ), dimension(:)  , intent(in   ) :: ApportPluie
+   type(APPORT_PLUIE_T ), dimension(:)  , pointer, intent(inout   ) :: ApportPluie
    ! Erreur
    type(ERREUR_T)                    , intent(inout) :: Erreur
    real(DOUBLE)                      , intent(inout) :: DT      ! Pas de temps REZO

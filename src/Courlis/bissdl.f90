@@ -1,11 +1,12 @@
 Subroutine Bissdl (  &
-     Z    ,  & ! Resultat de la diffusion
-     A    ,  & ! ! Coefficient
-     B    ,  & ! ! de la
-     C    ,  & ! ! matrice de
-     D    ,  & ! ! diffusion
-     Imax ,  & ! Nombre de point des tableaux
-     Erreur   )
+
+    Z      , & ! Resultat de la diffusion
+    A      , & ! ! Coefficient
+    B      , & ! ! de la
+    C      , & ! ! matrice de
+    D      , & ! ! diffusion
+    Imax   , & ! Nombre de point des tableaux
+    Erreur )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -26,11 +27,11 @@ Subroutine Bissdl (  &
 !
 !=========================================================================
 
-use M_PRECISION    ! Definition de la precision DOUBLE ou SIMPLE
-use M_PARAMETRE_C   ! Definition des constante tq EPS*, W0, ...
+use M_PRECISION         ! Definition de la precision DOUBLE ou SIMPLE
+use M_PARAMETRE_C       ! Definition des constante tq EPS*, W0, ...
 
-use M_ERREUR_T    ! Type ERREUR_T
-use M_MESSAGE_C    ! Messages d'erreur
+use M_ERREUR_T          ! Type ERREUR_T
+use M_MESSAGE_C         ! Messages d'erreur
 use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
 !=========================================================================
@@ -50,11 +51,11 @@ use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
 ! Variables locales
   integer :: Im1  ! Nombre de sections de calcul - 1
-  integer :: i   ! Compteur
+  integer :: i    ! Compteur
 
 ! Traitement des erreurs
   type(ERREUR_T), intent(inout) :: Erreur
-  character(132)    :: arbredappel_old ! Ancien arbre d'appel
+  character(132)                :: arbredappel_old ! Ancien arbre d'appel
 
 !=========================================================================
 

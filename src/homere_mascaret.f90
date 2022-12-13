@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -86,7 +86,7 @@ program HOMERE_MASCARET
 !                             C.COULET
 !                             F. DEMANGEON
 !
-! VERSION : V8P2R0               EDF-CEREMA-ARTELIA
+! VERSION : V8P4R0               EDF-CEREMA-ARTELIA
 ! *********************************************************************
 ! Fonction : Programme Chef d'Orchestre, Execution pas a pas d'un des
 !            trois noyaux de calculs :
@@ -636,7 +636,7 @@ program HOMERE_MASCARET
    retour        = 0
    !Erreur%arbredappel = 'MAIN'
    Print *
-   Print * ,'TELEMAC-MASCARET V8P2R0beta == Copyright (C) 2000-2020 EDF-CEREMA =='
+   Print * ,'TELEMAC-MASCARET V8P4R0 == Copyright (C) 2000-2022 EDF-CEREMA =='
    Print *
    Print * , 'Data File : ' // TRIM(FichierMotCle%Nom)
    Print *
@@ -651,6 +651,7 @@ program HOMERE_MASCARET
      OptionCasier                                                        , &
      OptionCourlis, FichierMotCleCourlis , FichierDicoCourlis            , &
      OndeSubm                                                            , &
+     decentrement                                                        , &
      CalculValidation, TypeValidation                                    , &
      Regime, ModeleLit                                                   , &
      FrottParoiVerticale, PerteChargeConfluent                           , &
@@ -727,16 +728,16 @@ program HOMERE_MASCARET
         CoucheSed,                  &
         Talus,                      &
         LimiteSable,                &
-         CnuxV,                      &
-         CnuxS,                      &
-         ConsConv,                   &
+        CnuxV,                      &
+        CnuxS,                      &
+        ConsConv,                   &
        ! Lecture de la geometrie des rivieres
-         FicGeomCourlis,             &
-         ProfilCourlis,              &
+        FicGeomCourlis,             &
+        ProfilCourlis,              &
        ! Lecture des concentrations initiales
-         FicCMESIni,                 &
-         CVaseIni,                   &
-         CSableIni,                  &
+        FicCMESIni,                 &
+        CVaseIni,                   &
+        CSableIni,                  &
        ! Lois de concentration
         FicLoiConc,                 &
         NbLoiConc,                  &
@@ -780,7 +781,6 @@ program HOMERE_MASCARET
 
    messim = 'Simulation'
    if(OptionCalage.eqv..true.) messim = 'Automatic Calibration'
-
 
    !
    ! Impression de statistiques
@@ -1122,645 +1122,644 @@ program HOMERE_MASCARET
 !-----------------------------------------------
 ! Allocation des variables specifiques a COURLIS
 !-----------------------------------------------
-   write(*,*) "OptionCourlis", OptionCourlis
-AllocationCourlis : If (OptionCourlis) Then
+  write(*,*) "OptionCourlis", OptionCourlis
+  AllocationCourlis : If (OptionCourlis) Then
 
-  NbProfCourlis = size(ProfilCourlis)
-  NbCouche      = size(CoucheSed)
-  NbPtmax       = 0
-  Do i = 1, NbProfCourlis
-    If (size(ProfilCourlis(i)%X) > NbPtmax)   NbPtmax = size(ProfilCourlis(i)%X)
-  Enddo
+    NbProfCourlis = size(ProfilCourlis)
+    NbCouche      = size(CoucheSed)
+    NbPtmax       = 0
+    Do i = 1, NbProfCourlis
+      If (size(ProfilCourlis(i)%X) > NbPtmax) NbPtmax = size(ProfilCourlis(i)%X)
+    Enddo
 
-  Allocate(VitCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'VitCourlis')
-    stop
-  End if
+    Allocate(VitCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'VitCourlis')
+      stop
+    Endif
 
-!   Allocate(DebCourlis(NbProfCourlis), STAT = retour)  !! nicole
-!  If (retour /= 0) Then
-!    Erreur%Numero = 5
-!    Erreur%ft   = err_5
-!    Erreur%ft_c = err_5c
-!    call TRAITER_ERREUR (Erreur, 'debcourlis')
-!    stop
-!  End if
+!    Allocate(DebCourlis(NbProfCourlis), STAT = retour)  !! nicole
+!    If (retour /= 0) Then
+!      Erreur%Numero = 5
+!      Erreur%ft   = err_5
+!      Erreur%ft_c = err_5c
+!      call TRAITER_ERREUR (Erreur, 'debcourlis')
+!      stop
+!    End if
 
-  Allocate(SmCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'SmCourlis')
-    stop
-  End if
+    Allocate(SmCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'SmCourlis')
+      stop
+    Endif
 
-  Allocate(PmCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'PmCourlis')
-    stop
-  End if
+    Allocate(PmCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'PmCourlis')
+      stop
+    Endif
 
-  Allocate(ZsurfCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'ZsurfCourlis')
-    stop
-  End if
+    Allocate(ZsurfCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'ZsurfCourlis')
+      stop
+    Endif
 
-  Allocate(VitPrecCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'VitPrecCourlis')
-    stop
-  End if
+    Allocate(VitPrecCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'VitPrecCourlis')
+      stop
+    End if
 
-  Allocate(SmPrecCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'SmPrecCourlis')
-    stop
-  End if
+    Allocate(SmPrecCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'SmPrecCourlis')
+      stop
+    Endif
 
-  Allocate(PmPrecCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'PmPrecCourlis')
-    stop
-  End if
+    Allocate(PmPrecCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'PmPrecCourlis')
+      stop
+    Endif
 
-  Allocate(ZsurfPrecCourlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'ZsurfPrecCourlis')
-    stop
-  End if
+    Allocate(ZsurfPrecCourlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'ZsurfPrecCourlis')
+      stop
+    Endif
 
-  Allocate(Vit1Courlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Vit1Courlis')
-    stop
-  End if
+    Allocate(Vit1Courlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Vit1Courlis')
+      stop
+    Endif
 
-  Allocate(Sm1Courlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Sm1Courlis')
-    stop
-  End if
+    Allocate(Sm1Courlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Sm1Courlis')
+      stop
+    Endif
 
-  Allocate(Sm0Courlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Sm0Courlis')
-    stop
-  End if
+    Allocate(Sm0Courlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Sm0Courlis')
+      stop
+    Endif
 
-  Allocate(Pm1Courlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Pm1Courlis')
-    stop
-  End if
+    Allocate(Pm1Courlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Pm1Courlis')
+      stop
+    Endif
 
-  Allocate(Zsl1Courlis(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Zsl1Courlis')
-    stop
-  End if
+    Allocate(Zsl1Courlis(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Zsl1Courlis')
+      stop
+    Endif
 
-  Allocate(ZrefC(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'ZrefC')
-    stop
-  End if
+    Allocate(ZrefC(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'ZrefC')
+      stop
+    Endif
 
 
-  Allocate(CVase(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'CVase')
-    stop
-  End if
+    Allocate(CVase(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'CVase')
+      stop
+    Endif
 
-  Allocate(CSable(NbProfCourlis), STAT =  retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'CSable')
-    stop
-  End if
+    Allocate(CSable(NbProfCourlis), STAT =  retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'CSable')
+      stop
+    Endif
 
-  Allocate(QVase(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QVase')
-    stop
-  End if
+    Allocate(QVase(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QVase')
+      stop
+    Endif
 
-  Allocate(QSable(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QSable')
-    stop
-  End if
+    Allocate(QSable(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QSable')
+      stop
+    Endif
 
-  Allocate(QVaseCouche(NbCouche,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QVaseCouche')
-    stop
-  End if
+    Allocate(QVaseCouche(NbCouche,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QVaseCouche')
+      stop
+    Endif
 
-  Allocate(QSableCouche(NbCouche,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QSableCouche')
-    stop
-  End if
+    Allocate(QSableCouche(NbCouche,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QSableCouche')
+      stop
+    Endif
 
-  Allocate(QApportVase(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QApportVase')
-    stop
-  End if
+    Allocate(QApportVase(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QApportVase')
+      stop
+    Endif
 
-  Allocate(QApportSable(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'QApportSable')
-    stop
-  End if
+    Allocate(QApportSable(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'QApportSable')
+      stop
+    Endif
 
-  Allocate(TauH(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauH')
-    stop
-  End if
+    Allocate(TauH(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauH')
+      stop
+    Endif
 
-  Allocate(TauE(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauE')
-    stop
-  End if
+    Allocate(TauE(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauE')
+      stop
+    Endif
 
-  Allocate(Ceq(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'Ceq')
-    stop
-  End if
+    Allocate(Ceq(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'Ceq')
+      stop
+    Endif
 
-  Allocate(TauHMoy(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauHMoy')
-    stop
-  End if
+    Allocate(TauHMoy(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauHMoy')
+      stop
+    Endif
 
-  Allocate(TauEMoy(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauEMoy')
-    stop
-  End if
+    Allocate(TauEMoy(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauEMoy')
+      stop
+    Endif
 
-  Allocate(CeqMoy(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'CeqMoy')
-    stop
-  End if
+    Allocate(CeqMoy(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'CeqMoy')
+      stop
+    Endif
 
-  Allocate(TauHMax(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauHMax')
-    stop
-  End if
+    Allocate(TauHMax(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauHMax')
+      stop
+    End if
 
-  Allocate(TauEMax(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'TauEMax')
-    stop
-  End if
+    Allocate(TauEMax(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'TauEMax')
+      stop
+    Endif
 
-  Allocate(DepotCumulCouche(NbCouche,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'DepotCumulCouche')
-    stop
-  End if
+    Allocate(DepotCumulCouche(NbCouche,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'DepotCumulCouche')
+      stop
+    Endif
 
-  Allocate(DeltaSurfaceSed(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'DeltaSurfaceSed')
-    stop
-  End if
+    Allocate(DeltaSurfaceSed(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'DeltaSurfaceSed')
+      stop
+    Endif
 
-  Allocate(DeltaH(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'DeltaH')
-    stop
-  End if
+    Allocate(DeltaH(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'DeltaH')
+      stop
+    Endif
 
-  DeltaH(:,:)=W1
+    DeltaH(:,:)=W1
 
-  Allocate(MasseVase%DepotCouche(NbCouche), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'MasseVase%DepotCouche')
-    stop
-  End if
+    Allocate(MasseVase%DepotCouche(NbCouche), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'MasseVase%DepotCouche')
+      stop
+    Endif
 
-  Allocate(MasseSable%DepotCouche(NbCouche), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'MasseSable%DepotCouche')
-    stop
-  End if
+    Allocate(MasseSable%DepotCouche(NbCouche), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'MasseSable%DepotCouche')
+      stop
+    Endif
 
-  Allocate(ResIni(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'ResIni')
-    stop
-  End if
+    Allocate(ResIni(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'ResIni')
+      stop
+    Endif
 
-  Allocate(SurPl(NbPtmax,NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'SurPl')
-    stop
-  End if
+    Allocate(SurPl(NbPtmax,NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'SurPl')
+      stop
+    Endif
 
-  Allocate(varsed(NbProfCourlis), STAT = retour)
-  If (retour /= 0) Then
-    Erreur%Numero = 5
-    Erreur%ft   = err_5
-    Erreur%ft_c = err_5c
-    call TRAITER_ERREUR (Erreur, 'varsed')
-    stop
-  End if
+    Allocate(varsed(NbProfCourlis), STAT = retour)
+    If (retour /= 0) Then
+      Erreur%Numero = 5
+      Erreur%ft   = err_5
+      Erreur%ft_c = err_5c
+      call TRAITER_ERREUR (Erreur, 'varsed')
+      stop
+    Endif
 
-Else ! PU2016 : A declarer pour eviter erreur de segmentation quand OptionCourlis est faux
-  NbProfCourlis = nb_sect
-  NbCouche      = nb_sect
-  NbPtmax       = NbPts
+  Else ! PU2016 : A declarer pour eviter erreur de segmentation quand OptionCourlis est faux
+    NbProfCourlis = nb_sect
+    NbCouche      = nb_sect
+    NbPtmax       = NbPts
 
-  Allocate(varsed(NbProfCourlis), STAT = retour)
+    Allocate(varsed(NbProfCourlis), STAT = retour)
 
-Endif AllocationCourlis
+  Endif AllocationCourlis
 
   ! testtps
   !call CPU_TIME (tc2)
   !print *,"allocation : ",tc2-tc1
   !call CPU_TIME (tcal1)
 
-
-
 !--TAPENADE
 
-   !==========================================================================
-   !                                BOUCLE DE CALCUL
-   !==========================================================================
-   Temps          = TempsInitial
-   TempsPrecedent = TempsInitial
-   Temps1 = Temps
-   CALL CPU_TIME (t0)
-   Print *,'Start the '//trim(messim)//'...'
+  !==========================================================================
+  !                                BOUCLE DE CALCUL
+  !==========================================================================
+  Temps          = TempsInitial
+  TempsPrecedent = TempsInitial
+  Temps1 = Temps
+  CALL CPU_TIME (t0)
+  Print *,'Start the '//trim(messim)//'...'
 
-   if( RepriseCalcul ) then
-      !============================
-      ! ouverture du fichier a lire
-      !============================
-      ul = FichierRepriseLec%Unite
-      open(unit=ul          , file=FichierRepriseLec%Nom, access='SEQUENTIAL', &
-           action='READ'    , form='FORMATTED', iostat=RETOUR      , &
-           position='rewind', status='OLD'    )
-      if( RETOUR /= 0 ) then
-         Erreur%Numero = 3
-         Erreur%ft     = err_3
-         Erreur%ft_c   = err_3c
-         call TRAITER_ERREUR( Erreur , FichierRepriseLec%Nom )
-         stop
-      end if
+  if( RepriseCalcul ) then
+     !============================
+     ! ouverture du fichier a lire
+     !============================
+     ul = FichierRepriseLec%Unite
+     open(unit=ul          , file=FichierRepriseLec%Nom, access='SEQUENTIAL', &
+          action='READ'    , form='FORMATTED', iostat=RETOUR      , &
+          position='rewind', status='OLD'    )
+     if( RETOUR /= 0 ) then
+        Erreur%Numero = 3
+        Erreur%ft     = err_3
+        Erreur%ft_c   = err_3c
+        call TRAITER_ERREUR( Erreur , FichierRepriseLec%Nom )
+        stop
+     end if
 
-      read (FichierRepriseLec%Unite,*) Temps
-      read (FichierRepriseLec%Unite,*) (XFRON(I),I=1,size(Connect%OrigineBief))
-   endif
+     read (FichierRepriseLec%Unite,*) Temps
+     read (FichierRepriseLec%Unite,*) (XFRON(I),I=1,size(Connect%OrigineBief))
+  endif
 
-   num_pas = 0
+  num_pas = 0
 
-   !Courlis
-   If (OptionCourlis) Then
-     TempsCourlis    = Temps
-     num_pas_courlis = 0
-   Endif
+  !Courlis
+  If (OptionCourlis) Then
+    TempsCourlis    = Temps
+    num_pas_courlis = 0
+  Endif
 
-   do while( Erreur%Numero == 0 )
+  do while( Erreur%Numero == 0 )
 
-      if( PhaseSimulation == PHASE_INITIALISATION ) then
+     if( PhaseSimulation == PHASE_INITIALISATION ) then
 
-         phase_planim    = PHASE_CALCUL
-         phase_intersect = PHASE_INITIALISATION
-         if( Noyau == NOYAU_MASCARET ) then
-            phase_planma = PHASE_CALCUL
-         else
-            phase_planma = PHASE_ARRET
-         endif
-         phase_qcl       = PHASE_INITIALISATION
-         phase_sarap     = PHASE_INITIALISATION
-         phase_rezo      = PHASE_INITIALISATION
-         phase_mascaret  = PHASE_INITIALISATION
-         phase_post      = PHASE_INITIALISATION
-         phase_post_imp  = PHASE_INITIALISATION
-         phase_stock     = PHASE_INITIALISATION
+        phase_planim    = PHASE_CALCUL
+        phase_intersect = PHASE_INITIALISATION
+        if( Noyau == NOYAU_MASCARET ) then
+           phase_planma = PHASE_CALCUL
+        else
+           phase_planma = PHASE_ARRET
+        endif
+        phase_qcl       = PHASE_INITIALISATION
+        phase_sarap     = PHASE_INITIALISATION
+        phase_rezo      = PHASE_INITIALISATION
+        phase_mascaret  = PHASE_INITIALISATION
+        phase_post      = PHASE_INITIALISATION
+        phase_post_imp  = PHASE_INITIALISATION
+        phase_stock     = PHASE_INITIALISATION
+        DTImpression    = PasImpression * DT
 
-      elseif(PhaseSimulation == PHASE_CALCUL) then
+     elseif(PhaseSimulation == PHASE_CALCUL) then
 
-         phase_planim    = PHASE_ARRET
-         phase_intersect = PHASE_ARRET
-         phase_planma    = PHASE_ARRET
-         phase_qcl       = PHASE_CALCUL
-         phase_sarap     = PHASE_CALCUL
-         phase_rezo      = PHASE_CALCUL
-         phase_mascaret  = PHASE_CALCUL
-         phase_post      = PHASE_CALCUL
-         DTImpression    = PasImpression * DT
+        phase_planim    = PHASE_ARRET
+        phase_intersect = PHASE_ARRET
+        phase_planma    = PHASE_ARRET
+        phase_qcl       = PHASE_CALCUL
+        phase_sarap     = PHASE_CALCUL
+        phase_rezo      = PHASE_CALCUL
+        phase_mascaret  = PHASE_CALCUL
+        phase_post      = PHASE_CALCUL
+        DTImpression    = PasImpression * DT
 
-         if( num_pas >= PremierPasStocke ) then
-            if( MOD(num_pas, PasImpression) < EPS1 ) then
-               phase_post_imp = PHASE_CALCUL
-            else
-               phase_post_imp = PHASE_ARRET
-            endif
-            if( MOD(num_pas , PasStockage) < EPS1 ) then
-               phase_stock = PHASE_CALCUL
-            else
-               phase_stock = PHASE_ARRET
-            endif
-         else
-            phase_stock    = PHASE_ARRET
-            phase_post_imp = PHASE_ARRET
-         endif
+        if( num_pas >= PremierPasStocke ) then
+           if( MOD(num_pas, PasImpression) < EPS1 ) then
+              phase_post_imp = PHASE_CALCUL
+           else
+              phase_post_imp = PHASE_ARRET
+           endif
+           if( MOD(num_pas , PasStockage) < EPS1 ) then
+              phase_stock = PHASE_CALCUL
+           else
+              phase_stock = PHASE_ARRET
+           endif
+        else
+           phase_stock    = PHASE_ARRET
+           phase_post_imp = PHASE_ARRET
+        endif
 
-      elseif( PhaseSimulation == PHASE_TERMINAISON ) then
+     elseif( PhaseSimulation == PHASE_TERMINAISON ) then
 
-         if( Noyau == NOYAU_SARAP ) then
-            phase_planim    = PHASE_ARRET
-            phase_intersect = PHASE_ARRET
-            phase_planma    = PHASE_ARRET
-            phase_qcl       = PHASE_ARRET
-            phase_sarap     = PHASE_ARRET
-            phase_rezo      = PHASE_ARRET
-            phase_mascaret  = PHASE_ARRET
-            phase_post      = PHASE_ARRET
-            phase_post_imp  = PHASE_ARRET
-            phase_stock     = PHASE_ARRET
-         else
-            phase_planim    = PHASE_ARRET
-            phase_intersect = PHASE_ARRET
-            phase_planma    = PHASE_ARRET
-            phase_qcl       = PHASE_ARRET
-            phase_sarap     = PHASE_ARRET
-            phase_rezo      = PHASE_ARRET
-            phase_mascaret  = PHASE_ARRET
-            phase_post      = PHASE_ARRET
-            phase_post_imp  = PHASE_ARRET
-            phase_stock     = PHASE_CALCUL
-            FormatResu      = FORMAT_STO_PERMANENT
-            FichierResultat = FichierListing
-         endif
+        if( Noyau == NOYAU_SARAP ) then
+           phase_planim    = PHASE_ARRET
+           phase_intersect = PHASE_ARRET
+           phase_planma    = PHASE_ARRET
+           phase_qcl       = PHASE_ARRET
+           phase_sarap     = PHASE_ARRET
+           phase_rezo      = PHASE_ARRET
+           phase_mascaret  = PHASE_ARRET
+           phase_post      = PHASE_ARRET
+           phase_post_imp  = PHASE_ARRET
+           phase_stock     = PHASE_ARRET
+        else
+           phase_planim    = PHASE_ARRET
+           phase_intersect = PHASE_ARRET
+           phase_planma    = PHASE_ARRET
+           phase_qcl       = PHASE_ARRET
+           phase_sarap     = PHASE_ARRET
+           phase_rezo      = PHASE_ARRET
+           phase_mascaret  = PHASE_ARRET
+           phase_post      = PHASE_ARRET
+           phase_post_imp  = PHASE_ARRET
+           phase_stock     = PHASE_CALCUL
+           FormatResu      = FORMAT_STO_PERMANENT
+           FichierResultat = FichierListing
+        endif
 
-      endif
+     endif
 
-      if( OptionCasier ) then
+     if( OptionCasier ) then
 
-         select case( PhaseSimulation )
+        select case( PhaseSimulation )
 
-            case( PHASE_INITIALISATION )
+           case( PHASE_INITIALISATION )
 
-               phase_clpluie            = PHASE_INITIALISATION
-               phase_post_casier        = PHASE_ARRET
-               phase_post_imp_casier    = PHASE_INITIALISATION
-               phase_stock_casier       = PHASE_CALCUL
+              phase_clpluie            = PHASE_INITIALISATION
+              phase_post_casier        = PHASE_ARRET
+              phase_post_imp_casier    = PHASE_INITIALISATION
+              phase_stock_casier       = PHASE_CALCUL
 
-            case( PHASE_CALCUL )
+           case( PHASE_CALCUL )
 
-               phase_clpluie            = PHASE_CALCUL
-               phase_post_casier        = PHASE_CALCUL
-               phase_stock_casier       = PHASE_CALCUL
-               if( num_pas >= PremierPasStocke ) then
-                  if( MOD(num_pas, PasImpression) < EPS1 ) then
-                     phase_post_imp_casier  = PHASE_CALCUL
-                  else
-                     phase_post_imp_casier  = PHASE_ARRET
-                  endif
-               end if
+              phase_clpluie            = PHASE_CALCUL
+              phase_post_casier        = PHASE_CALCUL
+              phase_stock_casier       = PHASE_CALCUL
+              if( num_pas >= PremierPasStocke ) then
+                 if( MOD(num_pas, PasImpression) < EPS1 ) then
+                    phase_post_imp_casier  = PHASE_CALCUL
+                 else
+                    phase_post_imp_casier  = PHASE_ARRET
+                 endif
+              end if
 
-            case( PHASE_TERMINAISON )
-               phase_clpluie          = PHASE_ARRET
-               phase_post_casier      = PHASE_ARRET
-               phase_post_imp_casier  = PHASE_ARRET
-               phase_stock_casier     = PHASE_ARRET
-               FichierResultatCasier  = FichierListingCasier
-               FichierResultatLiaison = FichierListingLiaison
+           case( PHASE_TERMINAISON )
+              phase_clpluie          = PHASE_ARRET
+              phase_post_casier      = PHASE_ARRET
+              phase_post_imp_casier  = PHASE_ARRET
+              phase_stock_casier     = PHASE_ARRET
+              FichierResultatCasier  = FichierListingCasier
+              FichierResultatLiaison = FichierListingLiaison
 
-         end select
+        end select
 
-      else
+     else
 
-         select case( PhaseSimulation )
+        select case( PhaseSimulation )
 
-            case( PHASE_INITIALISATION )
+           case( PHASE_INITIALISATION )
 
-               phase_stock_casier       = PHASE_ARRET
+              phase_stock_casier       = PHASE_ARRET
 
-            case( PHASE_CALCUL )
+           case( PHASE_CALCUL )
 
-               phase_stock_casier       = PHASE_ARRET
+              phase_stock_casier       = PHASE_ARRET
 
-            case( PHASE_TERMINAISON )
+           case( PHASE_TERMINAISON )
 
-               phase_stock_casier  = PHASE_ARRET
+              phase_stock_casier  = PHASE_ARRET
 
-         end select
+        end select
 
-         phase_post_casier = PHASE_ARRET
+        phase_post_casier = PHASE_ARRET
 
-      end if
+     end if
 !TAPENADE--
-      !  traitement des options de traceur
-      !
-      if( OptionTracer ) then
+     !  traitement des options de traceur
+     !
+     if( OptionTracer ) then
 
-         select case( PhaseSimulation )
+        select case( PhaseSimulation )
 
-            case( PHASE_INITIALISATION )
-               phase_tracer        = PHASE_INITIALISATION
+           case( PHASE_INITIALISATION )
+              phase_tracer        = PHASE_INITIALISATION
 
-            case( PHASE_CALCUL )
-               if( mod(num_pas,FreqCouplage) < EPS8 ) then
-                  phase_tracer = PHASE_CALCUL
-               else
-                  phase_tracer = PHASE_ARRET
-               endif
+           case( PHASE_CALCUL )
+              if( mod(num_pas,FreqCouplage) < EPS8 ) then
+                 phase_tracer = PHASE_CALCUL
+              else
+                 phase_tracer = PHASE_ARRET
+              endif
 
-            case( PHASE_TERMINAISON )
+           case( PHASE_TERMINAISON )
 
-               phase_Tracer        = PHASE_ARRET
+              phase_Tracer        = PHASE_ARRET
 
-         end select
+        end select
 
-      endif
+     endif
 
 !=========================================================================
 ! Initialisation des phases pour un calcul COURLIS
 !=========================================================================
-InitPhaseCourlis : If(OptionCourlis) Then
+  InitPhaseCourlis : If(OptionCourlis) Then
 !---------------
 !    if (TEMPS > Tlim) print *," Init phases pour calcul COURLIS" !dbug
     Select case (PhaseSimulation)
 
     Case (PHASE_INITIALISATION)
 
-        phase_courlis           = PHASE_INITIALISATION
-        phase_hydro             = PHASE_CALCUL
-        phase_couplage_courlis  = PHASE_INITIALISATION
-        PhaseStockPLongCourlis  = PHASE_INITIALISATION
-        PhaseStockPTransCourlis = PHASE_INITIALISATION
-        PhasePostImpCourlis     = PHASE_INITIALISATION
+      phase_courlis           = PHASE_INITIALISATION
+      phase_hydro             = PHASE_CALCUL
+      phase_couplage_courlis  = PHASE_INITIALISATION
+      PhaseStockPLongCourlis  = PHASE_INITIALISATION
+      PhaseStockPTransCourlis = PHASE_INITIALISATION
+      PhasePostImpCourlis     = PHASE_INITIALISATION
 
 
     Case (PHASE_CALCUL)
 
-        If (phase_hydro == PHASE_CALCUL) Then
+      If (phase_hydro == PHASE_CALCUL) Then
 
-          If (MOD(num_pas, NbIterHydro) < EPS1) then
-            phase_couplage_courlis = PHASE_CALCUL
-            phase_hydro            = PHASE_ARRET
-            phase_courlis          = PHASE_CALCUL
-          Else
-            phase_couplage_courlis = PHASE_ARRET
-            phase_courlis          = PHASE_ARRET
-          End if
+        If (MOD(num_pas, NbIterHydro) < EPS1) then
+          phase_couplage_courlis = PHASE_CALCUL
+          phase_hydro            = PHASE_ARRET
+          phase_courlis          = PHASE_CALCUL
+        Else
+          phase_couplage_courlis = PHASE_ARRET
+          phase_courlis          = PHASE_ARRET
+        End if
 
-        Else If (phase_courlis == PHASE_CALCUL) Then
+      Else If (phase_courlis == PHASE_CALCUL) Then
 
-          If (MOD(num_pas_courlis, NbIterSedim) < EPS1) then
-            phase_couplage_courlis = PHASE_CALCUL
-            phase_hydro            = PHASE_CALCUL
-            phase_courlis          = PHASE_ARRET
-          Else
-            phase_couplage_courlis = PHASE_ARRET
-            phase_hydro            = PHASE_ARRET
-          End if
+        If (MOD(num_pas_courlis, NbIterSedim) < EPS1) then
+          phase_couplage_courlis = PHASE_CALCUL
+          phase_hydro            = PHASE_CALCUL
+          phase_courlis          = PHASE_ARRET
+        Else
+          phase_couplage_courlis = PHASE_ARRET
+          phase_hydro            = PHASE_ARRET
+        End if
 
-        Endif
+      Endif
 
     Case (PHASE_TERMINAISON)
 
-        If ((TempsCourlis - Temps) < -EPS4) Then
-          If (phase_courlis == PHASE_ARRET) Then
-            phase_couplage_courlis = PHASE_CALCUL
-          Else
-            phase_couplage_courlis = PHASE_ARRET
-          Endif
-          phase_hydro              = PHASE_ARRET
-          phase_courlis            = PHASE_CALCUL
-          PhaseSimulation          = PHASE_CALCUL
+      If ((TempsCourlis - Temps) < -EPS4) Then
+        If (phase_courlis == PHASE_ARRET) Then
+          phase_couplage_courlis = PHASE_CALCUL
         Else
-          phase_couplage_courlis   = PHASE_ARRET
-          phase_courlis            = PHASE_TERMINAISON
-          phase_hydro              = PHASE_CALCUL
-          PhaseStockPLongCourlis   = PHASE_TERMINAISON
-          PhaseStockPTransCourlis  = PHASE_TERMINAISON
-          PhasePostImpCourlis      = PHASE_TERMINAISON
-        End if
+          phase_couplage_courlis = PHASE_ARRET
+        Endif
+        phase_hydro              = PHASE_ARRET
+        phase_courlis            = PHASE_CALCUL
+        PhaseSimulation          = PHASE_CALCUL
+      Else
+        phase_couplage_courlis   = PHASE_ARRET
+        phase_courlis            = PHASE_TERMINAISON
+        phase_hydro              = PHASE_CALCUL
+        PhaseStockPLongCourlis   = PHASE_TERMINAISON
+        PhaseStockPTransCourlis  = PHASE_TERMINAISON
+        PhasePostImpCourlis      = PHASE_TERMINAISON
+      End if
 
 
     End select
@@ -1790,7 +1789,7 @@ InitPhaseCourlis : If(OptionCourlis) Then
       Endif
     Endif
 
-Else
+  Else
 
     phase_hydro             = PHASE_CALCUL
     phase_courlis           = PHASE_ARRET
@@ -1799,7 +1798,7 @@ Else
     PhaseStockPTransCourlis = PHASE_ARRET
     PhasePostImpCourlis     = PHASE_ARRET
 
-End if InitPhaseCourlis ! Fin Initialisation COURLIS
+  End if InitPhaseCourlis ! Fin Initialisation COURLIS
 
   ! testtps : init courlis
   !call CPU_TIME (tc2)
@@ -1808,136 +1807,135 @@ End if InitPhaseCourlis ! Fin Initialisation COURLIS
 !===========================
 ! Couplages hydro-sedimento
 !===========================
-!if (TEMPS > Tlim) print *," CouplageHydroSedim" !dbug
-CouplageHydroSedim : Select case (phase_couplage_courlis)
+!  if (TEMPS > Tlim) print *," CouplageHydroSedim" !dbug
+  CouplageHydroSedim : Select case (phase_couplage_courlis)
 
     Case (PHASE_INITIALISATION)
 
-        phase_talus  = PHASE_ARRET
-        !  VitCourlis(:)		 = V1(:)
-        !  SmCourlis(:)		 		 = S1(:)
-        !  PmCourlis(:)		 		 = P1(:)
-        !  PmCourlis(:)		 		 = Q1(:)/S1(:)
-        !  ZsurfCourlis(:)		 = Z(:)
-        !   nicole
-        !  TempsCourlis		 		 = TempsInitial
-        !  TfinCourlis		 		 = TempsCourlis
-        ! Ces variables sont finalemement initialisees plus tard (au niveau de phase-courlis = INITIALISATION
-        ! car il faut que les variables hydrauliques aient deja ete initialisees
-        Iter_courlis = 0
-
+      phase_talus  = PHASE_ARRET
+      !  VitCourlis(:)		 = V1(:)
+      !  SmCourlis(:)		 		 = S1(:)
+      !  PmCourlis(:)		 		 = P1(:)
+      !  PmCourlis(:)		 		 = Q1(:)/S1(:)
+      !  ZsurfCourlis(:)		 = Z(:)
+      !   nicole
+      !  TempsCourlis		 		 = TempsInitial
+      !  TfinCourlis		 		 = TempsCourlis
+      ! Ces variables sont finalemement initialisees plus tard (au niveau de phase-courlis = INITIALISATION
+      ! car il faut que les variables hydrauliques aient deja ete initialisees
+      Iter_courlis = 0
 
     Case (PHASE_CALCUL)
 
-        If (phase_hydro == PHASE_CALCUL) Then
+      If (phase_hydro == PHASE_CALCUL) Then
 
-          ! Mise a jour de la geometrie et nouveau calcul du planimetrage
-          phase_planim    = PHASE_CALCUL
-          phase_intersect = PHASE_CALCUL
-          If (Noyau == NOYAU_MASCARET) Then
-            phase_planma = PHASE_CALCUL
-          Endif
-          Do i = 1, size(ProfilCourlis)
-            NbPts = ProfilCourlis(i)%NbPoint
-            Profil(i)%Zref       = ProfilCourlis(i)%Zref(1)
-            Profil(i)%Y(1)       = max(ProfilCourlis(i)%Z(1,1), ProfilCourlis(i)%Z(1,NbPts)) + 10._DOUBLE
-            Profil(i)%Y(NbPts+1) = Profil(i)%Y(1)
-            Do j = 1, NbPts
-              Profil(i)%Y(j+1)   = ProfilCourlis(i)%Z(1,j)
-            Enddo
-            Profil(i)%ZRive(1)   = Profil(i)%Y(1)
-            Profil(i)%ZRive(2)   = Profil(i)%Y(NbPts+1)
-          Enddo
-
-        Else
-
-          phase_planim    = PHASE_ARRET
-          phase_intersect = PHASE_ARRET
-          phase_planma    = PHASE_ARRET
-
+        ! Mise a jour de la geometrie et nouveau calcul du planimetrage
+        phase_planim    = PHASE_CALCUL
+        phase_intersect = PHASE_CALCUL
+        If (Noyau == NOYAU_MASCARET) Then
+          phase_planma = PHASE_CALCUL
         Endif
-
-        If (phase_courlis == PHASE_CALCUL) Then
-
-          !  write (69,*) temps, 'couplage hydro-> sedim'
-
-          ! Reception des variables hydrauliques
-          VitPrecCourlis(:)   = VitCourlis(:)
-          SmPrecCourlis(:)    = SmCourlis(:)
-          PmPrecCourlis(:)    = PmCourlis(:)
-          ZsurfPrecCourlis(:) = ZsurfCourlis(:)
-          TempsCourlis        = TfinCourlis
-
-          If (Noyau == NOYAU_MASCARET) Then
-            call RHSBP_GENERIQUE_S ( &
-                   P1,               &
-                   ProfilPlan%P1,    &
-                   ZREF,             &
-                   Z,                &
-                   IDT,              &
-                   XDT,              &
-                   Profil,           &
-                   nb_sect,          &
-                   Erreur          )
-          Endif
-          VitCourlis(:)   = V1(:)
-          VitCourlis(:)   = Q1(:)/S1(:) !chb
-          SmCourlis(:)    = S1(:)
-          PmCourlis(:)    = P1(:)
-          ZsurfCourlis(:) = Z(:)
-
-          !clipping
-          Do i = 1, size(ProfilCourlis)
-          ! MS2018 : clipping problematique avec Sarap (ou general?)
-            If (Z(i) < ProfilCourlis(i)%Zref(1) + EPS2) Then !mj EPS2->EPS3
-              !write(FicListingCourlis%Unite,*) 'clipping dans COURLIS'
-              ZsurfCourlis(i) = ProfilCourlis(i)%Zref(1) +  &
-                                  (ZsurfCourlis(i-1) - ProfilCourlis(i-1)%Zref(1) + ZsurfCourlis(i+1) &
-                                   - ProfilCourlis(i+1)%Zref(1)) / W2
-              SmCourlis(i)  = (SmCourlis(i-1) + SmCourlis(i+1)) / W2
-              PmCourlis(i)  = (PmCourlis(i-1) + PmCourlis(i+1)) / W2
-              VitCourlis(i) =  SmCourlis(i-1) * VitCourlis(i-1) / SmCourlis(i)
-            Endif
+        Do i = 1, size(ProfilCourlis)
+          NbPts = ProfilCourlis(i)%NbPoint
+          Profil(i)%Zref       = ProfilCourlis(i)%Zref(1)
+          Profil(i)%Y(1)       = max(ProfilCourlis(i)%Z(1,1), ProfilCourlis(i)%Z(1,NbPts)) + 10._DOUBLE
+          Profil(i)%Y(NbPts+1) = Profil(i)%Y(1)
+          Do j = 1, NbPts
+            Profil(i)%Y(j+1)   = ProfilCourlis(i)%Z(1,j)
           Enddo
+          Profil(i)%ZRive(1)   = Profil(i)%Y(1)
+          Profil(i)%ZRive(2)   = Profil(i)%Y(NbPts+1)
+        Enddo
 
-          TfinCourlis  = Temps
-          DtCourlis    = (TfinCourlis - TempsCourlis) / dble(NbIterSedim)
-          Iter_courlis = 0
+      Else
 
-          phase_talus  = PHASE_CALCUL
+        phase_planim    = PHASE_ARRET
+        phase_intersect = PHASE_ARRET
+        phase_planma    = PHASE_ARRET
 
+      Endif
+
+      If (phase_courlis == PHASE_CALCUL) Then
+
+        !  write (69,*) temps, 'couplage hydro-> sedim'
+
+        ! Reception des variables hydrauliques
+        VitPrecCourlis(:)   = VitCourlis(:)
+        SmPrecCourlis(:)    = SmCourlis(:)
+        PmPrecCourlis(:)    = PmCourlis(:)
+        ZsurfPrecCourlis(:) = ZsurfCourlis(:)
+        TempsCourlis        = TfinCourlis
+
+        If (Noyau == NOYAU_MASCARET) Then
+          call RHSBP_GENERIQUE_S ( &
+                 P1,               &
+                 ProfilPlan%P1,    &
+                 ZREF,             &
+                 Z,                &
+                 IDT,              &
+                 XDT,              &
+                 Profil,           &
+                 nb_sect,          &
+                 Erreur          )
         Endif
+        VitCourlis(:)   = V1(:)
+        VitCourlis(:)   = Q1(:)/S1(:) !chb
+        SmCourlis(:)    = S1(:)
+        PmCourlis(:)    = P1(:)
+        ZsurfCourlis(:) = Z(:)
+
+        !clipping
+        Do i = 1, size(ProfilCourlis)
+        ! MS2018 : clipping problematique avec Sarap (ou general?)
+          If (Z(i) < ProfilCourlis(i)%Zref(1) + EPS2) Then !mj EPS2->EPS3
+            !write(FicListingCourlis%Unite,*) 'clipping dans COURLIS'
+            ZsurfCourlis(i) = ProfilCourlis(i)%Zref(1) +  &
+                                (ZsurfCourlis(i-1) - ProfilCourlis(i-1)%Zref(1) + ZsurfCourlis(i+1) &
+                                 - ProfilCourlis(i+1)%Zref(1)) / W2
+            SmCourlis(i)  = (SmCourlis(i-1) + SmCourlis(i+1)) / W2
+            PmCourlis(i)  = (PmCourlis(i-1) + PmCourlis(i+1)) / W2
+            VitCourlis(i) =  SmCourlis(i-1) * VitCourlis(i-1) / SmCourlis(i)
+          Endif
+        Enddo
+
+        TfinCourlis  = Temps
+        DtCourlis    = (TfinCourlis - TempsCourlis) / dble(NbIterSedim)
+        Iter_courlis = 0
+
+        phase_talus  = PHASE_CALCUL
+
+      Endif
 
     Case (PHASE_ARRET)
 
-        phase_talus = PHASE_ARRET
+      phase_talus = PHASE_ARRET
 
-End select CouplageHydroSedim
+  End select CouplageHydroSedim
 
   ! testtps : select couplage hydro-sedim
   !call CPU_TIME (tc1)
   !print *,"select couplage hydro-sedim : ",tc1-tc2
-if( OptionCourlis) then
-  if (suspension_option) then
-    do i = 1, NbPtmax
-      varsed(:)=varsed(:) + DeltaH(i,:)
-    end do
-  else if (bedload_option) then
-  ! PU2017 : Changement bornes de la boucle et du calcul de varsed
-  ! MS2019 : probleme sur un cas de calcul avec jamais de planim en suspension
-  ! todo : verifier que le tableau deltaH est identique entre charriage et suspension
-  ! MS2020 : non identique; conservation des 2 mises a jour
-    do i = 1, NbProfCourlis
-      varsed(i)= varsed(i) + abs(DeltaH(1,i))
-    end do
-  end if
+  if (OptionCourlis) then
+    if (suspension_option) then
+      do i = 1, NbPtmax
+        varsed(:)=varsed(:) + DeltaH(i,:)
+      end do
+    elseif (bedload_option) then
+    ! PU2017 : Changement bornes de la boucle et du calcul de varsed
+    ! MS2019 : probleme sur un cas de calcul avec jamais de planim en suspension
+    ! todo : verifier que le tableau deltaH est identique entre charriage et suspension
+    ! MS2020 : non identique; conservation des 2 mises a jour
+      do i = 1, NbProfCourlis
+        varsed(i)= varsed(i) + abs(DeltaH(1,i))
+      end do
+    end if
 
-  ! PU2017
-  Do i = 1,size(Profil)
-    mySm(i)  = SmCourlis(i)
-    myZsl(i) = Z(i)
-  Enddo
-end if
+    ! PU2017
+    Do i = 1,size(Profil)
+      mySm(i)  = SmCourlis(i)
+      myZsl(i) = Z(i)
+    Enddo
+  endif
 
 !--TAPENADE
 
@@ -1946,19 +1944,19 @@ end if
       if( phase_planim == PHASE_CALCUL ) then
 
 
-         call  PLANIM             ( &
-            ProfilPlan            , & ! Profils planimetres
-            Profil                , & ! Caracteristiques des profils
-            F1                    , & ! Fonction Impulsion
-            DebProgressifLM       , & ! Debordement progressif lit majeur
-            DebProgressifZS       , & ! Debordement progressif zones de stockaage
-            ImpressionPlani       , & ! Impression du planimetrage
-            FichierListing%Unite  , & ! Unite logique listing
-            FrottParoiVerticale   , & ! Conservation du frottement sur les parois verticales
-            OptionCourlis         , & ! Activation Courlis
-            varsed                , & ! Courlis : evolution
-            TempsInitial          , & ! Courlis
-            Erreur                  ) ! Erreur
+         call  PLANIM            ( &
+           ProfilPlan            , & ! Profils planimetres
+           Profil                , & ! Caracteristiques des profils
+           F1                    , & ! Fonction Impulsion
+           DebProgressifLM       , & ! Debordement progressif lit majeur
+           DebProgressifZS       , & ! Debordement progressif zones de stockaage
+           ImpressionPlani       , & ! Impression du planimetrage
+           FichierListing%Unite  , & ! Unite logique listing
+           FrottParoiVerticale   , & ! Conservation du frottement sur les parois verticales
+           OptionCourlis         , & ! Activation Courlis
+           varsed                , & ! Courlis : evolution
+           TempsInitial          , & ! Courlis
+           Erreur                )   ! Erreur
 
          if( Erreur%Numero /= 0 ) then
             write(*,321)
@@ -2216,6 +2214,7 @@ end if
                      LoiFrottement       , & ! Type de lois de frottement utilisee
                      PerteChargeConfluent, & ! Flag de perte de charge auto aux confluents
                      CQMV                , & ! qmv debits d'apport
+                     decentrement , &
                      Erreur                & ! Erreur
                                 )
 
@@ -2778,74 +2777,76 @@ end if
     ! testtps : phase init courlis
     ! call CPU_TIME (tc1)
 
-      CVase(:)          = CVaseIni(:)
-      CSable(:)         = CSableIni(:)
-      QVase(:)          = W0
-      QSable(:)         = W0
-      QVaseCouche(:,:)  = W0
-      QSableCouche(:,:) = W0
-      QApportVase(:)    = W0
-      QApportSable(:)   = W0
-      TauH(:,:)         = W0
-      TauE(:,:)         = W0
-      Ceq(:,:)          = W0
-      TauHMax(:)        = W0
-      TauHMoy(:)        = W0
-      TauEMax(:)        = W0
-      TauEMoy(:)        = W0
-      CeqMoy(:)         = W0
+    If (suspension_option) Then
+      CVase(:)                  = CVaseIni(:)
+      CSable(:)                 = CSableIni(:)
+    Endif
+      QVase(:)                  = W0
+      QSable(:)                 = W0
+      QVaseCouche(:,:)          = W0
+      QSableCouche(:,:)         = W0
+      QApportVase(:)            = W0
+      QApportSable(:)           = W0
+      TauH(:,:)                 = W0
+      TauE(:,:)                 = W0
+      Ceq(:,:)                  = W0
+      TauHMax(:)                = W0
+      TauHMoy(:)                = W0
+      TauEMax(:)                = W0
+      TauEMoy(:)                = W0
+      CeqMoy(:)                 = W0
       DepotCumulCouche(:,:)     = W0
       DeltaSurfaceSed(:)        = W0
-      DeltaH(:,:)       = W0
-      FluxVase%Entrant  = W0
-      FluxVase%Apport   = W0
-      FluxVase%Sortant  = W0
-      FluxVase%Depot    = W0
-      FluxSable%Entrant = W0
-      FluxSable%Apport  = W0
-      FluxSable%Sortant = W0
-      FluxSable%Depot   = W0
-      MasseVase%Entrant = W0
-      MasseVase%Apport  = W0
-      MasseVase%Sortant = W0
+      DeltaH(:,:)               = W0
+      FluxVase%Entrant          = W0
+      FluxVase%Apport           = W0
+      FluxVase%Sortant          = W0
+      FluxVase%Depot            = W0
+      FluxSable%Entrant         = W0
+      FluxSable%Apport          = W0
+      FluxSable%Sortant         = W0
+      FluxSable%Depot           = W0
+      MasseVase%Entrant         = W0
+      MasseVase%Apport          = W0
+      MasseVase%Sortant         = W0
       MasseVase%DepotCouche(:)  = W0
       MasseVase%Depot           = W0
-      MasseVase%Erreur  = W0
+      MasseVase%Erreur          = W0
       MasseSable%Entrant        = W0
-      MasseSable%Apport = W0
+      MasseSable%Apport         = W0
       MasseSable%Sortant        = W0
       MasseSable%DepotCouche(:) = W0
-      MasseSable%Depot  = W0
-      MasseSable%Erreur = W0
-      VolSedDepot       = W0
+      MasseSable%Depot          = W0
+      MasseSable%Erreur         = W0
+      VolSedDepot               = W0
 
       SurPl(:,:)  = W1
       If (Talus%Modele == MODELE_TALUS_GLISSEMENT) Then
-        call ResIniTalus (  &
-          ProfilCourlis  ,  &
-          Talus          ,  &
-          CoucheSed      ,  &
-          ResIni         ,  &
+        call ResIniTalus ( &
+          ProfilCourlis  , &
+          Talus          , &
+          CoucheSed      , &
+          ResIni         , &
           Erreur         )
       Endif
 
 
       If (Noyau == NOYAU_MASCARET) Then
         call RHSBP_GENERIQUE_S( &
-          P1 , &
+          P1            , &
           ProfilPlan%P1 , &
-          ZREF, &
-          Z , &
-          IDT , &
-          XDT , &
-          Profil , &
-          nb_sect , &
-          Erreur )
+          ZREF          , &
+          Z             , &
+          IDT           , &
+          XDT           , &
+          Profil        , &
+          nb_sect       , &
+          Erreur        )
       Endif
 
-      VitCourlis(:) = V1(:)
-      SmCourlis(:)  = S1(:)
-      PmCourlis(:)  = P1(:)
+      VitCourlis(:)   = V1(:)
+      SmCourlis(:)    = S1(:)
+      PmCourlis(:)    = P1(:)
       ZsurfCourlis(:) = Z(:)
 
       Vit1Courlis(:) = V1(:)
@@ -2856,22 +2857,25 @@ end if
 
       TfinCourlis    = TempsCourlis  ! du 17-04-08 suite bug temps initiaux
 
-
       ! Masse de sediment initiale dans le bief
-      MasseVase%Initiale  = CVase(1)  * SmCourlis(1) * (ProfilCourlis(2)%Abs - ProfilCourlis(1)%Abs) / W2
-      MasseSable%Initiale = CSable(1) * SmCourlis(1) * (ProfilCourlis(2)%Abs - ProfilCourlis(1)%Abs) / W2
+      MasseVase%Initiale  = CVase(1)  * SmCourlis(1) * &
+                            (ProfilCourlis(2)%Abs - ProfilCourlis(1)%Abs) / W2
+      MasseSable%Initiale = CSable(1) * SmCourlis(1) * &
+                            (ProfilCourlis(2)%Abs - ProfilCourlis(1)%Abs) / W2
       Do i = 2, NbProfCourlis-1
-        MasseVase%Initiale  = MasseVase%Initiale  + &
-                                CVase(i)  * SmCourlis(i) * (ProfilCourlis(i+1)%Abs - ProfilCourlis(i-1)%Abs) / W2
-        MasseSable%Initiale = MasseSable%Initiale + &
-                                CSable(i) * SmCourlis(i) * (ProfilCourlis(i+1)%Abs - ProfilCourlis(i-1)%Abs) / W2
+        MasseVase%Initiale  = MasseVase%Initiale  + CVase(i)  * SmCourlis(i) * &
+                              (ProfilCourlis(i+1)%Abs - ProfilCourlis(i-1)%Abs) / W2
+        MasseSable%Initiale = MasseSable%Initiale + CSable(i) * SmCourlis(i) * &
+                              (ProfilCourlis(i+1)%Abs - ProfilCourlis(i-1)%Abs) / W2
       Enddo
-      MasseVase%Initiale  = MasseVase%Initiale  + &
-                              CVase(NbProfCourlis)  * SmCourlis(NbProfCourlis) * &
-                              (ProfilCourlis(NbProfCourlis)%Abs - ProfilCourlis(NbProfCourlis-1)%Abs) / W2
-      MasseSable%Initiale = MasseSable%Initiale + &
-                              CSable(NbProfCourlis) * SmCourlis(NbProfCourlis) * &
-                              (ProfilCourlis(NbProfCourlis)%Abs - ProfilCourlis(NbProfCourlis-1)%Abs) / W2
+      MasseVase%Initiale  = MasseVase%Initiale  + CVase(NbProfCourlis)  * &
+                            SmCourlis(NbProfCourlis) * &
+                            (ProfilCourlis(NbProfCourlis)%Abs - &
+                            ProfilCourlis(NbProfCourlis-1)%Abs) / W2
+      MasseSable%Initiale = MasseSable%Initiale + CSable(NbProfCourlis) * &
+                            SmCourlis(NbProfCourlis) * &
+                            (ProfilCourlis(NbProfCourlis)%Abs - &
+                            ProfilCourlis(NbProfCourlis-1)%Abs) / W2
 
       MasseVase%Eau  = MasseVase%Initiale
       MasseSable%Eau = MasseSable%Initiale
@@ -2881,7 +2885,7 @@ end if
       ! print *,"phase init courlis : ",tc2-tc1
       ! if (TEMPS > Tlim) print *," FIN Phase INIT" !dbug
 
-    Else If (phase_courlis == PHASE_CALCUL) Then
+    ElseIf (phase_courlis == PHASE_CALCUL) Then
       ! if (TEMPS > Tlim) print *," DEB Phase CALCUL" !dbug
       ! testtps : phase calcul courlis
       !call CPU_TIME (tc1)
@@ -2896,11 +2900,16 @@ end if
       ! Calcul des grandeurs hydrauliques en debut et fin des pas de temps sedim
       ! ------------------------------------------------------------------------
       Do i = 1, NbProfCourlis
-        Sm0Courlis(i)  = SmPrecCourlis(i)    + (SmCourlis(i)    - SmPrecCourlis(i))    * (Iter_courlis-1) / NbIterSedim
-        Sm1Courlis(i)  = SmPrecCourlis(i)    + (SmCourlis(i)    - SmPrecCourlis(i))    *  Iter_courlis    / NbIterSedim
-        Vit1Courlis(i) = VitPrecCourlis(i)   + (VitCourlis(i)   - VitPrecCourlis(i))   *  Iter_courlis    / NbIterSedim
-        Pm1Courlis(i)  = PmPrecCourlis(i)    + (PmCourlis(i)    - PmPrecCourlis(i))    *  Iter_courlis    / NbIterSedim
-        Zsl1Courlis(i) = ZsurfPrecCourlis(i) + (ZsurfCourlis(i) - ZsurfPrecCourlis(i)) *  Iter_courlis    / NbIterSedim
+        Sm0Courlis(i)  = SmPrecCourlis(i)    + (SmCourlis(i)    - &
+                         SmPrecCourlis(i))   * (Iter_courlis-1) / NbIterSedim
+        Sm1Courlis(i)  = SmPrecCourlis(i)    + (SmCourlis(i)    - &
+                         SmPrecCourlis(i))   *  Iter_courlis    / NbIterSedim
+        Vit1Courlis(i) = VitPrecCourlis(i)   + (VitCourlis(i)   - &
+                         VitPrecCourlis(i))  *  Iter_courlis    / NbIterSedim
+        Pm1Courlis(i)  = PmPrecCourlis(i)    + (PmCourlis(i)    - &
+                         PmPrecCourlis(i))    *  Iter_courlis    / NbIterSedim
+        Zsl1Courlis(i) = ZsurfPrecCourlis(i) + (ZsurfCourlis(i) - &
+                         ZsurfPrecCourlis(i)) *  Iter_courlis    / NbIterSedim
 
       ! print *," Zsl(",i,") = ",Zsl1Courlis(i)  ! PU2017: dbg
       Enddo
@@ -2923,7 +2932,7 @@ end if
         TauEMoy          ,  & ! Contrainte hydraulique effective moyenne ds section
         TauEMax          ,  & ! Contrainte hydraulique effective maximale ds section
         Ceq              ,  & ! Concentration d'equilibre des sables locale
-        CeqMoy          ,  & ! Concentration d'equilibre des sables moyenne dans la section
+        CeqMoy           ,  & ! Concentration d'equilibre des sables moyenne dans la section
 !        DeltaH           ,  & ! Variation de hauteur sedimentaire en chaque point des profils
         ProfilCourlis    ,  & ! Profils sedimentaires
         CL_Vase          ,  & ! CL amont de la concentration en Vase
@@ -2940,7 +2949,6 @@ end if
         Sm1Courlis       ,  & ! Surface mouillee a t+Dt
         Vit1Courlis      ,  & ! Vitesse moyenne par section
         Zsl1Courlis      ,  & ! Cote de la surface libre
-
         Pm1Courlis       ,  & ! Perimetre mouille
         CnuxV            ,  & ! Coefficient de diffusion vase
         CnuxS            ,  & ! Coefficient de diffusion sables
@@ -2967,120 +2975,120 @@ end if
       ! call CPU_TIME (tc2)
       ! print *,"phase calcul courlis : ", tc2-tc1
       ! if (TEMPS > Tlim) print *," FIN Phase CALCUL" !dbug
-  Endif
+    Endif
 
 
-  ! POST-TRAITEMENT DES DONNEES COURLIS
-  !====================================
-  ! if (TEMPS > Tlim) print *," DEB Post-trait donnees Courlis" !dbug
-  If ((PhasePostImpCourlis == PHASE_INITIALISATION) .or. &
-      (PhasePostImpCourlis == PHASE_CALCUL        ) .or. &
-      (PhasePostImpCourlis == PHASE_TERMINAISON  )) Then
+    ! POST-TRAITEMENT DES DONNEES COURLIS
+    !====================================
+    ! if (TEMPS > Tlim) print *," DEB Post-trait donnees Courlis" !dbug
+    If ((PhasePostImpCourlis == PHASE_INITIALISATION) .or. &
+        (PhasePostImpCourlis == PHASE_CALCUL        ) .or. &
+        (PhasePostImpCourlis == PHASE_TERMINAISON  )) Then
 
+      ! testtps : post trait courlis
+      ! call CPU_TIME (tc1)
+
+      ! print *,"post trait 1"
+
+      do i = 1, NbProfCourlis
+        ZrefC (i) =  ProfilCourlis(i)%Zref(1)
+      enddo
+
+
+      ! if (TEMPS > Tlim) print *," Appel PostImpCourlis" !dbug
+      call PostImpCourlis    ( &
+        FicListingCourlis    , & ! Unite logique fichier listing
+        PhasePostImpCourlis  , & !
+        TempsCourlis         , & ! Temps courant
+        num_pas_courlis      , & ! Numero du pas de temps
+        DtCourlis            , & ! Pas de temps
+        NbProfCourlis        , & ! Nombre de profils
+        NbCouche             , & ! Nombre de couches
+        ProfilCourlis%Abs    , & ! Abscisse des profils
+        ZrefC                , & ! Point bas de l interface eau-sediment (=ProfilCourlis%Zref(1))
+        Zsl1Courlis          , & ! Cote de la surface libre
+        Vit1Courlis          , & ! Vitesse moyenne par section
+        Sm1Courlis           , & ! Surface mouillee
+        CVase                , & ! Concentration des vases en suspension
+        CSable               , & ! Concentration des sables en suspension
+        DepotCumulCouche     , & ! Depot cumule /profil et /couche (> 0 depot, < 0 erosion)
+        DeltaSurfaceSed      , & ! Variation de la surface sedimentaire
+        QVase                , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
+        QSable               , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
+        TauHMax              , & ! "Tau" hydr. loc. max. ds section (f(tirant d'eau))
+        TauHMoy              , & ! "Tau" hydr. loc. moy. ds section (f(tirant d'eau))
+        TauEMoy              , & ! "Tau" hydr. eff. moy. ds section (f(rayon hydr.))
+        CeqMoy               , & ! Conc. d'equilibre des sables moy. ds section
+        FluxVase             , & ! Bilan sur les flux de vases
+        FluxSable            , & ! Bilan sur les flux de sables
+        MasseVase            , & ! Bilan sur les masses de vases
+        MasseSable           , & ! Bilan sur les masses de sables
+        VolSedDepot          , & ! Volume de sedimt depose depuis debut du calcul
+        Erreur               )
+    End if
+    ! if (TEMPS > Tlim) print *," FIN Post-trait donnees Courlis" !dbug
+
+    ! if (TEMPS > Tlim) print *," DEB Stock PLong" !dbug
+    If ((PhaseStockPLongCourlis == PHASE_INITIALISATION)  .or. &
+        (PhaseStockPLongCourlis == PHASE_CALCUL        )  .or. &
+        (PhaseStockPLongCourlis == PHASE_TERMINAISON   )) Then
+
+
+    ! if (TEMPS > Tlim) print *," Appel StockPLongCourlis" !dbug
+      call StockPLongCourlis   ( &
+        FicStockPLongCourlis   , & ! Unite logique fichier listing
+        PhaseStockPLongCourlis , & ! Phase de la simulation (init, calcul, ??)
+        TempsCourlis           , & ! Temps courant
+        num_pas_courlis        , & ! Numero du pas de temps
+        NbProfCourlis          , & ! Nombre de profils
+        NbCouche               , & ! Nombre de couches
+        ProfilCourlis          , & ! Profils sedimentaires
+        Zsl1Courlis            , & ! Cote de la surface libre
+        Vit1Courlis            , & ! Vitesse moyenne par section
+        Sm1Courlis             , & ! Surface mouillee
+        CVase                  , & ! Concentration des vases  en suspension
+        CSable                 , & ! Concentration des sables en suspension
+        DepotCumulCouche       , & ! Depot cumule /profil et /couche (> 0 depot, < 0 erosion)
+        DeltaSurfaceSed        , & ! Variation de la surface sedimentaire
+        QVase                  , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
+        QSable                 , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
+        TauHMax                , & ! "Tau" hydr. loc. max. ds section (f(tirant d'eau))
+        TauHMoy                , & ! "Tau" hydr. loc. moy. ds section (f(tirant d'eau))
+        TauHMax                , & ! "Tau" hydr. eff. max. ds section (f(rayon hydr.))
+        TauEMoy                , & ! "Tau" hydr. eff. moy. ds section (f(rayon hydr.))
+        CeqMoy                 , & ! Conc. d'equilibre des sables moy. ds section
+        Erreur                 )
+    Endif
+    ! if (TEMPS > Tlim) print *," FIN Stock PLong" !dbug
+
+    ! if (TEMPS > Tlim) print *," DEB Stock PTrans" !dbug
+    If ((PhaseStockPTransCourlis == PHASE_INITIALISATION)  .or. &
+        (PhaseStockPTransCourlis == PHASE_CALCUL        )  .or. &
+        (PhaseStockPTransCourlis == PHASE_TERMINAISON   )) Then
+
+    ! if (TEMPS > Tlim) print *," Appel StockPTransCourlis" !dbug
+      call StockPTransCourlis   ( &
+        FicStockPTransCourlis   , & ! Unite logique fichier listing
+        PhaseStockPTransCourlis , & ! Phase de la simulation (init, calcul, ??)
+        TempsCourlis            , & ! Temps courant
+        NbProfCourlis           , & ! Nombre de profils
+        NbCouche + 1            , & ! Nombre d'interfaces
+        ProfilCourlis           , & ! Profils sedimentaires
+        Zsl1Courlis             , & ! Cote de la surface libre
+        TauH                    , & ! Contrainte hydr. loc. (depend du tirant d'eau local)
+        TauE                    , & ! Contrainte hydr. eff. (depend du  rayon hydr.)
+        Ceq                     , & ! Conc. d'equilibre des sables
+        Erreur                  )
+    Endif
+!    if (TEMPS > Tlim) print *," FIN Stock PTrans" !dbug
     ! testtps : post trait courlis
-    ! call CPU_TIME (tc1)
-
-    ! print *,"post trait 1"
-
-    do i = 1, NbProfCourlis
-      ZrefC (i) =  ProfilCourlis(i)%Zref(1)
-    enddo
+    !call CPU_TIME (tc2)
+    !print *,"post trait courlis : ", tc2-tc1
 
 
-    ! if (TEMPS > Tlim) print *," Appel PostImpCourlis" !dbug
-    call PostImpCourlis    ( &
-      FicListingCourlis    , & ! Unite logique fichier listing
-      PhasePostImpCourlis  , & !
-      TempsCourlis         , & ! Temps courant
-      num_pas_courlis      , & ! Numero du pas de temps
-      DtCourlis            , & ! Pas de temps
-      NbProfCourlis        , & ! Nombre de profils
-      NbCouche             , & ! Nombre de couches
-      ProfilCourlis%Abs    , & ! Abscisse des profils
-      ZrefC                , & ! Point bas de l interface eau-sediment (=ProfilCourlis%Zref(1))
-      Zsl1Courlis          , & ! Cote de la surface libre
-      Vit1Courlis          , & ! Vitesse moyenne par section
-      Sm1Courlis           , & ! Surface mouillee
-      CVase                , & ! Concentration des vases en suspension
-      CSable               , & ! Concentration des sables en suspension
-      DepotCumulCouche     , & ! Depot cumule /profil et /couche (> 0 depot, < 0 erosion)
-      DeltaSurfaceSed      , & ! Variation de la surface sedimentaire
-      QVase                , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
-      QSable               , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
-      TauHMax              , & ! "Tau" hydr. loc. max. ds section (f(tirant d'eau))
-      TauHMoy              , & ! "Tau" hydr. loc. moy. ds section (f(tirant d'eau))
-      TauEMoy              , & ! "Tau" hydr. eff. moy. ds section (f(rayon hydr.))
-      CeqMoy               , & ! Conc. d'equilibre des sables moy. ds section
-      FluxVase             , & ! Bilan sur les flux de vases
-      FluxSable            , & ! Bilan sur les flux de sables
-      MasseVase            , & ! Bilan sur les masses de vases
-      MasseSable           , & ! Bilan sur les masses de sables
-      VolSedDepot          , & ! Volume de sedimt depose depuis debut du calcul
-      Erreur               )
-  End if
-  ! if (TEMPS > Tlim) print *," FIN Post-trait donnees Courlis" !dbug
+!    if (TEMPS > Tlim) print *," FIN CalculSedim" !dbug
 
-  ! if (TEMPS > Tlim) print *," DEB Stock PLong" !dbug
-  If ((PhaseStockPLongCourlis == PHASE_INITIALISATION)  .or. &
-      (PhaseStockPLongCourlis == PHASE_CALCUL        )  .or. &
-      (PhaseStockPLongCourlis == PHASE_TERMINAISON   )) Then
-
-
-  ! if (TEMPS > Tlim) print *," Appel StockPLongCourlis" !dbug
-    call StockPLongCourlis   ( &
-      FicStockPLongCourlis   , & ! Unite logique fichier listing
-      PhaseStockPLongCourlis , & ! Phase de la simulation (init, calcul, ??)
-      TempsCourlis           , & ! Temps courant
-      num_pas_courlis        , & ! Numero du pas de temps
-      NbProfCourlis          , & ! Nombre de profils
-      NbCouche               , & ! Nombre de couches
-      ProfilCourlis          , & ! Profils sedimentaires
-      Zsl1Courlis            , & ! Cote de la surface libre
-      Vit1Courlis            , & ! Vitesse moyenne par section
-      Sm1Courlis             , & ! Surface mouillee
-      CVase                  , & ! Concentration des vases  en suspension
-      CSable                 , & ! Concentration des sables en suspension
-      DepotCumulCouche       , & ! Depot cumule /profil et /couche (> 0 depot, < 0 erosion)
-      DeltaSurfaceSed        , & ! Variation de la surface sedimentaire
-      QVase                  , & ! Flux de depot des vases (> 0 depot, < 0 erosion)
-      QSable                 , & ! Flux de depot des sables (> 0 depot, < 0 erosion)
-      TauHMax                , & ! "Tau" hydr. loc. max. ds section (f(tirant d'eau))
-      TauHMoy                , & ! "Tau" hydr. loc. moy. ds section (f(tirant d'eau))
-      TauHMax                , & ! "Tau" hydr. eff. max. ds section (f(rayon hydr.))
-      TauEMoy                , & ! "Tau" hydr. eff. moy. ds section (f(rayon hydr.))
-      CeqMoy                 , & ! Conc. d'equilibre des sables moy. ds section
-      Erreur                 )
-  End if
-  ! if (TEMPS > Tlim) print *," FIN Stock PLong" !dbug
-
-  ! if (TEMPS > Tlim) print *," DEB Stock PTrans" !dbug
-  If ((PhaseStockPTransCourlis == PHASE_INITIALISATION)  .or. &
-      (PhaseStockPTransCourlis == PHASE_CALCUL        )  .or. &
-      (PhaseStockPTransCourlis == PHASE_TERMINAISON   )) Then
-
-  ! if (TEMPS > Tlim) print *," Appel StockPTransCourlis" !dbug
-    call StockPTransCourlis   ( &
-      FicStockPTransCourlis   , & ! Unite logique fichier listing
-      PhaseStockPTransCourlis , & ! Phase de la simulation (init, calcul, ??)
-      TempsCourlis            , & ! Temps courant
-      NbProfCourlis           , & ! Nombre de profils
-      NbCouche + 1            , & ! Nombre d'interfaces
-      ProfilCourlis           , & ! Profils sedimentaires
-      Zsl1Courlis             , & ! Cote de la surface libre
-      TauH                    , & ! Contrainte hydr. loc. (depend du tirant d'eau local)
-      TauE                    , & ! Contrainte hydr. eff. (depend du  rayon hydr.)
-      Ceq                     , & ! Conc. d'equilibre des sables
-      Erreur                  )
-  End if
-!  if (TEMPS > Tlim) print *," FIN Stock PTrans" !dbug
-  ! testtps : post trait courlis
-  !call CPU_TIME (tc2)
-  !print *,"post trait courlis : ", tc2-tc1
-
-
-!  if (TEMPS > Tlim) print *," FIN CalculSedim" !dbug
-
-Endif CalculSedim
+  Endif CalculSedim
 !if (TEMPS > Tlim) print *," FIN  Hors Condition CalculSedim" !dbug
 !=================
    select case( PhaseSimulation )
@@ -3180,10 +3188,10 @@ Endif CalculSedim
     Deallocate (DepotCumulCouche, DeltaSurfaceSed, DeltaH)
     Deallocate (SurPl)
 
-  End if TermineCourlis ! Fin de la sauvergarde des resultats  COURLIS
+    print *,"" ! PU2017 : Saut de ligne apres affichage du temps courant
+    print *," CPT_PLANIM = ",my_cpt_planim ! PU2017
 
-  print *,"" ! PU2017 : Saut de ligne apres affichage du temps courant
-  print *," CPT_PLANIM = ",my_cpt_planim ! PU2017
+  Endif TermineCourlis ! Fin de la sauvergarde des resultats  COURLIS
 
   Deallocate (Vsed, myZsl)  ! PU2017: Desallocation des variables globales Vsed, Hsed, myZsl, mySm
   if(OptionCourlis)then

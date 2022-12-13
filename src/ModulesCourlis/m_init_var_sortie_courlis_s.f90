@@ -10,7 +10,7 @@ Module M_INIT_VAR_SORTIE_COURLIS_S
 !
 !  Fonction :  Module declarant les types et definissant les structures
 !  --------    pour les variables a sortir (i.e. a stocker ou a imprimer
-!        sur listing)
+!              sur listing)
 !
 !=========================================================================
 
@@ -62,58 +62,56 @@ Module M_INIT_VAR_SORTIE_COURLIS_S
 Contains
 
   Subroutine  INIT_VAR_SORTIE_COURLIS_S  (  &
-    Var_nom              ,  & ! Structure sur les informations constantes
-    Gdr                ,  & ! Structure sur les informations non constantes
+    Var_nom          ,  & ! Structure sur les informations constantes
+    Gdr              ,  & ! Structure sur les informations non constantes
     X                ,  & ! Maillage
-    Zsurf              ,  & ! Cote de la surface libre
-    Vitesse              ,  & ! Vitesse moyenne par section
-    SurfMouil            ,  & ! Surface mouillee
-    PerimMouil            ,  & ! Périmètre mouillé
-    CVase              ,  & ! Concentration des vases en suspension
-    CSable              ,  & ! Concentration des sables en suspension
-    Zref              ,  & ! Cote des points bas des interfaces sedimentaires
-    NbInterface            ,  & ! Nombre d'interfaces sedimentaires
-    QVase              ,  & ! Flux de dépôt des vases par couche (> 0 dépôt, < 0 érosion)
-    QSable              ,  & ! Flux de dépôt des sables par couche (> 0 dépôt, < 0 érosion)
-    TauHMoy              ,  & ! Contrainte hydraulique moyenne dans la section
-    TauHMax              ,  & ! Contrainte hydraulique maximale dans la section
-    TauEMoy              ,  & ! Contrainte hydraulique effective moyenne ds section
-    TauEMax              ,  & ! Contrainte hydraulique effective maximale ds section
-    CeqMoy              ,  & ! Concentration d'equilibre des sables moyenne dans la section
-    DeltaSurfaceSed          ,  & ! Variation de la surface sédimentaire
-    DepotCumulCouche        ,  & ! Depot cumule /profil et /couche (> 0 dépôt, < 0 érosion)
-    VarASortir            ,  & ! Drapeaux sur les variables a sortir
-    PhaseSimulation          )    ! Variable indiquant la phase de la simulation
+    Zsurf            ,  & ! Cote de la surface libre
+    Vitesse          ,  & ! Vitesse moyenne par section
+    SurfMouil        ,  & ! Surface mouillee
+    PerimMouil       ,  & ! Perimetre mouille
+    CVase            ,  & ! Concentration des vases en suspension
+    CSable           ,  & ! Concentration des sables en suspension
+    Zref             ,  & ! Cote des points bas des interfaces sedimentaires
+    NbInterface      ,  & ! Nombre d'interfaces sedimentaires
+    QVase            ,  & ! Flux de depot des vases par couche (> 0 depot, < 0 erosion)
+    QSable           ,  & ! Flux de depot des sables par couche (> 0 depot, < 0 erosion)
+    TauHMoy          ,  & ! Contrainte hydraulique moyenne dans la section
+    TauHMax          ,  & ! Contrainte hydraulique maximale dans la section
+    TauEMoy          ,  & ! Contrainte hydraulique effective moyenne ds section
+    TauEMax          ,  & ! Contrainte hydraulique effective maximale ds section
+    CeqMoy           ,  & ! Concentration d'equilibre des sables moyenne dans la section
+    DeltaSurfaceSed  ,  & ! Variation de la surface sedimentaire
+    DepotCumulCouche ,  & ! Depot cumule /profil et /couche (> 0 depot, < 0 erosion)
+    VarASortir       ,  & ! Drapeaux sur les variables a sortir
+    PhaseSimulation  )    ! Variable indiquant la phase de la simulation
 
-  !*************************************************************************
-  !  PROGICIEL : COURLIS           Ch. BERTIER
-  !
-  !  VERSION : 4.0       08/2003    Copyright EDF-CETMEF
-  !
-  !*************************************************************************
-  !=========================================================================
-  !
-  !  Fonction :  Module declarant les types et definissant les structures
-  !  --------    pour les variables a sortir (i.e. a stocker ou a imprimer
-  !        sur listing)
-  !
-  !=========================================================================
+    !*************************************************************************
+    !  PROGICIEL : COURLIS           Ch. BERTIER
+    !
+    !  VERSION : 4.0       08/2003    Copyright EDF-CETMEF
+    !
+    !*************************************************************************
+    !=========================================================================
+    !
+    !  Fonction :  Module declarant les types et definissant les structures
+    !  --------    pour les variables a sortir (i.e. a stocker ou a imprimer
+    !        sur listing)
+    !
+    !=========================================================================
 
     !
-    !============================= Declarations ===========================
+    !============================= Declarations ==============================
 
     !.. Modules importes ..
     !----------------------
 
     use M_INDEX_VARIABLE_COURLIS_C    ! Constantes servant a reperer les variables
-    use M_CONSTANTES_CALCUL_C      ! Constante servant a reperer la phase de calcul
-
+    use M_CONSTANTES_CALCUL_C         ! Constante servant a reperer la phase de calcul
 
     !.. Declarations explicites ..
     !-----------------------------
 
     implicit none
-
 
     !.. Arguments ..
     !---------------
@@ -127,13 +125,13 @@ Contains
     real(DOUBLE)   , dimension(:)  , pointer       :: TauHMoy, TauHMax, TauEMoy, TauEMax, CeqMoy
     real(DOUBLE)   , dimension(:)  , pointer       :: DeltaSurfaceSed
     real(DOUBLE)   , dimension(:,:), pointer       :: DepotCumulCouche
-  integer                        , intent(in   ) :: NbInterface
+    integer                        , intent(in   ) :: NbInterface
     logical        , dimension(:)  , intent(in   ) :: VarASortir
     integer                        , intent(in   ) :: PhaseSimulation
 
-  integer :: k
+    integer :: k
     character*2, dimension(10) :: i_in_letter
-  data i_in_letter / '1','2','3','4','5','6','7','8','9','10'/
+    data i_in_letter / '1','2','3','4','5','6','7','8','9','10'/
 
     !============================ Initialisations ===========================
 
@@ -156,16 +154,18 @@ Contains
       Var_nom(VARCO_TauEMax) = VAR_NOM_T(.true. ,"Contrainte effective maximale    ","TEMA","N/m2  ",3,.true. )
       Var_nom(VARCO_TauEMoy) = VAR_NOM_T(.true. ,"Contrainte effective moyenne     ","TEMO","N/m2  ",3,.true. )
       Var_nom(VARCO_CeqMoy ) = VAR_NOM_T(.true. ,"Concentration d equilibre moyenne","CEQM","g/l   ",4,.true. )
-    Do k = 1, NbInterface-1
-        Var_nom(VARCO_Zref(k)) = VAR_NOM_T(.true.,"Cote de l interface "//i_in_letter(k),      &
-                  "ZF"//i_in_letter(k),"m     ",3,.true. )
-        Var_nom(VARCO_DepC(k)) = VAR_NOM_T(.true.,"Depot cumule de la couche "//i_in_letter(k),    &
-                  "MDE"//i_in_letter(k),"tonnes",3,.true. )
-    Enddo
 
+      Do k = 1, NbInterface-1
+          Var_nom(VARCO_Zref(k)) = VAR_NOM_T(.true.                                 , &
+                                             "Cote de l interface "//i_in_letter(k) , &
+                                             "ZF"//i_in_letter(k),"m     ",3,.true. )
 
+          Var_nom(VARCO_DepC(k)) = VAR_NOM_T(.true.                                       , &
+                                             "Depot cumule de la couche "//i_in_letter(k) , &
+                                             "MDE"//i_in_letter(k),"tonnes",3,.true.      )
+      Enddo
 
-  End if label_initialisation
+    End if label_initialisation
 
     !============================ Instructions ==============================
 
@@ -179,7 +179,7 @@ Contains
     Gdr(VARCO_X      )%Valeur     => X
     Gdr(VARCO_Vit    )%Valeur     => Vitesse
     Gdr(VARCO_Sm     )%Valeur     => SurfMouil
-  Gdr(VARCO_Pm     )%Valeur     => PerimMouil
+    Gdr(VARCO_Pm     )%Valeur     => PerimMouil
     Gdr(VARCO_Zsurf  )%Valeur     => Zsurf
     Gdr(VARCO_CVase  )%Valeur     => CVase
     Gdr(VARCO_CSable )%Valeur     => CSAble
@@ -192,10 +192,10 @@ Contains
     Gdr(VARCO_TauEMax)%Valeur     => TauEMax
     Gdr(VARCO_TauEMoy)%Valeur     => TauEMoy
     Gdr(VARCO_CeqMoy )%Valeur     => CeqMoy
-  Do k = 1, NbInterface-1
-      Gdr(VARCO_Zref(k))%Valeur   => Zref(k,:)
-      Gdr(VARCO_DepC(k))%Valeur   => DepotCumulCouche(k,:)
-  Enddo
+    Do k = 1, NbInterface-1
+        Gdr(VARCO_Zref(k))%Valeur   => Zref(k,:)
+        Gdr(VARCO_DepC(k))%Valeur   => DepotCumulCouche(k,:)
+    Enddo
 
   End Subroutine INIT_VAR_SORTIE_COURLIS_S
 

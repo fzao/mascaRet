@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET-TRACER.
 !
@@ -36,7 +36,7 @@ Subroutine Diffu_tracer( &
 !*****************************************************************************
 ! PROGICIEL : TRACER         Ch. BERTIER - M. LUCK
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !*****************************************************************************
 !=========================================================================
 !

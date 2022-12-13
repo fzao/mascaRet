@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -22,7 +22,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
 ! PROGICIEL : MASCARET        F. ZAOUI
 !                             S. DELMAS     C. COULET
 !
-! VERSION : V8P2R0               EDF-CEREMA-ARTELIA
+! VERSION : V8P4R0               EDF-CEREMA-ARTELIA
 ! *********************************************************************
 ! - FONCTION :
 !              DETERMINATION DE LA TOPOLOGIE DE LA MATRICE CREUSE
@@ -45,16 +45,16 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
    use M_LIAISON_T           ! Definition du type LIAISON_T
    use M_CASIER_T            ! Definition du type CASIER_T
    use M_CONSTANTES_CASIER_C
-   
+
    implicit none             ! Pas de type implicite par defaut
 
-   type(ERREUR_T) , intent(inout)  :: Erreur                       ! Gestion des erreurs
+   type(ERREUR_T) , intent(out)  :: Erreur                       ! Gestion des erreurs
    type(CONNECT_T) , intent(in)  :: Connect                      ! Table descriptive du reseau de biefs
    type(EXTREMITE_T) , dimension(:), intent(inout) :: Extremite  ! Extremites libres
    type(REZOMAT_T) , intent(inout) :: Matrice                      ! Description de la matrice du probleme
    logical                           , intent(in   ) :: OptionCasier
-   type(LIAISON_T)  , dimension(:)  , intent(in   ) :: Liaison    ! Liaisons
-   type(CASIER_T)   , dimension(:)  , intent(in   ) :: Casier     ! Casiers
+   type(LIAISON_T)  , dimension(:) , pointer , intent(in   ) :: Liaison    ! Liaisons
+   type(CASIER_T)   , dimension(:) , pointer , intent(in   ) :: Casier     ! Casiers
 
    logical test              ! Test des sections des liaisons
    integer i,j,k,iliaison    ! Indices de boucle
@@ -79,7 +79,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
    integer nbEqCasier        ! Nombre d'equation de casier
    integer, dimension(size(liaison)):: mark_liaison
    integer                          :: id_section, compt
-   
+
    !
    ! Initialisations
    !
@@ -131,7 +131,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
                     return
                 endif
             enddo
-         endif 
+         endif
       enddo
    endif
 
@@ -175,16 +175,16 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
             endif
         endif
       enddo
-    
+
       if ( nbLiaison > 0) then    ! equations et elements non-nuls pour les liaisons
           nbEqLiaison = nbLiaison
           Matrice%NNZ = Matrice%NNZ + 3 * (nbLiaison) ! Elements : A, B et C || D va dans le vect b
       endif
-    
+
       if ( nbCasier > 0) then     ! euqations et elements non-nuls pour les casiers
         nbEqCasier = nbCasier
         do i = 1, nbCasier
-            element = 1 + size( Casier(i)%LiaisonRC(:,1) ) + size( Casier(i)%LiaisonCC(:,1) )  
+            element = 1 + size( Casier(i)%LiaisonRC(:,1) ) + size( Casier(i)%LiaisonCC(:,1) )
             Matrice%NNZ = Matrice%NNZ + element
         enddo
       endif
@@ -244,7 +244,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
          return
       end if
       Matrice%SNR(:) = 0
-      
+
       if(.not.associated(Matrice%pivot)) allocate( Matrice%pivot( Matrice%N ) , STAT = retour )
       if( retour.ne.0 ) then
          Erreur%Numero = 5
@@ -254,7 +254,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
          return
       end if
       Matrice%pivot(:) = 0._DOUBLE
-   
+
       if(.not.associated(Matrice%ha)) allocate( Matrice%ha( Matrice%IHA , 11 ) , STAT = retour )
       if( retour.ne.0 ) then
          Erreur%Numero = 5
@@ -358,7 +358,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
         return
    end if
    Matrice%SecLiai(:)   = 0
-   
+
    if(.not.associated(Matrice%rowA)) allocate( Matrice%rowA( Matrice%NNZ ) , STAT = retour )
    if( retour.ne.0 ) then
       Erreur%Numero = 5
@@ -369,7 +369,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
    end if
    Matrice%rowA(:) = 0
 
-  
+
 
    if(.not.associated(Matrice%colA)) allocate( Matrice%colA( Matrice%NNZ ) , STAT = retour )
    if( retour.ne.0 ) then
@@ -399,7 +399,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
       return
    end if
    Matrice%typSec(:)    = 0
-   
+
    if( nbConflu >= 0 ) then
       if(.not.associated(Matrice%headConflu)) allocate( Matrice%headConflu( nbConflu ) , STAT = retour )
       if( retour.ne.0 ) then
@@ -455,17 +455,17 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
             Matrice%typSec(Connect%NUMSECTIONEXTLIBRE(i)) = -5
       end select
    end do PASS4
-   
+
    if( OptionCasier ) then
        PASS20 : do i = 1, size(Liaison)
             if ( liaison(i)%NatureLiaison == LIAISON_TYPE_RIVIERE_CASIER ) then
-                Matrice%typSec( liaison(i)%CaracRC%Section ) = - 10 
+                Matrice%typSec( liaison(i)%CaracRC%Section ) = - 10
                 Matrice%SecLiai( liaison(i)%CaracRC%Section )= Matrice%SecLiai( liaison(i)%CaracRC%Section ) + 1
                 Matrice%LiaiSec(i) = liaison(i)%CaracRC%Section
             endif
        enddo PASS20
    endif
-   
+
    !
    ! Determination du type origine (-) ou extremite (+) des sections pour chaque confluent
    !
@@ -502,7 +502,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
       PASS6 : do j = ori , ext - 1
          i    = j + 1
          incr = 0
-         
+
          if( Matrice%typSec(j).ne.-10 ) then ! non reliee a une liaison
              ! I et N !
              if( Matrice%typSec(j).ne.-1 ) then
@@ -549,25 +549,25 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
                 Matrice%rowA(nval) = nrow + 2
                 Matrice%colA(nval) = ncol + incr
              endif
-             
+
          elseif ( Matrice%typSec(j).eq.-10 ) then ! Reliee a une liaison
-                
+
              ! positionnnement des variables
              Matrice%noVarDQ(j) = ncol + 1
              Matrice%noVarDZ(j) = ncol + 2
              Matrice%noVarDQ(i) = ncol + 3
              Matrice%noVarDZ(i) = ncol + 4
-            
+
              nval               = nval + 1
              Matrice%rowA(nval) = nrow + 1
              Matrice%colA(nval) = Matrice%noVarDQ(j)
-        
-             nval               = nval + 1 
+
+             nval               = nval + 1
              Matrice%rowA(nval) = nrow + 1
              Matrice%colA(nval) = Matrice%noVarDQ(i)
-            
+
              ! parcours sur les Ql :
-             do iliaison = 1, NbLiaison      
+             do iliaison = 1, NbLiaison
                 if ( liaison(iliaison)%NatureLiaison == LIAISON_TYPE_RIVIERE_CASIER ) then
                     if ( liaison(iliaison)%CaracRC%Section == j ) then
                         nval               = nval + 1
@@ -576,7 +576,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
                     endif
                 endif
              enddo
-            
+
              ! egalite des cotes
              nval                = nval + 1
              Matrice%rowA(nval)  = nrow + 2
@@ -584,7 +584,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
              nval                = nval + 1
              Matrice%rowA(nval)  = nrow + 2
              Matrice%colA(nval)  = Matrice%noVarDZ(i)
-         
+
           endif
 
          nrow = nrow + 2
@@ -595,7 +595,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
             ncol = ncol + 4
          elseif( i.eq.ext.and.Matrice%typSec(i) < 0 ) then
             ncol = ncol + 3
-         elseif( Matrice%typSec(j) == -10 ) then 
+         elseif( Matrice%typSec(j) == -10 ) then
             ncol = ncol + 2
          else
             ncol = ncol + 2
@@ -671,7 +671,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
 
         ! 4eme partie : traitement des casiers
         if ( NbCasier > 0 ) then
-            PASS22 : do i = 1, NbCasier   
+            PASS22 : do i = 1, NbCasier
                 nrow               = nrow + 1
                 nval               = nval + 1
                 Matrice%rowA(nval)  = nrow
@@ -679,19 +679,19 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice , OptionCasier, Liaison 
 
                 do j = 1, size( Casier(i)%LiaisonRC(:,1) )
                     nval                = nval + 1
-                    Matrice%rowA(nval)  = nrow       
+                    Matrice%rowA(nval)  = nrow
                     Matrice%colA(nval)  = Matrice%noVarDQl( Casier(i)%LiaisonRC(j,1) )
                 enddo
                 do j = 1, size( Casier(i)%LiaisonCC(:,1) )
                     nval                = nval + 1
-                    Matrice%rowA(nval)  = nrow       
+                    Matrice%rowA(nval)  = nrow
                     Matrice%colA(nval)  = Matrice%noVarDQl( Casier(i)%LiaisonCC(j,1) )
                 enddo
             end do PASS22
         endif
-   
+
    endif
-    
+
    return
 
 end subroutine

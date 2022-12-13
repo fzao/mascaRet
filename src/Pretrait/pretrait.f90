@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -22,6 +22,7 @@ subroutine  PRETRAIT                                       ( &
   OptionCasier                                             , &
   OptionCourlis, FichierMotCleCourlis, FichierDicoCourlis  , &
   OndeSubm                                                 , &
+  decentrement                                             , &
   CalculValidation, TypeValidation                         , &
   Regime, ModeleLit                                        , &
   FrottParoiVerticale, PerteChargeConfluent                , &
@@ -74,7 +75,7 @@ subroutine  PRETRAIT                                       ( &
 ! PROGICIEL : MASCARET       S. MANDELKERN - N. GOUTAL
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 !  FONCTION : LECTURE DU FICHIER CAS PAR APPEL DU LOGICIEL DAMOCLES.
 !----------------------------------------------------------------------
@@ -152,6 +153,7 @@ subroutine  PRETRAIT                                       ( &
    type(FICHIER_T), intent(inout) :: FichierDicoCourlis
    type(FICHIER_T), intent(inout) :: FichierMotCleCourlis
    logical        , intent(  out) :: OndeSubm
+   logical        , intent(  out) :: decentrement
    logical        , intent(  out) :: CalculValidation
    logical        , intent(  out) :: PerteChargeConfluent
    integer        , intent(  out) :: TypeValidation
@@ -319,7 +321,7 @@ subroutine  PRETRAIT                                       ( &
    integer, allocatable      :: itab(:)
    real(double), allocatable :: rtab(:)
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    character(len=256)  :: xcasFile
    integer             :: unitNum
    ! Erreur
@@ -379,7 +381,7 @@ subroutine  PRETRAIT                                       ( &
    call DATE_S(chaine_date)
 
    if( VersionCode == 3 ) then
-      write(UniteListing,10000) ' V8P2R0 ', chaine_date
+      write(UniteListing,10000) ' V8P4R0 ', chaine_date
    endif
 
    if( VersionCode == 2 ) then
@@ -521,6 +523,14 @@ subroutine  PRETRAIT                                       ( &
    if( OndeSubm ) then
       write(UniteListing,10050)
    endif
+
+   ! option de decentrement SARAP
+   if (Noyau == NOYAU_SARAP) then
+     pathNode = 'parametresNumeriques/decentrement'
+     line = xcasReader(unitNum, pathNode)
+     read(unit=line, fmt=*) decentrement
+   endif
+
    !
    ! Modelisation de type Boussinesq
    ! -------------------------------

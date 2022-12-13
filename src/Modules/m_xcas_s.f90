@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -24,7 +24,7 @@ module m_xcas_s
 !  Comments: A reader for Mascaret .xcas file
 !     Please do not use for anything else (not a xml parser)
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !
   implicit none
 
@@ -89,8 +89,8 @@ module m_xcas_s
             character(len=256), intent(in) :: pathNode
             integer, optional :: move
             character(len=32), dimension(5) :: Nodes
-            character(len = 1024) :: xcasReader
-            character(len=1024) :: line
+            character(len = 8192) :: xcasReader
+            character(len=8192) :: line
             integer             :: i, j
             integer             :: errorCode
             integer             :: jump

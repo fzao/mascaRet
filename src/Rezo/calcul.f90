@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -57,7 +57,7 @@ subroutine CALCUL( &
 ! PROGICIEL : MASCARET        F. ZAOUI
 !                             S. DELMAS      C. COULET
 !
-! VERSION : V8P2R0               EDF-CEREMA-ARTELIA
+! VERSION : V8P4R0               EDF-CEREMA-ARTELIA
 ! *********************************************************************
 ! - FONCTION :
 !   - CALCUL DU COUPLE SOLUTION (DZi,DQi) POUR CHAQUE SECTION i
@@ -121,9 +121,9 @@ subroutine CALCUL( &
    type(ERREUR_T)              , intent(inout) :: Erreur
    type(CONNECT_T)             , intent(in)    :: Connect             ! Table de connectivite du reseau
    type(REZOMAT_T)             , intent(inout) :: Matrice             ! Matrice du reseau
-   type(LIAISON_T), dimension(:), intent(inout) :: Liaison
-   type(CASIER_T) , dimension(:), intent(inout) :: Casier
-   type(APPORT_PLUIE_T), dimension(:), intent(in   ) :: ApportPluie
+   type(LIAISON_T), dimension(:), pointer, intent(inout) :: Liaison
+   type(CASIER_T) , dimension(:), pointer, intent(inout) :: Casier
+   type(APPORT_PLUIE_T), dimension(:), pointer, intent(inout) :: ApportPluie
    !
    ! Variables locales ..
    !
@@ -289,7 +289,7 @@ subroutine CALCUL( &
              !
              ! Determination des macro-coefficients de l'equation de continuite : AG,AH,AI,AJ,AK
              !
-             PX =  X(I) - X(J)
+             PX =  1.D0 / (X(I) - X(J))
              B1I  = B1(I)
              B1J  = B1(J)
              B2I  = B2(I)
@@ -340,7 +340,7 @@ subroutine CALCUL( &
              BBJ = B1J + B2J + BS(J)
 
              AG = TETA
-             AH = ( BBI + BBJ ) / 4._DOUBLE * PX / DT
+             AH = (( BBI + BBJ ) / (4._DOUBLE * DT * PX))
              AI = AG
              AJ = -AH
              AK = Q(J) - Q(I) + QINJEC(I)
@@ -349,7 +349,7 @@ subroutine CALCUL( &
              ! Determination des macro-coefficients de l'equation de quantite de mouvement : AL,AM,AN,AO,AP
              !
 
-             WB1   = ( SIGN( Q(I)**2 , Q(I)) + SIGN(Q(J)**2 , Q(J) ) ) / 2._DOUBLE
+             WB1   = ( SIGN( Q(I)*Q(I) , Q(I)) + SIGN(Q(J)*Q(J) , Q(J) ) ) * 0.5D0
              WB2   = TETA * DABS(Q(I) )
              WB3   = TETA * DABS(Q(J) )
 
@@ -359,11 +359,11 @@ subroutine CALCUL( &
                 WAOJ = 0.9_DOUBLE * ( ST2J / ST1J )**W16
                 WRI = R2I / R1I
                 WRJ = R2J / R1J
-                WAI = ( 1._DOUBLE - WAOI ) / 2._DOUBLE * DCOS( PI * WRI / 0.3_DOUBLE ) + ( 1._DOUBLE + WAOI ) / 2._DOUBLE
+                WAI = ( 1._DOUBLE - WAOI ) * 0.5D0 * DCOS( PI * WRI / 0.3_DOUBLE ) + ( 1._DOUBLE + WAOI ) * 0.5D0
                 if( WRI > 0.3_DOUBLE ) then
                    WAI = WAOI
                 end if
-                WAJ = ( 1._DOUBLE - WAOJ ) / 2._DOUBLE * DCOS( PI * WRJ / 0.3_DOUBLE ) + ( 1._DOUBLE + WAOJ ) / 2._DOUBLE
+                WAJ = ( 1._DOUBLE - WAOJ ) * 0.5D0 * DCOS( PI * WRJ / 0.3_DOUBLE ) + ( 1._DOUBLE + WAOJ ) * 0.5D0
                 if( WRJ > 0.3_DOUBLE ) then
                    WAJ = WAOJ
                 end if
@@ -372,10 +372,10 @@ subroutine CALCUL( &
                 WST2I = ST2I
                 WST2J = ST2J
                 if( S2I > 0._DOUBLE ) then
-                   WST2I = ST2I * DSQRT( 1._DOUBLE + S1I / S2I * ( 1._DOUBLE - WAI**2 ) )
+                   WST2I = ST2I * DSQRT( 1._DOUBLE + S1I / S2I * ( 1._DOUBLE - WAI*WAI ) )
                 end if
                 if( S2J > 0._DOUBLE ) then
-                   WST2J = ST2J * DSQRT( 1._DOUBLE + S1J / S2J * ( 1._DOUBLE - WAJ**2 ) )
+                   WST2J = ST2J * DSQRT( 1._DOUBLE + S1J / S2J * ( 1._DOUBLE - WAJ*WAJ ) )
                 end if
              else
 
@@ -397,7 +397,7 @@ subroutine CALCUL( &
              ALPH1J = W13 * WST1J * R1J**W23 * ( 5._DOUBLE * B1J - 2._DOUBLE * R1J * DPDZ1(J) )
              ALPH2I = W13 * WST2I * R2I**W23 * ( 5._DOUBLE * B2I - 2._DOUBLE * R2I * DPDZ2(I) )
              ALPH2J = W13 * WST2J * R2J**W23 * ( 5._DOUBLE * B2J - 2._DOUBLE * R2J * DPDZ2(J) )
-             WC1    = ( WDI**2 + WDJ**2 ) / 2._DOUBLE
+             WC1    = ( WDI*WDI + WDJ*WDJ ) * 0.5D0
              WC4    = TETA * WDI * ( ALPH1I + ALPH2I )
              WC5    = TETA * WDJ * ( ALPH1J + ALPH2J )
              WE2    = 0.5_DOUBLE / DT
@@ -409,26 +409,26 @@ subroutine CALCUL( &
              WBETAI = 1._DOUBLE
              if( S2I.GT.EPS6 ) then
                 WETAI  = WST1I / WST2I * S1I / S2I * ( R1I / R2I )**W23
-                WBETAI = ( WETAI**2 / S1I + 1._DOUBLE / S2I ) * WSI / ( 1._DOUBLE + WETAI )**2
+                WBETAI = ( WETAI*WETAI / S1I + 1._DOUBLE / S2I ) * WSI / (( 1._DOUBLE + WETAI )*( 1._DOUBLE + WETAI ))
              end if
              WBETAJ = 1._DOUBLE
              if( S2J.GT.EPS6 ) then
                 WETAJ  = WST1J / WST2J * S1J / S2J * ( R1J / R2J )**W23
-                WBETAJ = ( WETAJ**2 / S1J + 1._DOUBLE / S2J ) * WSJ / ( 1._DOUBLE + WETAJ )**2
+                WBETAJ = ( WETAJ*WETAJ / S1J + 1._DOUBLE / S2J ) * WSJ / (( 1._DOUBLE + WETAJ )*( 1._DOUBLE + WETAJ ))
              end if
-             WF1 = ( WBETAI * VI * Q(I) - WBETAJ * VJ * Q(J) ) / PX
-             WF2 = 2._DOUBLE * TETA / PX * WBETAI * VI
-             WF3 = -2._DOUBLE * TETA / PX * WBETAJ * VJ
-             WF4 = -TETA / PX * WBETAI * WBI * VI**2
-             WF5 = TETA / PX * WBETAJ * WBJ * VJ**2
+             WF1 = ( WBETAI * VI * Q(I) - WBETAJ * VJ * Q(J) ) * PX
+             WF2 = 2._DOUBLE * TETA * PX * WBETAI * VI
+             WF3 = -2._DOUBLE * TETA * PX * WBETAJ * VJ
+             WF4 = -TETA * PX * WBETAI * WBI * VI*VI
+             WF5 = TETA * PX * WBETAJ * WBJ * VJ*VJ
 
              if( CQMVI > 0._DOUBLE ) then ! prise en compte de la quantite de mouvement pour les apports
-                WQ = -CQMVI * ( QINJEC(I) / PX ) / 2._DOUBLE
+                WQ = -CQMVI * ( QINJEC(I) * PX ) * 0.5D0
                 WQ1 = WQ * ( VI + VJ )
                 WQ2 = WQ / WSI
                 WQ3 = WQ / WSJ
-                WQ4 = -WQ * ( Q(I) * WBI ) / ( WSI**2 )
-                WQ5 = -WQ * ( Q(J) * WBJ ) / ( WSJ**2 )
+                WQ4 = -WQ * ( Q(I) * WBI ) / ( WSI*WSI )
+                WQ5 = -WQ * ( Q(J) * WBJ ) / ( WSJ*WSJ )
                 WF1 = WF1 + WQ1
                 WF2 = WF2 + WQ2
                 WF3 = WF3 + WQ3
@@ -436,24 +436,24 @@ subroutine CALCUL( &
                 WF5 = WF5 + WQ5
              end if
 
-             WH1 = ( 1._DOUBLE / WSI + 1._DOUBLE / WSJ ) / 2._DOUBLE / GPES
-             WH4 = -TETA * WBI / 2._DOUBLE / GPES / WSI**2
-             WH5 = -TETA * WBJ / 2._DOUBLE / GPES / WSJ**2
+             WH1 = ( 1._DOUBLE / WSI + 1._DOUBLE / WSJ ) / (2._DOUBLE * GPES)
+             WH4 = -TETA * WBI / (2._DOUBLE * GPES) / (WSI*WSI)
+             WH5 = -TETA * WBJ / (2._DOUBLE * GPES) / (WSJ*WSJ)
              JS  = 0._DOUBLE
              if( WBETAJ * VJ > WBETAI * VI .and. abs(PCSing(I)).LT.EPS6 ) then
-                JS = 0.3_DOUBLE * ( WBETAJ * VJ - WBETAI * VI )**2 / 2._DOUBLE / GPES
+                JS = 0.3_DOUBLE * ( WBETAJ * VJ - WBETAI * VI )*( WBETAJ * VJ - WBETAI * VI ) / (2._DOUBLE * GPES)
              end if
              if( VJ > 0._DOUBLE ) then
-                JS = JS + PCSing(I) * WBETAJ * VJ**2 / 2._DOUBLE / GPES
+                JS = JS + PCSing(I) * WBETAJ * VJ*VJ / (2._DOUBLE * GPES)
              else
-                JS = JS + PCSing(I) * WBETAI * VI**2 / 2._DOUBLE / GPES
+                JS = JS + PCSing(I) * WBETAI * VI*VI / (2._DOUBLE * GPES)
              end if
-             JS = JS / PX
+             JS = JS * PX
              if( VI < 0._DOUBLE ) then
                 JS = -JS
              end if
-             WD1 = ( Z(I)-Z(J) ) / PX + JS
-             WD4 = TETA / PX
+             WD1 = ( Z(I)-Z(J) ) * PX + JS
+             WD4 = TETA * PX
              WD5 = -WD4
 
              ! Debut attenuation de la convection
@@ -464,18 +464,18 @@ subroutine CALCUL( &
                 else
                    HJ = EPS3
                 endif
-                FRJ = ( WBETAJ*VJ ) / DSQRT( (WBETAJ-W1) * WBETAJ * VJ**2._DOUBLE + GPES*HJ )
+                FRJ = ( WBETAJ*VJ ) / DSQRT( (WBETAJ-W1) * WBETAJ * VJ*VJ + GPES*HJ )
 
                 if(B1(i).GT.EPS6) then
                    HI = ( S1(i)+S2(i) ) / ( B1(i)+B2(i) )
                 else
                    HI = EPS3
                 endif
-                FRI = ( WBETAI*VI ) / DSQRT( (WBETAI-W1) * WBETAI * VI**2._DOUBLE + GPES*HI )
-                FR  = (FRI+FRJ)/2.D0
+                FRI = ( WBETAI*VI ) / DSQRT( (WBETAI-W1) * WBETAI * VI*VI + GPES*HI )
+                FR  = (FRI+FRJ) * 0.5D0
 
                 ! Coefficient de relaxation : formule heuristique (RME)
-                CFR = DMAX1(0._DOUBLE,1._DOUBLE-FR**2._DOUBLE)
+                CFR = DMAX1(0._DOUBLE,1._DOUBLE-FR*FR)
 
                 ! Relaxation des termes
                 WF1 = WF1 * CFR

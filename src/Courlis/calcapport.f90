@@ -1,17 +1,17 @@
 Subroutine CalcApport   (  &
 
-        CL_Vase         ,  & ! CL amont de la concentration en Vase
-        CL_Sable        ,  & ! CL amont de la concentration en Sable
-        QApportVase     ,  & ! Debit de l'apport en vase en (kg/s/m)
-        QApportSable    ,  & ! Debit de l'apport en sable en (kg/s/m)
-        ApportVase      ,  & ! Apports en vase
-        ApportSable     ,  & ! Apports en sable
-        Apport          ,  & ! Apports hydrauliques
-        LoiHydrau       ,  & ! Lois hydrauliques
-        LoiConc         ,  & ! Lois de concentration
-        Temps           ,  & ! Temps
-        Absc            ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
-        Erreur          )    ! Erreur
+    CL_Vase         ,  & ! CL amont de la concentration en Vase
+    CL_Sable        ,  & ! CL amont de la concentration en Sable
+    QApportVase     ,  & ! Debit de l'apport en vase en (kg/s/m)
+    QApportSable    ,  & ! Debit de l'apport en sable en (kg/s/m)
+    ApportVase      ,  & ! Apports en vase
+    ApportSable     ,  & ! Apports en sable
+    Apport          ,  & ! Apports hydrauliques
+    LoiHydrau       ,  & ! Lois hydrauliques
+    LoiConc         ,  & ! Lois de concentration
+    Temps           ,  & ! Temps
+    Absc            ,  & ! Abscisse des sections de calcul (ProfilCourlis%Abs)
+    Erreur          )    ! Erreur
 
 
 !*************************************************************************
@@ -21,8 +21,8 @@ Subroutine CalcApport   (  &
 !
 !*************************************************************************
 !=========================================================================
-!  Fonction : Extrait des lois de debit et de concentration Q, Cvase, 
-!  --------	  Csable au temps Temps pour - la condition limite amont
+!  Fonction : Extrait des lois de debit et de concentration Q, Cvase,
+!  --------	   Csable au temps Temps pour - la condition limite amont
 !                                        - les apports
 !
 !  Sous-programme appelant : DansLo
@@ -33,27 +33,27 @@ Subroutine CalcApport   (  &
 !
 !=========================================================================
 
-use M_PRECISION                 ! Definition de la precision DOUBLE ou SIMPLE
-use M_PARAMETRE_C               ! Definition des constante tq EPS*, W0, ...
+use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PARAMETRE_C      ! Definition des constante tq EPS*, W0, ...
 
-use M_APPORT_T                  ! Definition du type APPORT_T
-use M_SOURCE_TRACER_T           ! Donnees des sources d'un traceur 
-use M_CL_COURLIS_T              ! Definition du type CL_COURLIS_T
-use M_LOI_T                     ! Definition du type LOI_T
-use M_LOI_CONC_T                ! Definition du type LOI_T
+use M_APPORT_T         ! Definition du type APPORT_T
+use M_SOURCE_TRACER_T  ! Donnees des sources d'un traceur
+use M_CL_COURLIS_T     ! Definition du type CL_COURLIS_T
+use M_LOI_T            ! Definition du type LOI_T
+use M_LOI_CONC_T       ! Definition du type LOI_T
 
-use M_Qcl_Courlis_I             ! Sous-programme QCL_COURLIS
+use M_Qcl_Courlis_I    ! Sous-programme QCL_COURLIS
 
-use M_ERREUR_T                  ! Type ERREUR_T
-use M_MESSAGE_C                 ! Messages d'erreur
-use M_TRAITER_ERREUR_I          ! Traitement de l'errreur
+use M_ERREUR_T         ! Type ERREUR_T
+use M_MESSAGE_C        ! Messages d'erreur
+use M_TRAITER_ERREUR_I ! Traitement de l'errreur
 
 
 !=========================================================================
 ! DECLARATIONS
 !=========================================================================
 
-!.. Implicit Declarations .. 
+!.. Implicit Declarations ..
   implicit none
 
 ! Constante  pour les interpolations
@@ -68,14 +68,16 @@ use M_TRAITER_ERREUR_I          ! Traitement de l'errreur
   type(LOI_CONC_T), dimension(:), intent(in) :: LoiConc
 
 ! Variables de sortie
-  type(SOURCE_TRACER_T), dimension(:), intent(inout) :: ApportVase, ApportSable
+  type(SOURCE_TRACER_T), dimension(:), intent(inout) :: ApportVase
+  type(SOURCE_TRACER_T), dimension(:), intent(inout) :: ApportSable
   type(APPORT_T)       , dimension(:), intent(inout) :: Apport
   type(CL_COURLIS_T)                 , intent(inout) :: CL_Vase, CL_Sable
-  real(DOUBLE)         , dimension(:), intent(  out) :: QApportVase, QApportSable
+  real(DOUBLE)         , dimension(:), intent(  out) :: QApportVase
+  real(DOUBLE)         , dimension(:), intent(  out) :: QApportSable
 
 ! Variables locales
   integer :: nb_apport          ! Nombre d'apports
-  integer :: iapp, is           ! Compteur 
+  integer :: iapp, is           ! Compteur
 !  integer :: num_loi            ! Numero de la loi utilisee  ! PU2017 : Mise en commentaire
   integer :: ns_debut, ns_fin   ! numero de section de debut et fin d'un apport
 
@@ -121,11 +123,11 @@ use M_TRAITER_ERREUR_I          ! Traitement de l'errreur
 !=========================================================================
 
   nb_apport = size(Apport)
-  
+
   If (nb_apport /= 0) Then
 
     Do iapp = 1, nb_apport
-     
+
       ns_debut = Apport(iapp)%SectionAm
       ns_fin   = Apport(iapp)%SectionAv
 
@@ -139,16 +141,20 @@ use M_TRAITER_ERREUR_I          ! Traitement de l'errreur
 
         If (longueur_apport_modele > 0.) Then
           Do is = ns_debut, ns_fin-1
-            QApportVase(is)  = QApportVase(is)  + sourceV * (Absc(is+1) - Absc(is))
-            QApportSable(is) = QApportSable(is) + sourceS * (Absc(is+1) - Absc(is))
+            QApportVase(is)  = QApportVase(is)  + sourceV * &
+                               (Absc(is+1) - Absc(is))
+            QApportSable(is) = QApportSable(is) + sourceS * &
+                               (Absc(is+1) - Absc(is))
           End do
         End if
 
-        QApportVase(ns_fin)  = QApportVase(ns_fin)  + sourceV * (Apport(iapp)%Longueur - longueur_apport_modele)
-        QApportSable(ns_fin) = QApportSable(ns_fin) + sourceS * (Apport(iapp)%Longueur - longueur_apport_modele)
-    
+        QApportVase(ns_fin)  = QApportVase(ns_fin)  + sourceV * &
+                               (Apport(iapp)%Longueur - longueur_apport_modele)
+        QApportSable(ns_fin) = QApportSable(ns_fin) + sourceS * &
+                               (Apport(iapp)%Longueur - longueur_apport_modele)
+
       Else
-     
+
         ! Debit ponctuel
         QApportVase(ns_debut)  = QApportVase(ns_debut)  + sourceV
         QApportSable(ns_debut) = QApportSable(ns_debut) + sourceS
@@ -159,11 +165,8 @@ use M_TRAITER_ERREUR_I          ! Traitement de l'errreur
 
   End if
 
-
-  
 !=========================================================================
 !  Erreur%arbredappel = arbredappel_old
-
 
   Return
 

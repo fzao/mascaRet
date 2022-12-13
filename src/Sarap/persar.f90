@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -43,6 +43,7 @@ subroutine PERSAR (   &
      LoiFrottement  , & ! Loi de frottement
      PerteChargeConfluent, & ! Perte de charge automatique aux confluents
      CQMV                , &
+     decentrement   , &
      Erreur           & !/Erreur/
      )
 
@@ -51,7 +52,7 @@ subroutine PERSAR (   &
 !                             P.CHERUBINI
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION :
 !   ----------
@@ -173,6 +174,7 @@ subroutine PERSAR (   &
    integer                            , intent(in)    :: LoiFrottement
    logical                            , intent(in)    :: PerteChargeConfluent
    integer                            , intent(in)    :: CQMV
+   logical                            , intent(in)    :: decentrement
    type(ERREUR_T)                     , intent(inout) :: Erreur
    !.. Constantes ..
    !----------------
@@ -205,7 +207,11 @@ subroutine PERSAR (   &
    integer        :: nappel
    !character(132) :: !arbredappel_old
    integer        :: retour ! code de retour des fonction d'e/s
-
+   !
+   ! Ajout pour courbe de tarage en condition aval
+   integer      :: iinf, NBP
+   real(DOUBLE) :: Q1, Q2, Qobj
+   real(DOUBLE) :: Z1, Z2
    !============================= Instructions ===========================
    ! INITIALISATIONS
    !----------------
@@ -332,7 +338,30 @@ subroutine PERSAR (   &
 
             if( limite_libre ) then
                !             --  ON PART D'UNE LIMITE LIBRE --
-               ZINIT= Extremite(iext)%PtZ(1)
+               if( Extremite(iext)%Type == CONDITION_TYPE_COTE_IMPOSE ) then
+                  ZINIT= Extremite(iext)%PtZ(1)
+               else
+                  NBP = size(Extremite(iext)%PtZ)
+                  QOBJ = Q(Connect%FinBief(noeud_bief))
+                  if( QOBJ < Extremite(iext)%PtQ(1) .or. &
+                      QOBJ > Extremite(iext)%PtQ(NBP) ) then
+                     Erreur%numero = 601
+                     Erreur%ft     = err_601
+                     Erreur%ft_c   = err_601c
+                     call TRAITER_ERREUR( Erreur , iext , QOBJ , &
+                      Extremite(iext)%PtQ(1) , Extremite(iext)%PtQ(NBP) )
+                     return
+                  end if
+                  Iinf = 1
+                  do while( QOBJ > Extremite(iext)%PtQ(Iinf))
+                     Iinf = Iinf + 1
+                  enddo
+                  Q1 = Extremite(iext)%PtQ(Iinf-1)
+                  Q2 = Extremite(iext)%PtQ(Iinf)
+                  Z1 = Extremite(iext)%PtZ(Iinf-1)
+                  Z2 = Extremite(iext)%PtZ(Iinf)
+                  ZINIT = Z1 + (Z2 - Z1) * ((QOBJ - Q1) / (Q2 - Q1))
+               endif
             else
               !             --  ON PART D'UN NOEUD --
                ZINIT= Z(Connect%FinBief(noeud_bief))
@@ -362,8 +391,9 @@ subroutine PERSAR (   &
              Temps                          , &
              LoiFrottement                  , &
              CQMV                           , &
+             decentrement                   , &
              Erreur                   ) !Erreur
-                     
+
 
             if( Erreur%Numero /= 0 ) then
                return

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -27,7 +27,7 @@ subroutine LEC_PLANIM    ( &
 ! PROGICIEL : MASCARET       S. MANDELKERN
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 
    !========================= Declarations ===========================
@@ -62,7 +62,7 @@ subroutine LEC_PLANIM    ( &
    integer, allocatable :: itabdeb(:),itabfin(:)
    integer :: retour              ! code de retour des fonctions intrinseques
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================

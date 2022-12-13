@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -16,7 +16,7 @@
 !   along with MASCARET.  If not, see <http://www.gnu.org/licenses/>
 !
 
-SUBROUTINE DIRECT( & 
+SUBROUTINE DIRECT( &
               FCOUTI , &
                Z_CAL , &   ! Variables propres au calage
                    Z , &   ! Cote de la surface libre
@@ -30,7 +30,7 @@ SUBROUTINE DIRECT( &
 !*********************************************************************
 ! PROGICIEL : MASCARET         A. LEBOSSE
 !
-! VERSION : V8P2R0                EDF-CEREMA
+! VERSION : V8P4R0                EDF-CEREMA
 ! *********************************************************************
 !
 !
@@ -83,7 +83,7 @@ SUBROUTINE DIRECT( &
 
    ! VARIABLES LOCALES
    !
-   integer isec , iext , numbief , L , I 
+   integer isec , iext , numbief , L , I
    Logical Limite_libre
 
    ! CALCUL DE LA SOMME DES DEBITS D'APPORT DANS LA RIVIERE
@@ -148,6 +148,7 @@ SUBROUTINE DIRECT( &
             Temps , &   ! Temps
     LoiFrottement , &   ! Loi de frottement
             CQMV  , &   ! Apport de qmv pour les apports
+     decentrement , &   ! Option de decentrement
            Erreur )     ! ERREUR
    if(Erreur%Numero.ne.0) return
 

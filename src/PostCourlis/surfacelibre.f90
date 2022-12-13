@@ -3,9 +3,9 @@ Subroutine  SurfaceLibre( &
     NbProfil            , & ! Nombre de profils du tableau "ProfilCourlis"
     PtRiveG             , & ! ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
     PtRiveD             , & ! ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
-  ProfilCourlis    , & ! Profils geom. des rivieres, lus dans COURLIS
-  Zsurf               , & ! Cote de la surface libre
-    Erreur        )
+    ProfilCourlis       , & ! Profils geom. des rivieres, lus dans COURLIS
+    Zsurf               , & ! Cote de la surface libre
+    Erreur              )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
@@ -28,11 +28,11 @@ Subroutine  SurfaceLibre( &
 
 use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
 
-use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
+use M_PROFIL_COURLIS_T ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T        ! Type ERREUR_T
+use M_ERREUR_T         ! Type ERREUR_T
 use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_TRAITER_ERREUR_I ! Traitement de l'errreur
 
 !=========================================================================
 ! DECLARATIONS
@@ -43,25 +43,24 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 ! Variables d'entree
   type(PROFIL_COURLIS_T), dimension(:), intent(in) :: ProfilCourlis
-  real(DOUBLE)      , dimension(:), intent(in) :: Zsurf
-  integer                , intent(in) :: NbProfil
+  real(DOUBLE)          , dimension(:), intent(in) :: Zsurf
+  integer                             , intent(in) :: NbProfil
 
 ! Variables de sortie
-  real(DOUBLE)      , dimension(:), pointer    :: PtRiveG, PtRiveD
+  real(DOUBLE)          , dimension(:), pointer    :: PtRiveG, PtRiveD
 
 ! Variables locales
   real(DOUBLE) :: EpsI = 0.1   ! Valeur de tolerance
-  real(DOUBLE) :: X1,X2,Z1,Z2
-  real(DOUBLE) :: AErod,BErod
+  real(DOUBLE) :: X1, X2, Z1, Z2
+  real(DOUBLE) :: AErod, BErod
 !  real(DOUBLE) :: NbPts        ! Nb de points du profil 'i'
   integer      :: NbPts        ! Nb de points du profil 'i'  ! PU2017 : Changement de format
   integer      :: i,j
 
 ! Traitement des erreurs
-  integer              :: Retour
+  integer                         :: Retour
   type(ERREUR_T)  , intent(inout) :: Erreur
 !  character(132)                  :: arbredappel_old  ! PU2017 : Mise en commentaire
-
 
 !=========================================================================
 ! INITIALISATIONS
@@ -77,28 +76,27 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
   allocate (PtRiveG(NbProfil),STAT = retour)
   If (retour /= 0) Then
-  Erreur%Numero = 5
-  Erreur%ft   = err_5
-  Erreur%ft_c = err_5c
-  call TRAITER_ERREUR (Erreur, 'PtRiveG')
-  return
-  End if
+    Erreur%Numero = 5
+    Erreur%ft   = err_5
+    Erreur%ft_c = err_5c
+    call TRAITER_ERREUR (Erreur, 'PtRiveG')
+    return
+  Endif
 
   allocate (PtRiveD(NbProfil),STAT = retour)
   If (retour /= 0) Then
-  Erreur%Numero = 5
-  Erreur%ft   = err_5
-  Erreur%ft_c = err_5c
-  call TRAITER_ERREUR (Erreur, 'PtRiveD')
-  return
-  End if
+    Erreur%Numero = 5
+    Erreur%ft   = err_5
+    Erreur%ft_c = err_5c
+    call TRAITER_ERREUR (Erreur, 'PtRiveD')
+    return
+  Endif
 
 !=========================================================================
 ! DEFINITION DES RIVES
 !=========================================================================
 
   EpsI = 0.1
-
 
   Label_Profils : Do i = 1, NbProfil
 
@@ -112,24 +110,27 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
       If ((Zsurf(i) <= ProfilCourlis(i)%Z(1,j  )) .AND. &
           (Zsurf(i) >  ProfilCourlis(i)%Z(1,j+1))      )  Then
 
-    X1 = ProfilCourlis(i)%X(j)
+        X1 = ProfilCourlis(i)%X(j)
         X2 = ProfilCourlis(i)%X(j+1)
         Z1 = ProfilCourlis(i)%Z(1,j)
-    Z2 = ProfilCourlis(i)%Z(1,j+1)
+        Z2 = ProfilCourlis(i)%Z(1,j+1)
 
-    ! ------------------------------------------------------
-    ! EQUATION DE LA DROITE SEDIMENT JOIGNANT (i,j) ¡ (i,j+1)
-    !    Zsurf=AErod*DX+BErod
-    ! -------------------------------------------------------
-    AErod = (Z2    - Z1)    / (X2-X1)
-    BErod = (X2*Z1 - X1*Z2) / (X2-X1)
+        ! ------------------------------------------------------
+        ! EQUATION DE LA DROITE SEDIMENT JOIGNANT (i,j) ¡ (i,j+1)
+        !    Zsurf=AErod*DX+BErod
+        ! -------------------------------------------------------
+        ! this shift is done for superposed abscissae
+        If (X2 .EQ. X1) Then
+          X2 = X1 + 10E-15
+        Endif
+        AErod = (Z2    - Z1)    / (X2-X1)
+        BErod = (X2*Z1 - X1*Z2) / (X2-X1)
 
-    ! PtRiveG EST L'ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
-    PtRiveG(i) = (Zsurf(i)-BErod) / AErod
+        ! PtRiveG EST L'ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
+        PtRiveG(i) = (Zsurf(i)-BErod) / AErod
 
-      End if
-    End do
-
+      Endif
+    Enddo
 
     ! Rive Droite
     ! -----------
@@ -140,41 +141,43 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
       If ((Zsurf(i) >  ProfilCourlis(i)%Z(1,j  )).AND. &
           (Zsurf(i) <= ProfilCourlis(i)%Z(1,j+1))     )  Then
 
-    X1 = ProfilCourlis(i)%X(j)
-    X2 = ProfilCourlis(i)%X(j+1)
-    Z1 = ProfilCourlis(i)%Z(1,j)
-    Z2 = ProfilCourlis(i)%Z(1,j+1)
+        X1 = ProfilCourlis(i)%X(j)
+        X2 = ProfilCourlis(i)%X(j+1)
+        Z1 = ProfilCourlis(i)%Z(1,j)
+        Z2 = ProfilCourlis(i)%Z(1,j+1)
 
-    ! -------------------------------------------------------
-    ! EQUATION DE LA DROITE SEDIMENT JOIGNANT (i,j) ¡ (i,j+1)
-    !   Zsurf=AErod*DX+BErod
-    ! -------------------------------------------------------
-    AErod = (Z2    - Z1)    / (X2-X1)
-    BErod = (X2*Z1 - X1*Z2) / (X2-X1)
+        ! -------------------------------------------------------
+        ! EQUATION DE LA DROITE SEDIMENT JOIGNANT (i,j) ¡ (i,j+1)
+        !   Zsurf=AErod*DX+BErod
+        ! -------------------------------------------------------
+        ! this shift is done for superposed abscissae
+        If (X2 .EQ. X1) Then
+          X2 = X1 + 10E-15
+        Endif
+        AErod = (Z2    - Z1)    / (X2-X1)
+        BErod = (X2*Z1 - X1*Z2) / (X2-X1)
 
-    ! PtRiveG EST L'ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
-    PtRiveD(i) = (Zsurf(i)-BErod) / AErod
+        ! PtRiveG EST L'ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
+        PtRiveD(i) = (Zsurf(i)-BErod) / AErod
 
-      End if
-    End do
-
+      Endif
+    Enddo
 
     !
     ! TEST POUR SAVOIR SI LES POINTS PtRiveG ET PtRiveD NE CORRESPONDENT PAS A
     ! DES NOEUDS EXISTANTS. (PROBLEME POUR LE FICHIER RUBENS)
     !
     Do j = 1, NbPts
-      If (PtRiveG(i) == ProfilCourlis(i)%X(j))   PtRiveG(i) = PtRiveG(i) + EpsI
-      If (PtRiveD(i) == ProfilCourlis(i)%X(j))   PtRiveD(i) = PtRiveD(i) - EpsI
-    End do
+      If (PtRiveG(i) == ProfilCourlis(i)%X(j)) PtRiveG(i) = PtRiveG(i) + EpsI
+      If (PtRiveD(i) == ProfilCourlis(i)%X(j)) PtRiveD(i) = PtRiveD(i) - EpsI
+    Enddo
 
-  End do Label_Profils
+  Enddo Label_Profils
 
 !=========================================================================
 ! FIN DU SOUS-PROGRAMME
 !=========================================================================
 
 !  Erreur%arbredappel = arbredappel_old
-
 
 End Subroutine SurfaceLibre

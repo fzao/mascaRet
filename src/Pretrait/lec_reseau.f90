@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -45,7 +45,7 @@ subroutine LEC_RESEAU    ( &
 ! PROGICIEL : MASCARET       S. MANDELKERN
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 !
 !   FONCTION : Lecture du reseau
@@ -104,7 +104,7 @@ subroutine LEC_RESEAU    ( &
    logical :: test_loi ! test si au moins une extremite est reliee a une loi hydrau
    integer :: itab(5)
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    !character(132) :: !arbredappel_old
 
    !========================= Instructions ===========================
@@ -472,11 +472,12 @@ subroutine LEC_RESEAU    ( &
       if( Noyau == NOYAU_SARAP ) then
          do ibief = 1 , NbBief
             if( ExtFinBief(ibief) == NumExtLibre(iext) .and. &
-                Extremite(iext)%Type /= CONDITION_TYPE_COTE_IMPOSE) then
+               Extremite(iext)%Type /= CONDITION_TYPE_COTE_IMPOSE .and. &
+               Extremite(iext)%Type /= CONDITION_TYPE_COTE_DEBIT ) then               
                Erreur%Numero = 385
                Erreur%ft     = err_385
                Erreur%ft_c   = err_385c
-               call TRAITER_ERREUR( Erreur , iext , "cote imposee" )
+               call TRAITER_ERREUR( Erreur , iext , "cote imposee ou courbe de tarage" )
                return
             endif
             if( ExtDebBief(ibief) == NumExtLibre(iext) .and. &

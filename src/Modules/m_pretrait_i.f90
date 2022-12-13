@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_PRETRAIT_I
 !***********************************************************************
 ! PROGICIEL : MASCARET        S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -31,6 +31,7 @@ module M_PRETRAIT_I
       OptionCasier                                             , &
       OptionCourlis, FichierMotCleCourlis, FichierDicoCourlis  , &
       OndeSubm                                                 , &
+      decentrement                                             , &
       CalculValidation, TypeValidation                         , &
       Regime, ModeleLit                                        , &
       FrottParoiVerticale, PerteChargeConfluent                , &
@@ -158,6 +159,7 @@ module M_PRETRAIT_I
    type(FICHIER_T), intent(inout) :: FichierMotCleCourlis
    type(FICHIER_T), intent(inout) :: FichierDicoCourlis
    logical        , intent(  out) :: OndeSubm
+   logical        , intent(  out) :: decentrement
    logical        , intent(  out) :: CalculValidation
    logical        , intent(  out) :: PerteChargeConfluent
    integer        , intent(  out) :: TypeValidation
@@ -236,8 +238,6 @@ module M_PRETRAIT_I
    integer                                        :: format_ligne
    type(ZONE_SECHE_T), dimension(:), pointer      :: ZoneSeche
    type(ZONE_FROT_T) , dimension(:), pointer      :: ZoneFrot
-   ! Utilisation Cray
-   logical                                        :: UtilisationCray
    ! Impressions - resultats
    character(LEN=255), intent(  out) :: TitreCas
    logical                                       :: impression_geo

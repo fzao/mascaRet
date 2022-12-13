@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -76,7 +76,7 @@ subroutine  REZO_INTERFACE    ( &
 !                             E. BEN SLAMA    S. MANDELKERN
 !                             F. ZAOUI
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 ! FONCTION :
 !
@@ -193,9 +193,9 @@ subroutine  REZO_INTERFACE    ( &
    real(DOUBLE)        , dimension(:), pointer       :: DPDZ1, DPDZ2
    ! Casier
    logical                           , intent(in   ) :: OptionCasier
-   type(CASIER_T)       , dimension(:)  , intent(inout) :: Casier
+   type(CASIER_T)       , dimension(:)  , pointer, intent(inout) :: Casier
    type(LIAISON_T)      , dimension(:)  , pointer, intent(inout) :: Liaison
-   type(APPORT_PLUIE_T ), dimension(:)  , intent(in   ) :: ApportPluie
+   type(APPORT_PLUIE_T ), dimension(:)  , pointer, intent(inout   ) :: ApportPluie
    ! Erreur
    real(DOUBLE)                      , intent(inout) :: DT      ! Pas de temps REZO
    type(REZOMAT_T)                   , intent(inout) :: Matrice ! Matrice du reseau

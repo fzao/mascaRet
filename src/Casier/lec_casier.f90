@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -26,7 +26,7 @@ subroutine LEC_CASIER( &
 ! PROGICIEL : MASCARET             C. RISSOAN
 !                                  F. ZAOUI
 !
-! VERSION : V8P2R0                  EDF-CEREMA
+! VERSION : V8P4R0                  EDF-CEREMA
 !
 ! LECTURE DE LA VARIABLE CASIER
 ! ******************************************************************
@@ -65,8 +65,9 @@ subroutine LEC_CASIER( &
    integer :: option_planim
    integer, allocatable :: itab(:)
    real(double), allocatable :: rtab(:)
+   real(double), allocatable :: rtab2(:)
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    !character(132) :: arbredappel_old
 
    !========================== Instructions ==============================
@@ -120,6 +121,15 @@ subroutine LEC_CASIER( &
        return
    end if
 
+   allocate( rtab2(nombre_casier) , STAT = retour )
+   if( retour /= 0 ) then
+       Erreur%Numero = 5
+       Erreur%ft     = err_5
+       Erreur%ft_c   = err_5c
+       call TRAITER_ERREUR( Erreur , 'rtab2' )
+       return
+   end if
+
    pathNode = 'parametresCasier/cotesInitiale'
    line = xcasReader(unitNum, pathNode)
    read(unit=line, fmt=*) rtab
@@ -164,7 +174,7 @@ subroutine LEC_CASIER( &
          call xerror(Erreur)
          return
       endif
-      read(unit=line, fmt=*) rtab
+      read(unit=line, fmt=*) rtab2
 
       do icasier = 1, size( Casier )
 
@@ -177,7 +187,7 @@ subroutine LEC_CASIER( &
             return
          end if
 
-         Casier( icasier )%NbCotePlanim = itab(icasier)
+         Casier(icasier)%NbCotePlanim = rtab2(icasier)
          if( Casier(icasier)%NbCotePlanim <= 0 ) then
             Erreur%Numero = 919
             Erreur%ft     = err_919
@@ -256,6 +266,7 @@ subroutine LEC_CASIER( &
 
    deallocate(itab)
    deallocate(rtab)
+   deallocate(rtab2)
 
    !.. Fin des traitements ..
    !Erreur%arbredappel = !arbredappel_old

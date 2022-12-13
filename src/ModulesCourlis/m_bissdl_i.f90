@@ -4,13 +4,13 @@ Interface
 
 Subroutine Bissdl  (  &
 
-  Z        ,  & ! Resultat de la diffusion
-  A        ,  & ! ! Coefficient
-  B        ,  & ! ! de la
-  C        ,  & ! ! matrice de
-  D        ,  & ! ! diffusion
-  Imax      ,  & ! Nombre de point des tableaux
-  Erreur      )
+    Z      ,  & ! Resultat de la diffusion
+    A      ,  & ! ! Coefficient
+    B      ,  & ! ! de la
+    C      ,  & ! ! matrice de
+    D      ,  & ! ! diffusion
+    Imax   ,  & ! Nombre de point des tableaux
+    Erreur )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -20,7 +20,7 @@ Subroutine Bissdl  (  &
 !*************************************************************************
 !=========================================================================
 !
-!  Fonction :  Resolution d'un système tridiagonal
+!  Fonction :  Resolution d'un systeme tridiagonal
 !  --------
 !
 !  Sous-programme appelant : Diffu
@@ -31,12 +31,12 @@ Subroutine Bissdl  (  &
 !
 !=========================================================================
 
-use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
-use M_PARAMETRE_C      ! Definition des constante tq EPS*, W0, ...
+use M_PRECISION         ! Definition de la precision DOUBLE ou SIMPLE
+use M_PARAMETRE_C       ! Definition des constante tq EPS*, W0, ...
 
-use M_ERREUR_T        ! Type ERREUR_T
-use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_ERREUR_T          ! Type ERREUR_T
+use M_MESSAGE_C         ! Messages d'erreur
+use M_TRAITER_ERREUR_I  ! Traitement de l'errreur
 
 !=========================================================================
 ! DECLARATIONS
@@ -59,10 +59,8 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 !  integer :: i      ! Compteur
 
 ! Traitement des erreurs
-! PU2017 : Mise en commentaire des var loc pour traitement erreur
   type(ERREUR_T), intent(inout) :: Erreur
-!  integer            :: retour      ! Code de retour de la fonction read, allocate
-!  character(132)        :: arbredappel_old  ! Ancien arbre d'appel
+  character(132)                :: arbredappel_old  ! Ancien arbre d'appel
 
 !=========================================================================
 

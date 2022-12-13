@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_MODELE_MASCARET_T
 !***********************************************************************
 ! PROGICIEL : MASCARET        J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 
 !=========================== Declarations ==============================
@@ -150,6 +150,7 @@ Type MODELE_MASCARET_T
     logical                                    :: Boussinesq
     logical                                    :: NoConvection
     integer                                    :: CQMV
+    logical                                    :: decentrement
 
 end type MODELE_MASCARET_T
 
@@ -446,6 +447,9 @@ contains
         tabNomVar(i)         ="Model.CQMV"
         tabDescriptionVar(i) ="Lateral inflow in the momentum equation?"
         i=i+1
+        tabNomVar(i)         ="Model.decentrement"
+        tabDescriptionVar(i) ="Option to use upwind numerical scheme"
+        i=i+1
 
       return
 
@@ -679,6 +683,9 @@ contains
           dimVar                = 0
        else if ( index(NomVar, 'Model.CQMV') > 0) then
           TypeVar = 'INT'
+          dimVar                = 0
+       else if ( index(NomVar, 'Model.decentrement') > 0) then
+          TypeVar = 'BOOL'
           dimVar                = 0
        else if ( INDEX(NomVar,'Model.Connect.') > 0) then
           GET_TYPE_VAR_MODELE_MASCARET = GET_TYPE_VAR_CONNECT(NomVar, TypeVar, Categorie, Modifiable, dimVar, MessageErreur)
@@ -1137,6 +1144,10 @@ contains
          taille2 = 0
          taille3 = 0
       else if ( index(NomVar, 'Model.CQMV') > 0) then
+         taille1 = 0
+         taille2 = 0
+         taille3 = 0
+      else if ( index(NomVar, 'Model.decentrement') > 0) then
          taille1 = 0
          taille2 = 0
          taille3 = 0
@@ -2718,7 +2729,7 @@ contains
          valeur = Instance%ProfFinBief(index1)
       else if ( index(NomVar, 'Model.CQMV') > 0) then
          valeur = Instance%CQMV
-      else if (INDEX(NomVar,'Model.Connect.') > 0) then
+       else if (INDEX(NomVar,'Model.Connect.') > 0) then
            GET_INT_MODELE_MASCARET = GET_INT_CONNECT(instance%Connect, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'Model.CrossSection.') > 0) then
@@ -3140,7 +3151,7 @@ contains
          Instance%ProfFinBief(index1) = valeur
       else if ( index(NomVar,'Model.CQMV') > 0) then
          Instance%CQMV = valeur
-      else if (INDEX(NomVar,'Model.Connect.') > 0) then
+       else if (INDEX(NomVar,'Model.Connect.') > 0) then
            SET_INT_MODELE_MASCARET = SET_INT_CONNECT(instance%Connect, NomVar, index1,&
                                          index2, index3, valeur, MessageErreur)
       else if (INDEX(NomVar,'Model.CrossSection.') > 0) then

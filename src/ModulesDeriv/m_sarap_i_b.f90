@@ -1,7 +1,7 @@
 MODULE M_SARAP_I_B
   IMPLICIT NONE
 
-  INTERFACE 
+  INTERFACE
       SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, &
 &       b2b, bs, rh1, rh1b, rh2, rh2b, s1, s1b, s2, s2b, beta, betab, &
 &       froude, extremite, apport, qinjec, qinjecb, qdeverse, temps, &
@@ -9,7 +9,7 @@ MODULE M_SARAP_I_B
 &       , connect, singularite, pcsing, pcsingb, deversoir&
 &       , modelelit, confluent, abaque, algorithme, &
 &       impression, unitelisting, loifrottement, pertechargeconfluent, &
-&       cqmv, erreur)
+&       cqmv, decentrement, erreur)
 ! .....................................................................
 ! .          CALCUL EN REGIME PERMANENT A L'AIDE DU CODE SARA         .
 ! .          ADAPTE A LA RESOLUTION D'UN RESEAU RAMIFIE               .
@@ -67,7 +67,7 @@ MODULE M_SARAP_I_B
         USE M_PERSAR_I_B
         USE M_REPAR_I
         IMPLICIT NONE
-!.. Donnees/Resultats .. 
+!.. Donnees/Resultats ..
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: z, q1, q2
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: zb
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: p1, p2
@@ -102,7 +102,7 @@ MODULE M_SARAP_I_B
 ! Pertes de charge singulieres
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: pcsing
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: pcsingb
-! Table du connectivite du reseau 
+! Table du connectivite du reseau
         TYPE(CONNECT_T), INTENT(IN) :: connect
 ! Algorithme de resolution
         INTEGER, DIMENSION(:), INTENT(IN) :: algorithme
@@ -119,6 +119,7 @@ MODULE M_SARAP_I_B
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: cqmv
         LOGICAL, INTENT(IN) :: pertechargeconfluent
+        LOGICAL, INTENT(IN) :: decentrement
 ! Temps
         DOUBLE PRECISION, INTENT(IN) :: temps
 ! Deversoirs

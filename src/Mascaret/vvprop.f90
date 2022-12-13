@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -21,7 +21,7 @@ SUBROUTINE VVPROP( TI1 , TI2 , TIS1 , TIS2 , LAMDI1 , LAMDI2 , BETA , UG , CG , 
 !***********************************************************************
 ! PROGICIEL : MASCARET        F. MAUREL          N. GOUTAL
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 !   FONCTION : CALCUL DES VALEURS PROPRES ET DES VECTEURS PROPRES 
 !                 DE LA LINEARISEE DE ROE -IMPLICITATION

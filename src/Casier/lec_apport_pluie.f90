@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -28,7 +28,7 @@ subroutine LEC_APPORT_PLUIE ( &
 ! PROGICIEL : MASCARET             C. RISSOAN
 !                                  F. ZAOUI
 !
-! VERSION : V8P2R0                  EDF-CEREMA
+! VERSION : V8P4R0                  EDF-CEREMA
 !
 ! LECTURE DE LA VARIABLE APPORT_PLUIE
 ! ******************************************************************
@@ -67,7 +67,7 @@ subroutine LEC_APPORT_PLUIE ( &
    integer :: retour          ! code de retour des fonctions intrinseques
    integer, allocatable :: itab1(:),itab2(:)
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
 
    !========================== Instructions =============================
 
@@ -83,11 +83,11 @@ subroutine LEC_APPORT_PLUIE ( &
    pathNode = 'parametresApportDeversoirs'
    line = xcasReader(unitNum, pathNode)
 
-   if(len(trim(line)).eq.0) then
-         print*,"Parse error => parametresApportDeversoirs"
-         call xerror(Erreur)
-         return
-   endif
+   !if(len(trim(line)).eq.0) then
+   !      print*,"Parse error => parametresApportDeversoirs"
+   !      call xerror(Erreur)
+   !      return
+   !endif
 
    pathNode = 'parametresApportDeversoirs/apportCasier'
    line = xcasReader(unitNum, pathNode)
@@ -148,7 +148,7 @@ subroutine LEC_APPORT_PLUIE ( &
 
    pathNode = 'parametresApportDeversoirs/apportCasier/numLoi'
    line = xcasReader(unitNum, pathNode)
-   read(unit=line, fmt=*) itab1
+   read(unit=line, fmt=*) itab2
 
    do iapport = 1 , nombre_apport
 

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -22,7 +22,7 @@ module M_SARAP_I
 !                           S. PERON
 !                           S. MANDELKERN
 !
-! VERSION : V8P2R0             EDF-CEREMA
+! VERSION : V8P4R0             EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -67,11 +67,12 @@ module M_SARAP_I
        Abaque       , & ! Abaques des pertes de  charges aux confluences
        Algorithme   , & ! Algorithme de parcours des biefs
 ! Parametres
-         Impression  , & ! Flag d'impression
-         UniteListing, & ! Unite logique du fichier listing
-         LoiFrottement,& ! Loi de frottement
+       Impression  , & ! Flag d'impression
+       UniteListing, & ! Unite logique du fichier listing
+       LoiFrottement,& ! Loi de frottement
   PerteChargeConfluent,& ! Perte de charge automatique aux confluents
          CQMV        , & ! apport de debit quantite de mvt
+     decentrement , &
          Erreur        & ! Erreur
                  )
    ! .....................................................................
@@ -173,6 +174,7 @@ use M_PRECISION
    integer                          , intent(in   ) :: LoiFrottement
    integer                          , intent(in   ) :: CQMV
    logical                          , intent(in   ) :: PerteChargeConfluent
+   logical                          , intent(in   ) :: decentrement
    ! Temps
    real(DOUBLE)                     , intent(in   ) :: Temps
    ! Deversoirs

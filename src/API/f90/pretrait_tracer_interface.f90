@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET-TRACER.
 !
@@ -58,7 +58,7 @@ subroutine PRETRAIT_Tracer_INTERFACE( &
 ! PROGICIEL : TRACER         S.MANDELKERN - M. LUCK
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !*****************************************************************************
 !
 !  FONCTION : LECTURE DU FICHIER CAS PAR APPEL DU LOGICIEL DAMOCLES
@@ -144,7 +144,7 @@ subroutine PRETRAIT_Tracer_INTERFACE( &
    integer  :: NbExtLibre, ult
    integer  i, ib, retour
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
    character(len=256)  :: xcasFile
    integer             :: unitNum
    logical, allocatable :: ltab1(:),ltab2(:)

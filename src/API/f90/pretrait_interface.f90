@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@
 ! PROGICIEL : MASCARET       J.-M. LACOMBE
 !                            F. ZAOUI
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 subroutine  PRETRAIT_INTERFACE                             ( &
   VersionCode, Noyau                                       , &
@@ -70,13 +70,14 @@ subroutine  PRETRAIT_INTERFACE                             ( &
   FichierListingCasier ,&
   FichierListingLiaison,&
   FichierGeomCasier,  &
+  decentrement,  &
   Erreur, &
   FichiersLois, Impression )
 
 ! *********************************************************************
 ! PROGICIEL : MASCARET       J.-M. LACOMBE - S. MANDELKERN - N. GOUTAL
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 !  FONCTION : LECTURE DU FICHIER CAS PAR APPEL DU LOGICIEL DAMOCLES.
 !----------------------------------------------------------------------
@@ -159,6 +160,7 @@ use M_XCAS_S
   logical        , intent(  out) :: OptionCourlis
   type(FICHIER_T), intent(  out) :: FichierMotCleCourlis
   type(FICHIER_T), intent(  out) :: FichierDicoCourlis
+  logical        , intent(  out) :: decentrement
   logical        , intent(  out) :: OndeSubm
   logical        , intent(  out) :: CalculValidation
   logical        , intent(  out) :: PerteChargeConfluent
@@ -362,7 +364,7 @@ use M_XCAS_S
   integer, allocatable      :: itab(:)
   real(double), allocatable :: rtab(:)
   character(len=256)  :: pathNode
-  character(len=1024) :: line
+  character(len=8192) :: line
   character(len=256)  :: xcasFile
   integer             :: unitNum
 
@@ -487,6 +489,15 @@ else
   pathNode = 'parametresGeneraux/dictionaireCourlis'
   FichierDicoCourlis%Nom = xcasReader(unitNum, pathNode)
 endif
+
+! option de decentrement SARAP
+!-----------------------------
+if (Noyau == NOYAU_SARAP) then
+  pathNode = 'parametresNumeriques/decentrement'
+  line = xcasReader(unitNum, pathNode)
+  read(unit=line, fmt=*) decentrement
+endif
+
 
 ! Perte de charge automatique due aux confluents
 ! ----------------------------------------------
@@ -1735,7 +1746,7 @@ read(unit=line, fmt=*) ModeleLit
       call DATE_S(chaine_date)
 
       if(VersionCode == 3) then
-        write(UniteListing,10000) ' V8P2R0 ', chaine_date
+        write(UniteListing,10000) ' V8P4R0 ', chaine_date
       endif
 
       if(VersionCode == 2) then

@@ -1,12 +1,12 @@
 MODULE M_SARAP_I_D
-  INTERFACE 
+  INTERFACE
       SUBROUTINE SARAP_D(z, zd, q1, q2, p1, p1d, p2, p2d, b1, b1d, b2, &
 &       b2d, bs, rh1, rh1d, rh2, rh2d, s1, s1d, s2, s2d, beta, betad, &
 &       froude, extremite, apport, qinjec, qdeverse, temps, profil, &
 &       profilplan, f1, x, cf1, cf1d, cf2, cf2d, zref, xdt, idt, connect&
 &       , singularite, pcsing, pcsingd, deversoir, modelelit, confluent, &
 &       abaque, algorithme, impression, unitelisting, loifrottement, &
-&       pertechargeconfluent, cqmv, erreur)
+&       pertechargeconfluent, cqmv, decentrement, erreur)
 
         USE M_PRECISION
 ! Constantes nommees
@@ -39,7 +39,7 @@ MODULE M_SARAP_I_D
         USE M_PERSAR_I_D
         USE M_REPAR_I
         IMPLICIT NONE
-!.. Donnees/Resultats .. 
+!.. Donnees/Resultats ..
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: z, q1, q2
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: zd
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: p1, p2
@@ -73,7 +73,7 @@ MODULE M_SARAP_I_D
 ! Pertes de charge singulieres
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: pcsing
         DOUBLE PRECISION, DIMENSION(:), INTENT(INOUT) :: pcsingd
-! Table du connectivite du reseau 
+! Table du connectivite du reseau
         TYPE(CONNECT_T), INTENT(IN) :: connect
 ! Algorithme de resolution
         INTEGER, DIMENSION(:), INTENT(IN) :: algorithme
@@ -90,6 +90,7 @@ MODULE M_SARAP_I_D
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: cqmv
         LOGICAL, INTENT(IN) :: pertechargeconfluent
+        LOGICAL, INTENT(IN) :: decentrement
 ! Temps
         DOUBLE PRECISION, INTENT(IN) :: temps
 ! Deversoirs

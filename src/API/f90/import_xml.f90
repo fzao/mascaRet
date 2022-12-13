@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -19,7 +19,7 @@
 ! *********************************************************************
 ! PROGICIEL : MASCARET       Fabrice Zaoui
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
 
 
@@ -43,7 +43,7 @@ subroutine import_xml(errorCode, Identifiant, NomFichier, importModele)
    character(len=7) :: nameType
    character(len=7) :: nameType2
    logical :: mascaretFile ! Le fichier est bien un fichier mascaret
-   character(len=1024) :: line
+   character(len=8192) :: line
    integer             :: unitNum
    character(len=64)   :: varName
    character(len=64)   :: varType
@@ -155,7 +155,7 @@ contains
 
     subroutine tagxml(line, varName, varType, varDimension)
         implicit none
-        character(len=1024), intent(in) :: line
+        character(len=8192), intent(in) :: line
         character(len=64), intent(out)  :: varName
         character(len=64), intent(out)  :: varType
         integer, intent(out)            :: varDimension
@@ -185,7 +185,7 @@ contains
         implicit none
         integer, intent(in)                :: unitNum
         integer, intent(in )               :: identifiant
-        character(len=1024), intent(inout) :: line
+        character(len=8192), intent(inout) :: line
         character(len=64), intent(in)      :: varName
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
@@ -238,7 +238,7 @@ contains
         implicit none
         integer, intent(in)                :: unitNum
         integer, intent(in )               :: identifiant
-        character(len=1024), intent(inout) :: line
+        character(len=8192), intent(inout) :: line
         character(len=64), intent(in)      :: varName
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
@@ -291,7 +291,7 @@ contains
         implicit none
         integer, intent(in)                :: unitNum
         integer, intent(in )               :: identifiant
-        character(len=1024), intent(inout) :: line
+        character(len=8192), intent(inout) :: line
         character(len=64), intent(in)      :: varName
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2
@@ -355,7 +355,7 @@ contains
         implicit none
         integer, intent(in)                :: unitNum
         integer, intent(in )               :: identifiant
-        character(len=1024), intent(inout) :: line
+        character(len=8192), intent(inout) :: line
         character(len=64), intent(in)      :: varName
         integer, intent(in)                :: varDimension
         character(len=7), intent(in)       :: nameType2

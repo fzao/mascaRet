@@ -1,13 +1,12 @@
 Subroutine  EcrFicGeom  (  &
 
-  FicResuGeom      ,  & ! Fichier de la geometrie finale
-  NbProfil      ,  & ! nombre de profils
-  ProfilCourlis    ,  & ! Profils sédimentaire
-  NbInterface      ,  & ! nombre de d'interfaces sédimentaires
-  TitreCas      ,  & ! Titre du cas de calcul
-  Temps        ,  & ! Temps du calcul
-    Erreur        )    ! Erreur
-
+    FicResuGeom    ,  & ! Fichier de la geometrie finale
+    NbProfil       ,  & ! nombre de profils
+    ProfilCourlis  ,  & ! Profils sedimentaire
+    NbInterface    ,  & ! nombre de d'interfaces sedimentaires
+    TitreCas       ,  & ! Titre du cas de calcul
+    Temps          ,  & ! Temps du calcul
+    Erreur         )    ! Erreur
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER
@@ -16,10 +15,10 @@ Subroutine  EcrFicGeom  (  &
 !
 !*************************************************************************
 !=========================================================================
-!  Fonction : Ecriture du fichier contenant es profils geometriques
-!  --------    des differentes interfaces sedimentaires à la fin du calcul
-!        Ce fichier sert de geometrie initiale dans le cas d'une
-!        suite de calcul
+!  Fonction : Ecriture du fichier contenant des profils geometriques
+!  --------    des differentes interfaces sedimentaires a la fin du calcul
+ !            Ce fichier sert de geometrie initiale dans le cas d'une
+!              suite de calcul
 !
 !  Sous-programme appelant : Superviseur
 !  -----------------------
@@ -29,7 +28,7 @@ Subroutine  EcrFicGeom  (  &
 !=========================================================================
 !  Commentaire : Description du fichier :
 !  -----------
-!    Ligne 1 :  MOT_CLE, NomBief, NomProfil, abscisse profil.
+!   Ligne 1 :  MOT_CLE, NomBief, NomProfil, abscisse profil.
 !        sans blanc dans les noms : le blanc est le caractere separateur
 !        Ex : <MOT_CLE bief1 profil1 340.3>
 !
@@ -42,21 +41,20 @@ Subroutine  EcrFicGeom  (  &
 !        etc.
 !=========================================================================
 
-
 !=========================================================================
 !   DECLARATIONS
 !=========================================================================
 
-use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
+use M_PRECISION            ! Definition de la precision DOUBLE ou SIMPLE
 use M_CONSTANTES_CALCUL_C  ! Constantes num, phys et info
-use M_PARAMETRE_C      ! Definition des constante tq EPS*, W0, ...
+use M_PARAMETRE_C          ! Definition des constante tq EPS*, W0, ...
 
-use M_FICHIER_T        ! Definition du type FICHIER_T
-use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
+use M_FICHIER_T            ! Definition du type FICHIER_T
+use M_PROFIL_COURLIS_T     ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T        ! Definition du type ERREUR_T
-use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_ERREUR_T             ! Definition du type ERREUR_T
+use M_MESSAGE_C            ! Messages d'erreur
+use M_TRAITER_ERREUR_I     ! Traitement de l'errreur
 
 !=========================================================================
 
@@ -66,7 +64,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 ! Constantes
   integer, parameter    :: LEN_CHAINE  = 80
 
-! Variables d'entrée
+! Variables d'entree
   type(FICHIER_T), intent(in   ) :: FicResuGeom
 
   integer, intent(in   ) :: NbProfil
@@ -75,7 +73,7 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
   type(PROFIL_COURLIS_T), dimension(:  ), intent(in   ) :: ProfilCourlis
 
   character(LEN_CHAINE), intent(in   ) :: TitreCas
-  real(DOUBLE),       intent(in   ) :: Temps
+  real(DOUBLE),          intent(in   ) :: Temps
 
 ! Variables de sortie
 
@@ -88,12 +86,11 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 !  character(132) :: arbredappel_old   ! ancien arbre  ! PU2017 : Mise en commentaire
   type(ERREUR_T), intent(inout) :: Erreur
 
-
 !=========================================================================
 !  INITIALISATION
 !=========================================================================
 
-  Erreur%Numero      = 0
+  Erreur%Numero       = 0
 !  arbredappel_old    = trim(Erreur%arbredappel)  ! PU2017 : Mise en commentaire
   Erreur%arbredappel  = trim(Erreur%arbredappel)//'=>EcrFicGeom'
 
@@ -115,26 +112,23 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
     return
   End if
 
-
 !=========================================================================
 !  ECRITURE DE L'EN-TETE
 !=========================================================================
 
   write(Unite, 1000) TitreCas, Temps
 
-
 !=========================================================================
-!  ECRITURE DES CONCNETRATIONS
+!  ECRITURE DES CONCENTRATIONS
 !=========================================================================
 
   Do i = 1, NbProfil
     write(Unite, 1010) ProfilCourlis(i)%Nom, ProfilCourlis(i)%Abs
     Do j = 1, ProfilCourlis(i)%NbPoint ! PU2017: Modif des bornes pour la prise en compte des points fixes des profils
       write(Unite, 1020) ProfilCourlis(i)%X(j),  &
-    (ProfilCourlis(i)%Z(k,j),k=1,NbInterface)
+                        (ProfilCourlis(i)%Z(k,j), k=1, NbInterface)
     Enddo
   Enddo
-
 
 !=========================================================================
 ! Fermeture du fichier
@@ -145,16 +139,14 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
   return
 
-
 !=========================================================================
 ! FORMATS
 !=========================================================================
 
- 1000 format('# Resultats du calcul ',A30,' au temps', F18.3,' secondes')
+ 1000 format('# Resultats du calcul ', A30, ' au temps', F18.3, ' secondes')
  1010 format('Profil Bief1 ', A20, F8.2)
 ! 1020 format(F14.2, NbInterface(' ',F8.3))
  1020 format(F14.2, 7(' ',F8.3))
-
 
 !=========================================================================
 !  FIN DU SOUS-PROGRAMME

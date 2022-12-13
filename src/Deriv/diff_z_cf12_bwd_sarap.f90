@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -23,7 +23,7 @@ SUBROUTINE REPAR_B(deb, debb, vmoy, vmoyb, beta, betab, q1, q2, s1, s1b&
 !                             P. CHERUBINI
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !   FONCTION :
@@ -350,7 +350,7 @@ SUBROUTINE PSING_B(zam, zamb, singularite, zref, zav, zavb&
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !  FONCTION :
@@ -1060,7 +1060,7 @@ SUBROUTINE CRITIQ_B(zcrit, zcritb, section, zref, q, qb, cf1, cf1b, cf2&
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !   FONCTION :
@@ -1350,7 +1350,7 @@ END SUBROUTINE CRITIQ_B
 SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
 & , cf2b, pcsing, pcsingb, idt, xdt, profil, profilplan, f1, connect, &
 & numbief, nbsect, singularite, modelelit, impression, &
-& unitelisting, temps, loifrottement, cqmv, erreur)
+& unitelisting, temps, loifrottement, cqmv, decentrement, erreur)
 !/ERREUR/)
 ! *********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE
@@ -1358,7 +1358,7 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION :
 !   --------
@@ -1512,6 +1512,7 @@ SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, cf1b, cf2&
   INTEGER, INTENT(IN) :: loifrottement
   INTEGER, INTENT(IN) :: nbsect
   INTEGER, INTENT(IN) :: cqmv
+  LOGICAL, INTENT(IN) :: decentrement
   TYPE(ERREUR_T), INTENT(INOUT) :: erreur
 !.. Constantes ..
 !----------------
@@ -3584,7 +3585,7 @@ SUBROUTINE CALC_PC_CONFLU_B(pcsing, pcsingb, z, zb, q, qb, x, zref, &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !============================== Instructions ================================
 ! type DOUBLE
@@ -4399,7 +4400,7 @@ SUBROUTINE QNODE_B(q, qb, z, zb, numconfluence, numpassage, connect, &
 ! PROGICIEL : MASCARET        A. LEBOSSE
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !  FONCTION :
@@ -4566,7 +4567,7 @@ SUBROUTINE QREPAR_B(sommedebitance, sommedebitanceb, zaval, zavalb, &
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !
 !   FONCTION :
@@ -5690,13 +5691,13 @@ SUBROUTINE PERSAR_B(z, zb, q, qb, x, zref, cf1, cf1b, cf2, cf2b, pcsing&
 & , pcsingb, idt, xdt, profil, profilplan, f1, qinjec, qinjecb, connect&
 & , singularite, extremite, modelelit, confluent, abaque, &
 & impression, unitelisting, temps, algorithme, loifrottement, &
-& pertechargeconfluent, cqmv, erreur)
+& pertechargeconfluent, cqmv, decentrement, erreur)
 ! *********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE
 !                             P.CHERUBINI
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION :
 !   ----------
@@ -5832,6 +5833,7 @@ SUBROUTINE PERSAR_B(z, zb, q, qb, x, zref, cf1, cf1b, cf2, cf2b, pcsing&
   INTEGER, INTENT(IN) :: loifrottement
   LOGICAL, INTENT(IN) :: pertechargeconfluent
   INTEGER, INTENT(IN) :: cqmv
+  LOGICAL, INTENT(IN) :: decentrement
   TYPE(ERREUR_T), INTENT(INOUT) :: erreur
 !.. Constantes ..
 !----------------
@@ -6005,7 +6007,8 @@ label_ia:DO WHILE (ia .LT. nappel)
           CALL PERMAT(z, q, zinit, x, zref, cf1, cf2, pcsing, idt, &
 &                  xdt, profil, profilplan, f1, connect, noeud_bief, &
 &                  nbsect, singularite, modelelit, impression, &
-&                  unitelisting, temps, loifrottement, cqmv, erreur)
+&                  unitelisting, temps, loifrottement, cqmv, decentrement, &
+&                  erreur)
 !Erreur
           IF (erreur%numero .NE. 0) THEN
             GOTO 200
@@ -6327,7 +6330,7 @@ label_ia:DO WHILE (ia .LT. nappel)
 &               cf2, cf2b, pcsing, pcsingb, idt, xdt, profil, profilplan&
 &               , f1, connect, noeud_bief, nbsect, singularite, &
 &                modelelit, impression, unitelisting, temps&
-&               , loifrottement, cqmv, erreur)
+&               , loifrottement, cqmv, decentrement, erreur)
         CALL POPCONTROL1B(branch)
         IF (branch .EQ. 0) THEN
           CALL POPREAL8(zinit)
@@ -6373,7 +6376,7 @@ SUBROUTINE CQINJ_B(qinjec, qinjecb, x, z, zb, apport, deversoir, &
 ! *********************************************************************
 ! PROGICIEL : MASCARET        C. RISSOAN      N. GOUTAL
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 !   FONCTION : CALCUL DU TABLEAU QINJEC DES APPORTS (DEBITS + DEVRESOIRS)
 !   --------
@@ -6775,13 +6778,13 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
 & profilplan, f1, x, cf1, cf1b, cf2, cf2b, zref, xdt, idt, connect, &
 & singularite, pcsing, pcsingb, deversoir, &
 & modelelit, confluent, abaque, algorithme, impression, unitelisting, &
-& loifrottement, pertechargeconfluent, cqmv, erreur)
+& loifrottement, pertechargeconfluent, cqmv, decentrement, erreur)
 ! *********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0               EDF-CEREMA
+! VERSION : V8P4R0               EDF-CEREMA
 ! *********************************************************************
 ! FONCTION :                                                          .
 ! .          CALCUL EN REGIME PERMANENT A L'AIDE DU CODE SARA         .
@@ -6879,6 +6882,7 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
   INTEGER, INTENT(IN) :: unitelisting
   INTEGER, INTENT(IN) :: loifrottement, cqmv
   LOGICAL, INTENT(IN) :: pertechargeconfluent
+  LOGICAL, INTENT(IN) :: decentrement
 ! Temps
   DOUBLE PRECISION, INTENT(IN) :: temps
 ! Deversoirs
@@ -6955,7 +6959,7 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
 &          profilplan, f1, qinjec, connect, singularite, extremite, &
 &          modelelit, confluent, abaque, impression, unitelisting, temps&
 &          , algorithme, loifrottement, pertechargeconfluent, cqmv, &
-&          erreur)
+&          decentrement, erreur)
   IF (erreur%numero .NE. 0) THEN
     CALL PUSHCONTROL2B(1)
   ELSE
@@ -7011,7 +7015,7 @@ SUBROUTINE SARAP_B(z, zb, q1, q2, p1, p1b, p2, p2b, b1, b1b, b2, b2b, bs&
 &         pcsingb, idt, xdt, profil, profilplan, f1, qinjec, qinjecb, &
 &         connect, singularite, extremite, modelelit, &
 &         confluent, abaque, impression, unitelisting, temps, algorithme&
-&         , loifrottement, pertechargeconfluent, cqmv, erreur)
+&         , loifrottement, pertechargeconfluent, cqmv, decentrement, erreur)
   CALL POPCONTROL1B(branch)
   IF (branch .NE. 0) GOTO 190
  170 CALL POPINTEGER4(ad_count)
@@ -7146,7 +7150,7 @@ SUBROUTINE DIFF_Z_CF12_BWD_SARAP(diff_z_bwd, dcf1_rwd, dcf2_rwd)
 &              , idt, connect, singularite, pcsing&
 &              , diff_pcsing, deversoir, modelelit, confluent, &
 &              abaque, algorithme, impressioncalcul, fichierlisting%unite, &
-&              loifrottement, pertechargeconfluent, cqmv, erreur)
+&              loifrottement, pertechargeconfluent, cqmv, decentrement, erreur)
 
 
   DEALLOCATE(z)

@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_CALCUL_I
 !***********************************************************************
 ! PROGICIEL : MASCARET        A. LEBOSSE       S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
 
 interface
@@ -52,7 +52,7 @@ subroutine CALCUL ( &
   ASING,BSING,CSING,DSING       , & ! Coefficients de l'equation discretisee d'une singularites
   OptionCasier                  , & ! Flag presence Casier
   Aliai,Bliai                   , & ! Coefficients de l'equation discretisee d'une liaison
-  Cliai,Dliai                   , & 
+  Cliai,Dliai                   , &
   Qliai                         , &
   ApportPluie                   , &
   Liaison                       , &
@@ -112,9 +112,9 @@ subroutine CALCUL ( &
   type(ERREUR_T)              , intent(inout) :: Erreur
   type(CONNECT_T)             , intent(in)    :: Connect             ! Table de connectivite du reseau
   type(REZOMAT_T)             , intent(inout) :: Matrice             ! Matrice du reseau
-  type(LIAISON_T), dimension(:), intent(inout) :: Liaison
-  type(CASIER_T) , dimension(:), intent(inout) :: Casier 
-  type(APPORT_PLUIE_T), dimension(:), intent(in   ) :: ApportPluie
+  type(LIAISON_T), dimension(:), pointer, intent(inout) :: Liaison
+  type(CASIER_T) , dimension(:), pointer, intent(inout) :: Casier
+  type(APPORT_PLUIE_T), dimension(:), pointer, intent(inout   ) :: ApportPluie
 
 end subroutine CALCUL
 

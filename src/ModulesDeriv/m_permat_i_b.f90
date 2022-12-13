@@ -1,12 +1,12 @@
 MODULE M_PERMAT_I_B
   IMPLICIT NONE
 
-  INTERFACE 
+  INTERFACE
       SUBROUTINE PERMAT_B(z, zb, q, qb, zinit, zinitb, x, zref, cf1, &
 &       cf1b, cf2, cf2b, pcsing, pcsingb, idt, xdt, profil, profilplan, &
 &       f1, connect, numbief, nbsect, singularite, &
-&       modelelit, impression, unitelisting, temps, loifrottement, cqmv&
-&       , erreur)
+&       modelelit, impression, unitelisting, temps, loifrottement, &
+&       cqmv, decentrement, erreur)
 ! **********************************************************************
 !   FONCTION :
 !   --------
@@ -135,6 +135,7 @@ MODULE M_PERMAT_I_B
         INTEGER, INTENT(IN) :: loifrottement
         INTEGER, INTENT(IN) :: nbsect
         INTEGER, INTENT(IN) :: cqmv
+        LOGICAL, INTENT(IN) :: decentrement
         TYPE(ERREUR_T), INTENT(INOUT) :: erreur
       END SUBROUTINE PERMAT_B
   END INTERFACE

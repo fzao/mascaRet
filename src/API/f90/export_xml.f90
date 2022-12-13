@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -19,7 +19,7 @@
 ! *********************************************************************
 ! PROGICIEL : MASCARET       J.-M. LACOMBE
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 ! *********************************************************************
    !.................................................................................................................................
    ! Exportation d'un modele Mascaret en XML
@@ -120,6 +120,8 @@ subroutine EXPORT_XML_SAINT_VENANT(RetourErreur, Identifiant, NomFichier)
 
    integer erreur, uniteLogique
    integer i
+   integer date_time(8)
+   character(len=10) a, b, c
    character(len=110) descrip
    character(len=40)  nomVar
    character(len=40)  nomBalise
@@ -326,6 +328,15 @@ subroutine EXPORT_XML_SAINT_VENANT(RetourErreur, Identifiant, NomFichier)
    descrip = 'Nom du modele'
    TypeVar = 'STRING'
    call GET_STRING_MASCARET(erreur, Identifiant, nomVar, 1, 1, 1, valString)
+   if(len(trim(valString)).eq.0) then
+      call date_and_time(a, b, c, date_time)
+      b(1:2) = a(7:8)
+      b(3:3) = '_'
+      b(4:5) = a(5:6)
+      b(6:6) = '_'
+      b(7:10) = a(1:4)
+      valString = 'SVT_' // b
+   endif
    call EXPORT_USERVAR_XML(erreur, Identifiant, uniteLogique, nomBalise, TypeVar, descrip, valString)
 
    ! Ecriture des balises avec les tailles des variables pour allocation

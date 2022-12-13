@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -22,7 +22,7 @@ SUBROUTINE DIFF_JCOUT(grmin, grmaj, z, q, qinjec, &
 ! *********************************************************************
 ! PROGICIEL : MASCARET         F. DEMANGEON
 !
-! VERSION : V8P2R0                EDF-CEREMA
+! VERSION : V8P4R0                EDF-CEREMA
 ! *********************************************************************
 !
 ! FONCTION :
@@ -114,7 +114,7 @@ SUBROUTINE DIFF_JCOUT(grmin, grmaj, z, q, qinjec, &
   CALL PERMAT(z, q, zinit, x, zref, cf1, cf2, pcsing, idt, xdt, &
 &              profil, profilplan, f1, connect, num_bief, nb_sect, &
 &              singularite, modelelit, impressioncalcul, unitelisting, &
-&              temps, loifrottement, cqmv, erreur)
+&              temps, loifrottement, cqmv, decentrement, erreur)
   DO l=1,nb_mes(ic)
      j = i_mesu(ic,l)
      z_cal(l) = z(j)

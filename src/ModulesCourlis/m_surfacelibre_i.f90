@@ -7,10 +7,9 @@ Subroutine  SurfaceLibre( &
     NbProfil            , & ! Nombre de profils du tableau "ProfilCourlis"
     PtRiveG             , & ! ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
     PtRiveD             , & ! ABSCISSE DU POINT DE LA DROITE A LA HAUTEUR Zsurf
-  ProfilCourlis    , & ! Profils geom. des rivieres, lus dans COURLIS
-  Zsurf               , & ! Cote de la surface libre
-    Erreur        )
-
+    ProfilCourlis       , & ! Profils geom. des rivieres, lus dans COURLIS
+    Zsurf               , & ! Cote de la surface libre
+    Erreur              )
 
 !*************************************************************************
 !  PROGICIEL : COURLIS           Ch. BERTIER, F. DELHOPITAL
@@ -33,11 +32,11 @@ Subroutine  SurfaceLibre( &
 
 use M_PRECISION        ! Definition de la precision DOUBLE ou SIMPLE
 
-use M_PROFIL_COURLIS_T    ! Definition du type PROFIL_COURLIS
+use M_PROFIL_COURLIS_T ! Definition du type PROFIL_COURLIS
 
-use M_ERREUR_T        ! Type ERREUR_T
+use M_ERREUR_T         ! Type ERREUR_T
 use M_MESSAGE_C        ! Messages d'erreur
-use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
+use M_TRAITER_ERREUR_I ! Traitement de l'errreur
 
 !=========================================================================
 ! DECLARATIONS
@@ -48,23 +47,24 @@ use M_TRAITER_ERREUR_I    ! Traitement de l'errreur
 
 ! Variables d'entree
   type(PROFIL_COURLIS_T), dimension(:), intent(in) :: ProfilCourlis
-  real(DOUBLE)      , dimension(:), intent(in) :: Zsurf
-  integer                , intent(in) :: NbProfil
+  real(DOUBLE)          , dimension(:), intent(in) :: Zsurf
+  integer                             , intent(in) :: NbProfil
 
 ! Variables de sortie
-  real(DOUBLE)      , dimension(:), pointer    :: PtRiveG, PtRiveD
+  real(DOUBLE)          , dimension(:), pointer    :: PtRiveG, PtRiveD
 
 ! Variables locales
-!  real(DOUBLE) :: EpsI = 0.1   ! Valeur de tolerance  ! PU2017 : Mis en commentaire
-!  real(DOUBLE) :: X1,X2,Z1,Z2  ! PU2017 : Mis en commentaire
-!  real(DOUBLE) :: AErod,BErod  ! PU2017 : Mis en commentaire
-!  real(DOUBLE) :: NbPts        ! Nb de points du profil 'i'  ! PU2017 : Mis en commentaire
-!  integer      :: i,j  ! PU2017 : Mis en commentaire
+  real(DOUBLE) :: EpsI = 0.1   ! Valeur de tolerance
+  real(DOUBLE) :: X1, X2, Z1, Z2
+  real(DOUBLE) :: AErod, BErod
+!  real(DOUBLE) :: NbPts        ! Nb de points du profil 'i'
+  integer      :: NbPts        ! Nb de points du profil 'i'  ! PU2017 : Changement de format
+  integer      :: i,j
 
 ! Traitement des erreurs
-!  integer        :: Retour  ! PU2017 : Mis en commentaire
+  integer                         :: Retour
   type(ERREUR_T)  , intent(inout) :: Erreur
-!  character(132)                  :: arbredappel_old  ! PU2017 : Mis en commentaire
+!  character(132)                  :: arbredappel_old  ! PU2017 : Mise en commentaire
 
 !=========================================================================
 

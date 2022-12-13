@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_CHAINAGE_REZO_I
 !***********************************************************************
 ! PROGICIEL : MASCARET     F. ZAOUI
 !
-! VERSION : V8P2R0             EDF-CEREMA
+! VERSION : V8P4R0             EDF-CEREMA
 !***********************************************************************
 interface
 
@@ -36,7 +36,7 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice, OptionCasier, Liaison ,
   use M_LIAISON_T           ! Definition du type LIAISON_T
   use M_CASIER_T            ! Definition du type CASIER_T
   use M_CONSTANTES_CASIER_C
-   
+
   implicit none             ! Pas de type implicite par defaut
 
   type(ERREUR_T) , intent(out)  :: Erreur     ! Gestion des erreurs
@@ -44,8 +44,8 @@ subroutine CHAINAGE_REZO( Connect , Extremite , Matrice, OptionCasier, Liaison ,
   type(EXTREMITE_T)  , dimension(:), intent(inout) :: Extremite
   type(REZOMAT_T) , intent(out) :: Matrice    ! Description de la matrice du probleme
   logical                           , intent(in   ) :: OptionCasier
-  type(LIAISON_T)  , dimension(:)  , intent(in   ) :: Liaison    ! Liaisons
-  type(CASIER_T)   , dimension(:)  , intent(in   ) :: Casier     ! Casiers
+  type(LIAISON_T)  , dimension(:)  , pointer, intent(in   ) :: Liaison    ! Liaisons
+  type(CASIER_T)   , dimension(:)  , pointer, intent(in   ) :: Casier     ! Casiers
 
 end subroutine CHAINAGE_REZO
 

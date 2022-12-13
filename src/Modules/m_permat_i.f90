@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -23,7 +23,7 @@ module M_PERMAT_I
 !                             S. PERON
 !                             S. MANDELKERN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -51,6 +51,7 @@ module M_PERMAT_I
                   Temps , & ! Temps
           LoiFrottement , & ! Loi de frottement
                   CQMV  , & ! qmv des debits d'apport
+           decentrement , & !  option decentrement
                  Erreur &  !/ERREUR/
                     )
 
@@ -157,8 +158,8 @@ module M_PERMAT_I
    integer            , dimension(:)  , intent(in)    :: IDT
    real(DOUBLE)       , dimension(:)  , intent(in)    :: XDT
    type(PROFIL_T)     , dimension(:)  , intent(in)    :: Profil
-   type(PROFIL_PLAN_T),                 intent(in)    :: ProfilPlan 
-   real(Double)       , dimension(:,:), intent(in)    :: F1 
+   type(PROFIL_PLAN_T),                 intent(in)    :: ProfilPlan
+   real(Double)       , dimension(:,:), intent(in)    :: F1
    integer            ,                 intent(in)    :: NumBief
    type(CONNECT_T)    ,                 intent(in)    :: Connect
    type(SINGULARITE_T), dimension(:)  , intent(in)    :: Singularite
@@ -169,6 +170,7 @@ module M_PERMAT_I
    integer            ,                 intent(in)    :: LoiFrottement
    integer            ,                 intent(in)    :: Nbsect
    integer            ,                 intent(in)    :: CQMV
+   logical                            , intent(in)    :: decentrement
    type(ERREUR_T)     ,                 intent(inout) :: Erreur
 
    end subroutine PERMAT

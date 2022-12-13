@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET-TRACER.
 !
@@ -27,7 +27,7 @@ Subroutine LEC_FIC_LOI_TRACER( &
 !*****************************************************************************
 ! PROGICIEL : TRACER         M. LUCK
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !*****************************************************************************
 !  Fonction : Lecture du fichier contenant une loi de type temps-concentration
 !  --------

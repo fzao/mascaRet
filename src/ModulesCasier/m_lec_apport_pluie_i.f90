@@ -1,4 +1,4 @@
-!== Copyright (C) 2000-2020 EDF-CEREMA ==
+!== Copyright (C) 2000-2022 EDF-CEREMA ==
 !
 !   This file is part of MASCARET.
 !
@@ -20,7 +20,7 @@ module M_LEC_APPORT_PLUIE_I
 !***********************************************************************
 ! PROGICIEL : MASCARET       C. RISSOAN
 !
-! VERSION : V8P2R0              EDF-CEREMA
+! VERSION : V8P4R0              EDF-CEREMA
 !***********************************************************************
    interface
 
@@ -68,7 +68,7 @@ module M_LEC_APPORT_PLUIE_I
    integer :: nombre_apport, iapport, nbloi
    integer :: retour          ! code de retour des fonctions intrinseques
    character(len=256)  :: pathNode
-   character(len=1024) :: line
+   character(len=8192) :: line
 
    end subroutine LEC_APPORT_PLUIE
 
