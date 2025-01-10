@@ -1,7 +1,7 @@
 R package of the 1D shallow water code
 ======================================
 
-This package is a fork of the Fortran source files available at http://opentelemac.org
+This package is a fork of the Fortran source files available at [opentelemac](https://gitlab.pam-retd.fr/otm/telemac-mascaret)
 
 Purpose: using mascaRet as a library of functions in R.
 
